@@ -65,19 +65,21 @@
             left: 0;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition: opacity 0.35s ease, transform 0.35s ease;
             transform: translateY(20px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            pointer-events: none; /* 非アクティブページはイベントを受け取らない */
         }
 
         .page.active {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
+            pointer-events: auto;
         }
 
         h1, h2, h3 {
@@ -193,146 +195,51 @@
             color: var(--primary-text-color);
         }
 
-        /* --- Other Pages (Basic styles for now) --- */
-        .page-content-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .status-bar {
-             width: 100%;
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             padding: 0 20px;
-             box-sizing: border-box;
-             margin-bottom: 10px;
-             flex-shrink: 0;
-        }
-        .map-container {
-             position: relative;
-             width: 100%;
-             max-width: 1000px;
-             margin: 10px auto;
-             flex-grow: 1;
-             background: #e9e9e9;
-             border-radius: 10px;
-        }
-        .map-container img.map-bg {
-             width: 100%;
-             height: 100%;
-             object-fit: contain;
-             border-radius: 10px;
-        }
-         .map-marker {
-             position: absolute;
-             width: 30px;
-             height: 30px;
-             background-color: rgba(59, 130, 246, 0.7);
-             border-radius: 50%;
-             border: 2px solid var(--accent-color);
-             cursor: pointer;
-             display: flex;
-             justify-content: center;
-             align-items: center;
-             font-weight: bold;
-             color: white;
-             font-size: 1.1em;
-             transition: all 0.3s ease;
-         }
-         .map-marker.glowing {
-             animation: glowing 2s infinite;
-         }
-         .map-marker.completed {
-            background-color: #10B981; /* Green */
-            border-color: white;
-            animation: none;
-         }
-        @keyframes glowing {
-            0% { box-shadow: 0 0 5px var(--accent-color); }
-            50% { box-shadow: 0 0 20px var(--accent-color); }
-            100% { box-shadow: 0 0 5px var(--accent-color); }
-        }
-
-        /* Modal Styles */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0; visibility: hidden;
-            transition: opacity 0.3s ease;
-        }
-        .modal.active {
-            opacity: 1; visibility: visible;
-        }
-        .modal-content {
-            background-color: #fff;
-            color: var(--primary-text-color);
-            padding: 30px;
-            border-radius: 15px;
-            position: relative;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .modal-close {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 2.5em;
-            line-height: 1;
-            cursor: pointer;
-            color: #aaa;
-            transition: color 0.2s;
-        }
+        /* --- Input Pages (Current & Ideal) --- */
+        .page-content-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .status-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; margin-bottom: 10px; flex-shrink: 0; }
+        .page-buttons { margin-top: 20px; display: flex; gap: 15px; flex-shrink: 0; justify-content: center; }
+        
+        /* Tab UI for Input Pages */
+        .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; }
+        .view-tab { padding: 10px 20px; font-size: 1em; font-weight: bold; color: var(--secondary-text-color); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.3s; }
+        .view-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+        .input-views-container { flex-grow: 1; position: relative; width: 100%; }
+        .input-view { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .input-view.active { opacity: 1; visibility: visible; }
+        
+        /* Map View Styles */
+        .map-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; flex-grow: 1; background: #e9e9e9; border-radius: 10px; }
+        .map-container img.map-bg { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
+        .map-marker { position: absolute; width: 30px; height: 30px; background-color: rgba(59, 130, 246, 0.7); border-radius: 50%; border: 2px solid var(--accent-color); cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; font-size: 1.1em; transition: all 0.3s ease; }
+        .map-marker.glowing { animation: glowing 2s infinite; }
+        .map-marker.completed { background-color: #10B981; border-color: white; animation: none; }
+        @keyframes glowing { 0% { box-shadow: 0 0 5px var(--accent-color); } 50% { box-shadow: 0 0 20px var(--accent-color); } 100% { box-shadow: 0 0 5px var(--accent-color); } }
+        
+        /* List View Styles */
+        .config-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; overflow-y: auto; padding: 15px; height: 100%;}
+        .config-item { background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); text-align: left;}
+        .config-item-label { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; display: block; }
+        .pattern-buttons button { background: #fff; color: var(--secondary-text-color); border: 2px solid var(--border-color); padding: 10px; margin: 2px; border-radius: 5px; cursor: pointer; width: 50px; font-size: 1em; transition: all 0.2s; }
+        .pattern-buttons button:hover { border-color: var(--accent-hover-color); }
+        .pattern-buttons button.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        
+        /* Result Page Styles */
+        #result-page h2 { margin-top: 0; flex-shrink: 0;}
+        #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
+        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 900px; }
+        .result-table { width: 100%; border-collapse: collapse; }
+        .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
+        .result-table .btn-details { background-color: var(--accent-color); color:white; padding: 8px 15px; font-size: 0.9em; border-radius: 20px; border: none; cursor: pointer;}
+        
+        /* Modal Styles (修正: 非アクティブ時 display:none にすることで意図しないクリック遮断を防ぐ) */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; }
+        .modal.active { opacity: 1; visibility: visible; display: flex; }
+        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2.5em; line-height: 1; cursor: pointer; color: #aaa; transition: color 0.2s; }
         .modal-close:hover { color: #333; }
-
-        /* Styles for other pages */
-         #ideal-config-page .config-list {
-             display: grid;
-             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-             gap: 20px; width: 100%; max-width: 1000px; margin: 20px 0;
-             flex-grow: 1; overflow-y: auto; padding: 15px;
-         }
-         .config-item { background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); }
-         .config-item-label { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; display: block; }
-         .pattern-buttons button {
-             background: #fff; color: var(--secondary-text-color); border: 2px solid var(--border-color);
-             padding: 10px; margin: 2px; border-radius: 5px; cursor: pointer;
-             width: 50px; font-size: 1em; transition: all 0.2s;
-         }
-         .pattern-buttons button:hover { border-color: var(--accent-hover-color); }
-         .pattern-buttons button.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-         
-         #result-page h2 { margin-top: 0; flex-shrink: 0;}
-         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-         .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 900px; }
-         .result-table { width: 100%; border-collapse: collapse; }
-         .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
-         .result-table .btn-details { background-color: var(--accent-color); color:white; padding: 8px 15px; font-size: 0.9em; border-radius: 20px; border: none; cursor: pointer;}
-         .page-buttons { margin-top: 20px; display: flex; gap: 15px; flex-shrink: 0; }
-         .pattern-marker {
-             position: absolute;
-             width: 50px;
-             height: 50px;
-             background-color: rgba(59, 130, 246, 0.8);
-             border: 3px solid var(--accent-color);
-             animation: glowing 2s infinite;
-             display: flex;
-             justify-content: center;
-             align-items: center;
-             font-size: 1.5em;
-             color: white;
-             font-weight: bold;
-             cursor: pointer;
-             border-radius: 50%;
-         }
+        .pattern-marker { position: absolute; width: 50px; height: 50px; background-color: rgba(59, 130, 246, 0.8); border: 3px solid var(--accent-color); animation: glowing 2s infinite; display: flex; justify-content: center; align-items: center; font-size: 1.5em; color: white; font-weight: bold; cursor: pointer; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -363,28 +270,45 @@
             </div>
 
             <div class="start-buttons">
-                <button class="btn" onclick="showPage('current-config-page')">調整を始める</button>
+                <button id="start-btn" class="btn">調整を始める</button>
             </div>
 
             <div class="start-footer">
-                 <button class="btn btn-secondary" onclick="showModal('guide-modal')">使い方ガイド</button>
+                 <button id="guide-btn" class="btn btn-secondary">使い方ガイド</button>
             </div>
         </div>
-
 
         <!-- Page 2: Current Configuration Input -->
         <div id="current-config-page" class="page">
             <div class="page-content-wrapper">
                  <div class="status-bar">
-                     <h2>現在の配置を入力してください</h2>
-                     <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
+                      <h2>現在の配置を入力</h2>
+                      <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
                  </div>
-                 <div class="map-container">
-                     <img src="https://placehold.co/1000x600/e9e9e9/333?text=Tsurumi+Map+Placeholder" alt="鶴観マップ" class="map-bg">
-                     <!-- Markers will be injected by JavaScript -->
-                 </div>
-                 <div class="page-buttons" style="justify-content: center;">
-                    <button class="btn" id="go-to-ideal-btn" onclick="showPage('ideal-config-page')" disabled>理想の配置へ進む</button>
+
+                <!-- Tabs Added Here -->
+                <div class="view-switcher">
+                    <button id="current-map-tab" class="view-tab active" data-view="map">マップ表示</button>
+                    <button id="current-list-tab" class="view-tab" data-view="list">リスト表示</button>
+                </div>
+
+                <!-- Views Container -->
+                <div class="input-views-container">
+                    <div id="current-map-view" class="input-view active">
+                        <div class="map-container" id="current-map-container">
+                             <img src="https://placehold.co/1000x600/e9e9e9/333?text=Tsurumi+Map+Placeholder" alt="鶴観マップ" class="map-bg">
+                             <!-- Markers will be injected here -->
+                        </div>
+                    </div>
+                    <div id="current-list-view" class="input-view">
+                        <div class="config-list" id="current-config-list">
+                            <!-- List items will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="page-buttons">
+                    <button class="btn" id="go-to-ideal-btn" disabled>理想の配置へ進む</button>
                  </div>
             </div>
         </div>
@@ -393,14 +317,14 @@
         <div id="ideal-config-page" class="page">
             <div class="page-content-wrapper">
                  <h2>理想の配置を入力してください</h2>
-                 <div class="page-buttons" style="justify-content: center;">
-                    <button class="btn btn-secondary" onclick="copyCurrentToIdeal()">現在の配置をコピー</button>
+                 <div class="page-buttons">
+                      <button id="copy-current-btn" class="btn btn-secondary">現在の配置をコピー</button>
                  </div>
                  <div class="config-list" id="ideal-config-list">
                      <!-- Ideal config items will be injected by JavaScript -->
                  </div>
-                 <div class="page-buttons" style="justify-content: center;">
-                     <button class="btn" id="calculate-btn" onclick="calculatePlan()">調整プランを計算！</button>
+                 <div class="page-buttons">
+                      <button class="btn" id="calculate-btn">調整プランを計算！</button>
                  </div>
             </div>
         </div>
@@ -408,9 +332,9 @@
         <!-- Page 4: Result Page -->
         <div id="result-page" class="page">
             <div class="page-content-wrapper">
-                 <h2>調整スケジュール</h2>
-                 <div id="result-summary"></div>
-                 <div class="result-table-container">
+                <h2>調整スケジュール</h2>
+                <div id="result-summary"></div>
+                <div class="result-table-container">
                     <table class="result-table">
                         <thead>
                             <tr>
@@ -423,9 +347,9 @@
                             <!-- Result rows will be injected by JavaScript -->
                         </tbody>
                     </table>
-                 </div>
-                  <div class="page-buttons" style="justify-content: center;">
-                      <button class="btn btn-secondary" onclick="resetApp()">最初からやり直す</button>
+                </div>
+                 <div class="page-buttons">
+                    <button class="btn btn-secondary" id="reset-btn">最初からやり直す</button>
                  </div>
             </div>
         </div>
@@ -434,9 +358,9 @@
     <!-- Modals -->
     <div id="guide-modal" class="modal backdrop-blur">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('guide-modal')">&times;</span>
+            <span class="modal-close" data-target="guide-modal">&times;</span>
             <h2>使い方ガイド</h2>
-            <p>1. 「調整を始める」をクリックし、マップ上の光るアイコンから現在の精鋭の配置を登録します。</p>
+            <p>1. 「調整を始める」をクリックし、マップまたはリストから現在の精鋭の配置を登録します。</p>
             <p>2. 全ての配置を登録したら、次に理想の配置を設定します。</p>
             <p>3. 「調整プランを計算！」ボタンを押すと、日ごとの最適な調整手順が表示されます。</p>
             <img src="https://placehold.co/700x300/eef2ff/312e81?text=Usage+Diagram" style="width:100%; border-radius:10px; margin-top: 15px;">
@@ -445,18 +369,18 @@
     
     <div id="zoom-view" class="modal backdrop-blur">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('zoom-view')">&times;</span>
+            <span class="modal-close" data-target="zoom-view">&times;</span>
             <h3 id="zoom-title"></h3>
-            <div id="zoom-map-container" style="position: relative; width: 100%; max-width: 800px; margin: 20px auto;">
-                <img src="https://placehold.co/800x500/e9e9e9/333?text=Zoomed+Area" alt="ズームマップ" style="width:100%; border-radius: 10px;">
-                <!-- Pattern markers will be injected by JavaScript -->
+            <div id="zoom-map-container" style="position: relative; width: 100%; max-width: 800px; margin: 20px auto; height: 300px;">
+                <img src="https://placehold.co/800x500/e9e9e9/333?text=Zoomed+Area" alt="ズームマップ" style="width:100%; height:100%; object-fit:cover; border-radius: 10px;">
+                <!-- Pattern Markers will be dynamically added here -->
             </div>
         </div>
     </div>
 
     <div id="screenshot-popup" class="modal backdrop-blur">
         <div class="modal-content">
-             <span class="modal-close" onclick="closeModal('screenshot-popup')">&times;</span>
+             <span class="modal-close" data-target="screenshot-popup">&times;</span>
              <h3 id="screenshot-title">この配置で合っていますか？</h3>
              <img id="screenshot-img" src="https://placehold.co/500x300/eef2ff/312e81?text=In-Game+Screenshot" alt="ゲーム内スクリーンショット" style="width: 100%; border-radius: 10px; margin-bottom: 20px;">
              <button id="confirm-pattern-btn" class="btn">確定</button>
@@ -465,17 +389,15 @@
     
     <div id="day-detail-modal" class="modal backdrop-blur">
          <div class="modal-content">
-               <span class="modal-close" onclick="closeModal('day-detail-modal')">&times;</span>
+               <span class="modal-close" data-target="day-detail-modal">&times;</span>
                <h2 id="day-detail-title"></h2>
-               <div id="day-detail-content" style="max-height: 70vh; overflow-y: auto;">
-                   <!-- Day detail actions will be injected by JavaScript -->
-               </div>
+               <div id="day-detail-content" style="max-height: 70vh; overflow-y: auto;"></div>
          </div>
     </div>
 
 
     <script>
-        // --- DATA DEFINITION (Your Logic) ---
+        // --- DATA DEFINITION ---
         const eliteGroups = {
             'A': { name: 'モシリ炎・雷アビス' }, 'B': { name: 'モシリ暴徒' },
             'C': { name: 'チライ機兵' },       'D': { name: 'オイナ機兵' },
@@ -501,7 +423,7 @@
             'C': { top: '70%', left: '70%' }
         };
 
-        // --- APPLICATION STATE (Your Logic) ---
+        // --- APPLICATION STATE ---
         let currentConfig = {};
         let idealConfig = {};
         let activeSelection = { groupId: null, pattern: null };
@@ -513,41 +435,83 @@
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
-        function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+        function showModal(modalId) { 
+            const el = document.getElementById(modalId);
+            if(el) el.classList.add('active');
+        }
+        function closeModal(modalId) { 
+            const el = document.getElementById(modalId);
+            if(el) el.classList.remove('active');
+        }
         
-        // --- INITIALIZATION (Your Logic) ---
+        // --- INITIALIZATION & EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', async () => {
-            initCurrentConfigPage();
-            initIdealConfigPage();
             // Load the action map on startup
             try {
-                // IMPORTANT: Provide the correct path to your actions_map.json
-                const response = await fetch('./actions_map.json'); 
+                const response = await fetch('./actions_map.json');
                 if (!response.ok) throw new Error('actions_map.json not found');
                 actionsMap = await response.json();
                 console.log("Action map loaded successfully.");
             } catch (error) {
                 console.error("Failed to load action map:", error);
-                // Using a non-blocking UI element for error
-                const summary = document.getElementById('result-summary');
-                if(summary) summary.textContent = "エラー: 設定ファイルの読み込みに失敗しました。";
+                alert("エラー: actions_map.json の読み込みに失敗しました。ファイルが正しく配置されているか、ローカルサーバー経由でアクセスしているか確認してください。");
             }
-        });
 
+            // Attach event listeners
+            document.getElementById('start-btn').addEventListener('click', () => showPage('current-config-page'));
+            document.getElementById('guide-btn').addEventListener('click', () => showModal('guide-modal'));
+            document.querySelectorAll('.modal-close').forEach(el => {
+                el.addEventListener('click', () => closeModal(el.dataset.target));
+            });
+            document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('map'));
+            document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('list'));
+            document.getElementById('go-to-ideal-btn').addEventListener('click', () => showPage('ideal-config-page'));
+            document.getElementById('copy-current-btn').addEventListener('click', copyCurrentToIdeal);
+            document.getElementById('calculate-btn').addEventListener('click', calculatePlan);
+            document.getElementById('reset-btn').addEventListener('click', resetApp);
+            
+            // Initial render
+            initCurrentConfigPage();
+            initIdealConfigPage();
+        });
+        
         function initCurrentConfigPage() {
-            const mapContainer = document.querySelector('#current-config-page .map-container');
+            const mapContainer = document.getElementById('current-map-container');
+            const listContainer = document.getElementById('current-config-list');
+            if (!mapContainer || !listContainer) return;
+
             mapContainer.querySelectorAll('.map-marker').forEach(marker => marker.remove());
+            listContainer.innerHTML = '';
+            
             for (const groupId of groupKeys) {
+                // 1. Create Map Markers
                 const pos = markerPositions[groupId];
                 const marker = document.createElement('div');
                 marker.className = 'map-marker glowing';
-                marker.id = `marker-${groupId}`;
+                marker.id = `current-marker-${groupId}`;
                 marker.textContent = groupId;
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
-                marker.onclick = () => openGroupSelector(groupId);
+                marker.addEventListener('click', () => openGroupSelector(groupId));
                 mapContainer.appendChild(marker);
+
+                // 2. Create List Items
+                const item = document.createElement('div');
+                item.className = 'config-item';
+                item.innerHTML = `<span class="config-item-label">${groupId}: ${eliteGroups[groupId].name}</span>`;
+                
+                const buttons = document.createElement('div');
+                buttons.className = 'pattern-buttons';
+                buttons.id = `current-buttons-${groupId}`;
+
+                ['A', 'B', 'C'].forEach(pattern => {
+                    const btn = document.createElement('button');
+                    btn.textContent = pattern;
+                    btn.addEventListener('click', () => selectCurrentPatternFromList(groupId, pattern));
+                    buttons.appendChild(btn);
+                });
+                item.appendChild(buttons);
+                listContainer.appendChild(item);
             }
         }
         
@@ -564,7 +528,7 @@
                 ['A', 'B', 'C'].forEach(pattern => {
                     const btn = document.createElement('button');
                     btn.textContent = pattern;
-                    btn.onclick = () => selectIdealPattern(groupId, pattern);
+                    btn.addEventListener('click', () => selectIdealPattern(groupId, pattern));
                     buttons.appendChild(btn);
                 });
                 item.appendChild(buttons);
@@ -572,7 +536,14 @@
             }
         }
 
-        // --- INPUT FLOW LOGIC ---
+        // --- UI INTERACTION ---
+        function switchInputView(viewType) {
+            document.getElementById('current-map-tab').classList.toggle('active', viewType === 'map');
+            document.getElementById('current-list-tab').classList.toggle('active', viewType === 'list');
+            document.getElementById('current-map-view').classList.toggle('active', viewType === 'map');
+            document.getElementById('current-list-view').classList.toggle('active', viewType === 'list');
+        }
+
         function openGroupSelector(groupId) {
             activeSelection.groupId = groupId;
             document.getElementById('zoom-title').textContent = `${groupId}: ${eliteGroups[groupId].name} のパターンを選択`;
@@ -585,7 +556,7 @@
                 marker.textContent = pattern;
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
-                marker.onclick = () => selectPatternForConfirmation(pattern);
+                marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
                 zoomContainer.appendChild(marker);
             });
             showModal('zoom-view');
@@ -594,7 +565,7 @@
         function selectPatternForConfirmation(pattern) {
             activeSelection.pattern = pattern;
             document.getElementById('screenshot-title').textContent = `${activeSelection.groupId} - パターン ${pattern} で合っていますか？`;
-            document.getElementById('screenshot-img').src = `https://placehold.co/500x300/eef2ff/312e81?text=Group+${activeSelection.groupId}+Pattern+${pattern}`;
+            document.getElementById('screenshot-img').src = `https://placehold.co/500x300/eef2ff/312e81?text=Group+${activeSelection.groupId}+Pattern+${activeSelection.pattern}`;
             document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
             showModal('screenshot-popup');
         }
@@ -602,15 +573,35 @@
         function confirmPatternSelection() {
             const { groupId, pattern } = activeSelection;
             if (!groupId || !pattern) return;
-            currentConfig[groupId] = pattern;
-            const marker = document.getElementById(`marker-${groupId}`);
-            marker.classList.remove('glowing');
-            marker.classList.add('completed');
-            marker.innerHTML = '✔';
-            updateProgress();
+            updateCurrentConfig(groupId, pattern);
             closeModal('screenshot-popup');
             closeModal('zoom-view');
             activeSelection = { groupId: null, pattern: null };
+        }
+
+        function selectCurrentPatternFromList(groupId, pattern) {
+            updateCurrentConfig(groupId, pattern);
+        }
+
+        function updateCurrentConfig(groupId, pattern) {
+            currentConfig[groupId] = pattern;
+            
+            // Sync Map UI
+            const marker = document.getElementById(`current-marker-${groupId}`);
+            if (marker) {
+                marker.classList.remove('glowing');
+                marker.classList.add('completed');
+                marker.innerHTML = '✔';
+            }
+
+            // Sync List UI
+            const buttonContainer = document.getElementById(`current-buttons-${groupId}`);
+            if (buttonContainer) {
+                buttonContainer.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('selected', btn.textContent === pattern);
+                });
+            }
+            updateProgress();
         }
 
         function updateProgress() {
@@ -633,7 +624,7 @@
             }
         }
         
-        // --- CALCULATION LOGIC (Your Logic) ---
+        // --- FINAL CALCULATION LOGIC (Solution Lookup) ---
         function configToString(config) {
              return groupKeys.map(key => config[key] || 'A').join('');
         }
@@ -647,8 +638,7 @@
         
         async function getSolutionForState(stateKey) {
             const prefix = stateKey.substring(0, 3);
-            // IMPORTANT: Provide the correct path to your solutions folder
-            const url = `./solutions/${prefix}.json`; 
+            const url = `./solutions/${prefix}.json`;
             
             if (!solutionCache.has(prefix)) {
                 try {
@@ -662,6 +652,7 @@
                     return null;
                 }
             }
+            
             const solutionsForPrefix = solutionCache.get(prefix);
             return solutionsForPrefix[stateKey] || null;
         }
@@ -686,10 +677,10 @@
             summary.textContent = '最適なルートを探しています...';
             document.getElementById('result-tbody').innerHTML = '';
             
-            let plan = [];
+            const plan = [];
             let tempConfig = { ...currentConfig };
             
-            for (let i = 0; i < 20; i++) { // Safety break
+            for (let i = 0; i < 20; i++) { 
                 const currentStateKey = configToString(tempConfig);
                 const idealStateKey = configToString(idealConfig);
 
@@ -706,14 +697,14 @@
 
                 if (!solution) {
                     summary.textContent = `調整プランが見つかりませんでした (差分: ${diffKey})。データファイルに問題がある可能性があります。`;
-                    plan = null; // Mark plan as failed
-                    break;
+                    calcButton.disabled = false;
+                    return;
                 }
                 
                 const [days, actionId] = solution;
                 const nextAction = actionsMap[actionId];
                 
-                plan.push(nextAction || { name: "何もしない", actions: [] });
+                plan.push(nextAction ? nextAction : { name: "何もしない", actions: [] });
 
                 const affectedGroups = nextAction ? nextAction.affectedGroups : [];
                 for (const group of affectedGroups) {
@@ -725,7 +716,7 @@
             calcButton.disabled = false;
         }
 
-        // --- RESULT DISPLAY LOGIC (Your Logic) ---
+        // --- RESULT DISPLAY LOGIC ---
         function displayResults(plan) {
             const summary = document.getElementById('result-summary');
             const tbody = document.getElementById('result-tbody');
@@ -734,7 +725,7 @@
             const isAlreadyDone = configToString(currentConfig) === configToString(idealConfig);
 
             if (plan === null || (plan.length === 0 && !isAlreadyDone)) {
-                summary.textContent = summary.textContent || '調整プランが見つかりませんでした。'; // Keep error message if already set
+                summary.textContent = '調整プランが見つかりませんでした。';
                 return;
             }
             
@@ -752,8 +743,9 @@
                 tr.innerHTML = `
                     <td>${index + 1}日目</td>
                     <td>${actionNames}</td>
-                    <td><button class="btn-details" onclick='showDayDetail(${JSON.stringify(dayPlan)}, ${index+1})'>手順を確認</button></td>
+                    <td><button class="btn btn-details">手順を確認</button></td>
                 `;
+                tr.querySelector('.btn-details').addEventListener('click', () => showDayDetail(dayPlan, index + 1));
                 tbody.appendChild(tr);
             });
         }
@@ -763,30 +755,26 @@
             const content = document.getElementById('day-detail-content');
             content.innerHTML = '';
             
-            const createActionItem = (htmlContent) => {
-                const item = document.createElement('div');
-                item.style.backgroundColor = '#f9f9f9';
-                item.style.padding = '20px';
-                item.style.borderRadius = '10px';
-                item.style.marginBottom = '15px';
-                item.innerHTML = htmlContent;
-                content.appendChild(item);
-            };
-
             if(!dayPlan.actions || dayPlan.actions.length === 0){
-                createActionItem(`<h3>今日は何もしません</h3><p>ロードする敵はありません。ゲーム内で日付を更新してください。</p>`);
+                const item = document.createElement('div');
+                item.className = 'action-item';
+                item.innerHTML = `<h3>今日は何もしません</h3><p>ロードする敵はありません。ゲーム内で日付を更新してください。</p>`;
+                content.appendChild(item);
             } else {
                  dayPlan.actions.forEach(action => {
+                    const item = document.createElement('div');
+                    item.className = 'action-item';
                     let detailsText = action.details ? `<p><strong>詳細:</strong> ${action.details}</p>` : '';
-                    const html = `
+                    item.innerHTML = `
                         <h3>行動: ${action.name}</h3>
                         <p>影響を受けるグループ: ${action.affectedGroups.join(', ')}</p>
                         ${detailsText}
-                        <img src="https://placehold.co/400x250/eef2ff/312e81?text=Action+${action.id}+Route" alt="操作手順GIF" style="width:100%; max-width: 400px; border-radius: 5px; margin-top: 10px; display: block;">
+                        <img src="https://placehold.co/400x250/eef2ff/312e81?text=Action+${action.id}+Route" alt="操作手順GIF">
                     `;
-                    createActionItem(html);
+                    content.appendChild(item);
                 });
             }
+           
             showModal('day-detail-modal');
         }
         
@@ -795,17 +783,16 @@
             idealConfig = {};
             solutionCache.clear();
             
-            const mapContainer = document.querySelector('#current-config-page .map-container');
-            mapContainer.innerHTML = '<img src="https://placehold.co/1000x600/e9e9e9/333?text=Tsurumi+Map+Placeholder" alt="鶴観マップ" class="map-bg">';
             initCurrentConfigPage();
             initIdealConfigPage();
             updateProgress();
+            document.getElementById('go-to-ideal-btn').disabled = true;
+            document.getElementById('calculate-btn').disabled = false;
             
-            const calcButton = document.getElementById('calculate-btn');
-            if (calcButton) calcButton.disabled = false;
-            
+            switchInputView('map');
             showPage('start-page');
         }
+
     </script>
 </body>
 </html>
