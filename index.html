@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観配置調整ツール</title>
+    <title>鶴観配置調整ツール (レスポンシブ対応版)</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -457,9 +457,9 @@
                     </div>
                     
                     <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -478,9 +478,9 @@
             <div id="current-config-page" class="page">
                 <div class="page-content-wrapper">
                     <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を入力</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を入力</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -518,9 +518,9 @@
             <div id="ideal-config-page" class="page">
                 <div class="page-content-wrapper">
                      <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を入力</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を入力</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -649,11 +649,16 @@
 
         // --- UI DATA ---
         const markerPositions = {
-            'A': { top: '25%', left: '20%' }, 'B': { top: '35%', left: '28%' },
-            'C': { top: '50%', left: '15%' }, 'D': { top: '65%', left: '30%' },
-            'E': { top: '75%', left: '45%' }, 'F': { top: '60%', left: '55%' },
-            'G': { top: '45%', left: '68%' }, 'H': { top: '30%', left: '75%' },
-            'I': { top: '55%', left: '85%' }, 'J': { top: '15%', left: '40%' }
+            'A': { top: '65%', left: '76%' },
+            'B': { top: '64%', left: '68%' },
+            'C': { top: '59%', left: '71%' },
+            'D': { top: '47%', left: '73%' },
+            'E': { top: '34%', left: '59%' },
+            'F': { top: '44%', left: '41%' },
+            'G': { top: '29%', left: '44%' },
+            'H': { top: '56%', left: '32%' },
+            'I': { top: '51%', left: '23%' },
+            'J': { top: '80%', left: '60%' }
         };
 
         const patternMarkerPositions = {
@@ -1115,6 +1120,4 @@
     </script>
 </body>
 </html>
-
-
 
