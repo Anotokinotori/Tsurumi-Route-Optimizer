@@ -260,7 +260,6 @@
             flex-shrink: 0;
         }
         .page-footer .progress-text {
-            /* flex-grow: 1; */ /* Removed to allow specific spacing */
             text-align: center;
             font-size: 1.1em;
             font-weight: bold;
@@ -370,20 +369,45 @@
 
         @media (max-width: 480px) {
             #start-page h1 { font-size: 2em; }
-            .steps-container { gap: 5px; }
+            
+            .steps-container { gap: 5px; margin-top: 15px; margin-bottom: 10px;}
             .step-icon { width: 40px; height: 40px; font-size: 1em; }
             .step-label { font-size: 0.7em; margin-top: 8px; }
             .step-arrow { font-size: 1.5em; }
 
             .btn { font-size: 1em; padding: 12px 24px; }
             h2 { font-size: 1.3em; }
+            .view-switcher { margin-bottom: 10px; }
             .view-tab { padding: 8px 10px; font-size: 0.9em; }
             .page { padding: 15px; }
             .config-item-label { font-size: 1em; }
             .pattern-buttons button { width: 40px; height: 40px; padding: 5px; font-size: 0.9em;}
-            .page-footer { flex-direction: column; gap: 15px;}
-            .page-footer .progress-text { font-size: 1em;}
-            .page-footer .btn {font-size: 1em;}
+            
+            .page-footer { 
+                padding: 10px 0;
+                margin-top: 10px;
+                flex-direction: row; 
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .page-footer .left-action, .page-footer .right-action {
+                flex-basis: 50%;
+            }
+             .page-footer .center-action {
+                flex-basis: 100%;
+                order: 3; /* Move to bottom */
+            }
+            .page-footer .right-action {
+                justify-content: flex-end;
+            }
+            .page-footer .btn {
+                font-size: 0.9em;
+                padding: 10px 20px;
+            }
+             .page-footer .btn-secondary {
+                font-size: 0.9em;
+                padding: 10px;
+            }
         }
 
     </style>
