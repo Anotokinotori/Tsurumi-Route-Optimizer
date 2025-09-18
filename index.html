@@ -201,7 +201,7 @@
         .page-buttons { margin-top: 20px; display: flex; gap: 15px; flex-shrink: 0; justify-content: center; }
         
         /* Tab UI for Input Pages */
-        .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; }
+        .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; align-items: center; }
         .view-tab { padding: 10px 20px; font-size: 1em; font-weight: bold; color: var(--secondary-text-color); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.3s; }
         .view-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
         .input-views-container { flex-grow: 1; position: relative; width: 100%; }
@@ -233,7 +233,7 @@
         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
         .result-table .btn-details { background-color: var(--accent-color); color:white; padding: 8px 15px; font-size: 0.9em; border-radius: 20px; border: none; cursor: pointer;}
         
-        /* Modal Styles (修正: 非アクティブ時 display:none にすることで意図しないクリック遮断を防ぐ) */
+        /* Modal Styles */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
         .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -253,20 +253,11 @@
             </div>
             
             <div class="steps-container">
-                <div class="step">
-                    <div class="step-icon">①</div>
-                    <div class="step-label">現在の配置を選択</div>
-                </div>
+                <div class="step"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
                 <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-icon">②</div>
-                    <div class="step-label">理想の配置を選択</div>
-                </div>
+                <div class="step"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
                 <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-icon">③</div>
-                    <div class="step-label">調整スケジュール</div>
-                </div>
+                <div class="step"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
             </div>
 
             <div class="start-buttons">
@@ -286,23 +277,19 @@
                       <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
                  </div>
 
-                <!-- Tabs Added Here -->
                 <div class="view-switcher">
                     <button id="current-map-tab" class="view-tab active" data-view="map">マップ表示</button>
                     <button id="current-list-tab" class="view-tab" data-view="list">リスト表示</button>
                 </div>
 
-                <!-- Views Container -->
                 <div class="input-views-container">
                     <div id="current-map-view" class="input-view active">
                         <div class="map-container" id="current-map-container">
                              <img src="https://placehold.co/1000x600/e9e9e9/333?text=Tsurumi+Map+Placeholder" alt="鶴観マップ" class="map-bg">
-                             <!-- Markers will be injected here -->
                         </div>
                     </div>
                     <div id="current-list-view" class="input-view">
                         <div class="config-list" id="current-config-list">
-                            <!-- List items will be injected here -->
                         </div>
                     </div>
                 </div>
@@ -316,13 +303,25 @@
         <!-- Page 3: Ideal Configuration Input -->
         <div id="ideal-config-page" class="page">
             <div class="page-content-wrapper">
-                 <h2>理想の配置を入力してください</h2>
-                 <div class="page-buttons">
-                      <button id="copy-current-btn" class="btn btn-secondary">現在の配置をコピー</button>
-                 </div>
-                 <div class="config-list" id="ideal-config-list">
-                     <!-- Ideal config items will be injected by JavaScript -->
-                 </div>
+                 <h2>理想の配置を入力</h2>
+                <div class="view-switcher">
+                    <button id="ideal-map-tab" class="view-tab active" data-view="map">マップ表示</button>
+                    <button id="ideal-list-tab" class="view-tab" data-view="list">リスト表示</button>
+                    <button id="copy-current-btn" class="btn btn-secondary" style="margin-left: auto;">現在の配置をコピー</button>
+                </div>
+
+                <div class="input-views-container">
+                    <div id="ideal-map-view" class="input-view active">
+                        <div class="map-container" id="ideal-map-container">
+                             <img src="https://placehold.co/1000x600/e9e9e9/333?text=Tsurumi+Map+Placeholder" alt="鶴観マップ" class="map-bg">
+                        </div>
+                    </div>
+                    <div id="ideal-list-view" class="input-view">
+                        <div class="config-list" id="ideal-config-list">
+                        </div>
+                    </div>
+                </div>
+
                  <div class="page-buttons">
                       <button class="btn" id="calculate-btn">調整プランを計算！</button>
                  </div>
@@ -337,14 +336,9 @@
                 <div class="result-table-container">
                     <table class="result-table">
                         <thead>
-                            <tr>
-                                <th>日付</th>
-                                <th>実施する調整箇所</th>
-                                <th>詳細</th>
-                            </tr>
+                            <tr> <th>日付</th> <th>実施する調整箇所</th> <th>詳細</th> </tr>
                         </thead>
                         <tbody id="result-tbody">
-                            <!-- Result rows will be injected by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -361,7 +355,7 @@
             <span class="modal-close" data-target="guide-modal">&times;</span>
             <h2>使い方ガイド</h2>
             <p>1. 「調整を始める」をクリックし、マップまたはリストから現在の精鋭の配置を登録します。</p>
-            <p>2. 全ての配置を登録したら、次に理想の配置を設定します。</p>
+            <p>2. 全ての配置を登録したら、次に理想の配置を設定します。ここでもマップとリストを選べます。</p>
             <p>3. 「調整プランを計算！」ボタンを押すと、日ごとの最適な調整手順が表示されます。</p>
             <img src="https://placehold.co/700x300/eef2ff/312e81?text=Usage+Diagram" style="width:100%; border-radius:10px; margin-top: 15px;">
         </div>
@@ -373,7 +367,6 @@
             <h3 id="zoom-title"></h3>
             <div id="zoom-map-container" style="position: relative; width: 100%; max-width: 800px; margin: 20px auto; height: 300px;">
                 <img src="https://placehold.co/800x500/e9e9e9/333?text=Zoomed+Area" alt="ズームマップ" style="width:100%; height:100%; object-fit:cover; border-radius: 10px;">
-                <!-- Pattern Markers will be dynamically added here -->
             </div>
         </div>
     </div>
@@ -426,7 +419,7 @@
         // --- APPLICATION STATE ---
         let currentConfig = {};
         let idealConfig = {};
-        let activeSelection = { groupId: null, pattern: null };
+        let activeSelection = { configType: null, groupId: null, pattern: null };
         let actionsMap = null; // Will hold actions_map.json
         const solutionCache = new Map(); // Cache for loaded solution files
 
@@ -463,72 +456,57 @@
             document.querySelectorAll('.modal-close').forEach(el => {
                 el.addEventListener('click', () => closeModal(el.dataset.target));
             });
-            document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('map'));
-            document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('list'));
             document.getElementById('go-to-ideal-btn').addEventListener('click', () => showPage('ideal-config-page'));
             document.getElementById('copy-current-btn').addEventListener('click', copyCurrentToIdeal);
             document.getElementById('calculate-btn').addEventListener('click', calculatePlan);
             document.getElementById('reset-btn').addEventListener('click', resetApp);
             
+            // Attach tab switch listeners
+            document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('current', 'map'));
+            document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('current', 'list'));
+            document.getElementById('ideal-map-tab').addEventListener('click', () => switchInputView('ideal', 'map'));
+            document.getElementById('ideal-list-tab').addEventListener('click', () => switchInputView('ideal', 'list'));
+            
             // Initial render
-            initCurrentConfigPage();
-            initIdealConfigPage();
+            initInputPage('current');
+            initInputPage('ideal');
         });
         
-        function initCurrentConfigPage() {
-            const mapContainer = document.getElementById('current-map-container');
-            const listContainer = document.getElementById('current-config-list');
+        // --- GENERALIZED FUNCTIONS ---
+        function initInputPage(configType) {
+            const mapContainer = document.getElementById(`${configType}-map-container`);
+            const listContainer = document.getElementById(`${configType}-config-list`);
             if (!mapContainer || !listContainer) return;
 
             mapContainer.querySelectorAll('.map-marker').forEach(marker => marker.remove());
             listContainer.innerHTML = '';
             
-            for (const groupId of groupKeys) {
+            for (const groupId in eliteGroups) {
+                const group = eliteGroups[groupId];
                 // 1. Create Map Markers
                 const pos = markerPositions[groupId];
                 const marker = document.createElement('div');
                 marker.className = 'map-marker glowing';
-                marker.id = `current-marker-${groupId}`;
+                marker.id = `${configType}-marker-${groupId}`;
                 marker.textContent = groupId;
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
-                marker.addEventListener('click', () => openGroupSelector(groupId));
+                marker.addEventListener('click', () => openGroupSelector(configType, groupId));
                 mapContainer.appendChild(marker);
 
                 // 2. Create List Items
                 const item = document.createElement('div');
                 item.className = 'config-item';
-                item.innerHTML = `<span class="config-item-label">${groupId}: ${eliteGroups[groupId].name}</span>`;
+                item.innerHTML = `<span class="config-item-label">${groupId}: ${group.name}</span>`;
                 
                 const buttons = document.createElement('div');
                 buttons.className = 'pattern-buttons';
-                buttons.id = `current-buttons-${groupId}`;
+                buttons.id = `${configType}-buttons-${groupId}`;
 
                 ['A', 'B', 'C'].forEach(pattern => {
                     const btn = document.createElement('button');
                     btn.textContent = pattern;
-                    btn.addEventListener('click', () => selectCurrentPatternFromList(groupId, pattern));
-                    buttons.appendChild(btn);
-                });
-                item.appendChild(buttons);
-                listContainer.appendChild(item);
-            }
-        }
-        
-        function initIdealConfigPage() {
-            const listContainer = document.getElementById('ideal-config-list');
-            listContainer.innerHTML = '';
-            for (const groupId of groupKeys) {
-                const item = document.createElement('div');
-                item.className = 'config-item';
-                item.innerHTML = `<span class="config-item-label">${groupId}: ${eliteGroups[groupId].name}</span>`;
-                const buttons = document.createElement('div');
-                buttons.className = 'pattern-buttons';
-                buttons.id = `ideal-buttons-${groupId}`;
-                ['A', 'B', 'C'].forEach(pattern => {
-                    const btn = document.createElement('button');
-                    btn.textContent = pattern;
-                    btn.addEventListener('click', () => selectIdealPattern(groupId, pattern));
+                    btn.addEventListener('click', () => updateConfig(configType, groupId, pattern));
                     buttons.appendChild(btn);
                 });
                 item.appendChild(buttons);
@@ -536,21 +514,21 @@
             }
         }
 
-        // --- UI INTERACTION ---
-        function switchInputView(viewType) {
-            document.getElementById('current-map-tab').classList.toggle('active', viewType === 'map');
-            document.getElementById('current-list-tab').classList.toggle('active', viewType === 'list');
-            document.getElementById('current-map-view').classList.toggle('active', viewType === 'map');
-            document.getElementById('current-list-view').classList.toggle('active', viewType === 'list');
+        function switchInputView(configType, viewType) {
+            document.getElementById(`${configType}-map-tab`).classList.toggle('active', viewType === 'map');
+            document.getElementById(`${configType}-list-tab`).classList.toggle('active', viewType === 'list');
+            document.getElementById(`${configType}-map-view`).classList.toggle('active', viewType === 'map');
+            document.getElementById(`${configType}-list-view`).classList.toggle('active', viewType === 'list');
         }
 
-        function openGroupSelector(groupId) {
-            activeSelection.groupId = groupId;
+        function openGroupSelector(configType, groupId) {
+            activeSelection = { configType, groupId, pattern: null };
             document.getElementById('zoom-title').textContent = `${groupId}: ${eliteGroups[groupId].name} のパターンを選択`;
             const zoomContainer = document.getElementById('zoom-map-container');
             zoomContainer.querySelectorAll('.pattern-marker').forEach(m => m.remove());
+
             ['A', 'B', 'C'].forEach(pattern => {
-                const pos = patternMarkerPositions[pattern];
+                const pos = patternMarkerPositions[pattern] || { top: '50%', left: '50%' };
                 const marker = document.createElement('div');
                 marker.className = 'pattern-marker';
                 marker.textContent = pattern;
@@ -565,29 +543,28 @@
         function selectPatternForConfirmation(pattern) {
             activeSelection.pattern = pattern;
             document.getElementById('screenshot-title').textContent = `${activeSelection.groupId} - パターン ${pattern} で合っていますか？`;
-            document.getElementById('screenshot-img').src = `https://placehold.co/500x300/eef2ff/312e81?text=Group+${activeSelection.groupId}+Pattern+${activeSelection.pattern}`;
+            document.getElementById('screenshot-img').src = `https://placehold.co/500x300/eef2ff/312e81?text=Group+${activeSelection.groupId}+Pattern+${pattern}`;
             document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
             showModal('screenshot-popup');
         }
 
         function confirmPatternSelection() {
-            const { groupId, pattern } = activeSelection;
-            if (!groupId || !pattern) return;
-            updateCurrentConfig(groupId, pattern);
+            const { configType, groupId, pattern } = activeSelection;
+            if (!configType || !groupId || !pattern) return;
+            
+            updateConfig(configType, groupId, pattern);
+            
             closeModal('screenshot-popup');
             closeModal('zoom-view');
-            activeSelection = { groupId: null, pattern: null };
+            activeSelection = { configType: null, groupId: null, pattern: null };
         }
 
-        function selectCurrentPatternFromList(groupId, pattern) {
-            updateCurrentConfig(groupId, pattern);
-        }
-
-        function updateCurrentConfig(groupId, pattern) {
-            currentConfig[groupId] = pattern;
+        function updateConfig(configType, groupId, pattern) {
+            const configToUpdate = (configType === 'current') ? currentConfig : idealConfig;
+            configToUpdate[groupId] = pattern;
             
             // Sync Map UI
-            const marker = document.getElementById(`current-marker-${groupId}`);
+            const marker = document.getElementById(`${configType}-marker-${groupId}`);
             if (marker) {
                 marker.classList.remove('glowing');
                 marker.classList.add('completed');
@@ -595,13 +572,16 @@
             }
 
             // Sync List UI
-            const buttonContainer = document.getElementById(`current-buttons-${groupId}`);
+            const buttonContainer = document.getElementById(`${configType}-buttons-${groupId}`);
             if (buttonContainer) {
                 buttonContainer.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('selected', btn.textContent === pattern);
                 });
             }
-            updateProgress();
+            
+            if (configType === 'current') {
+                updateProgress();
+            }
         }
 
         function updateProgress() {
@@ -609,18 +589,11 @@
             document.getElementById('progress-text').textContent = `入力完了: ${completedCount} / ${totalGroups}`;
             document.getElementById('go-to-ideal-btn').disabled = completedCount !== totalGroups;
         }
-        
-        function selectIdealPattern(groupId, pattern) {
-            idealConfig[groupId] = pattern;
-            const buttonContainer = document.getElementById(`ideal-buttons-${groupId}`);
-            buttonContainer.querySelectorAll('button').forEach(btn => {
-                btn.classList.toggle('selected', btn.textContent === pattern);
-            });
-        }
 
         function copyCurrentToIdeal() {
+            // We need to trigger the updateConfig for each to sync the UI
             for (const groupId in currentConfig) {
-                selectIdealPattern(groupId, currentConfig[groupId]);
+                 updateConfig('ideal', groupId, currentConfig[groupId]);
             }
         }
         
@@ -783,13 +756,13 @@
             idealConfig = {};
             solutionCache.clear();
             
-            initCurrentConfigPage();
-            initIdealConfigPage();
+            initInputPage('current');
+            initInputPage('ideal');
             updateProgress();
-            document.getElementById('go-to-ideal-btn').disabled = true;
-            document.getElementById('calculate-btn').disabled = false;
             
-            switchInputView('map');
+            switchInputView('current', 'map');
+            switchInputView('ideal', 'map');
+            
             showPage('start-page');
         }
 
