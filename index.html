@@ -31,7 +31,7 @@
             height: 100vh;
             overflow: hidden;
             display: flex;
-            flex-direction: column; /* Changed for header layout */
+            flex-direction: column;
         }
 
         .backdrop-blur {
@@ -48,11 +48,10 @@
             box-sizing: border-box;
             flex-shrink: 0;
             z-index: 10;
-            backdrop-filter: blur(8px);
         }
         .site-header h1 {
             margin: 0;
-            font-size: 1.5em;
+            font-size: clamp(1.2em, 2vw, 1.5em);
             color: white;
         }
         
@@ -64,13 +63,15 @@
             align-items: center;
             width: 100%;
             overflow: hidden; 
+            padding: 2vh 2vw; /* Add some padding */
+            box-sizing: border-box;
         }
 
         .container {
-            width: 95%;
-            max-width: 1200px;
+            width: 100%;
             height: 100%; 
-            max-height: 800px;
+            max-width: 1600px; /* Increased max-width */
+            max-height: 900px; /* Increased max-height */
             background-color: var(--panel-bg-color);
             border-radius: 20px;
             box-shadow: 0 10px 40px var(--shadow-color);
@@ -83,7 +84,7 @@
 
         /* Page Transitions */
         .page {
-            padding: 40px;
+            padding: 2vw 4vw;
             box-sizing: border-box;
             width: 100%;
             height: 100%;
@@ -123,14 +124,14 @@
         }
 
         #start-page h1 {
-            font-size: 3.5em;
+            font-size: clamp(2.5em, 5vw, 4.5em); /* Responsive font size */
             font-weight: 700;
             color: #1E3A8A;
             margin-bottom: 10px;
         }
 
         #start-page .subtitle {
-            font-size: 1.2em;
+            font-size: clamp(1em, 1.5vw, 1.2em); /* Responsive font size */
             color: var(--secondary-text-color);
             max-width: 500px;
             margin: 0 auto 40px;
@@ -189,7 +190,6 @@
             50% { box-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color); transform: scale(1.05); }
             100% { box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color); transform: scale(1); }
         }
-        /* Disable animation on start page only */
         #start-page .step.active-step .step-icon {
             animation: none;
             border-color: var(--accent-color);
@@ -208,9 +208,9 @@
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 18px 40px;
+            padding: clamp(14px, 1.5vw, 20px) clamp(28px, 3vw, 44px); /* Responsive padding */
             border-radius: 50px;
-            font-size: 1.4em;
+            font-size: clamp(1.1em, 2vw, 1.5em); /* Responsive font size */
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
@@ -326,7 +326,7 @@
         /* Result Page Styles */
         #result-page h2 { margin-top: 0; flex-shrink: 0;}
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 900px; }
+        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 1000px; /* Increased max-width */ }
         .result-table { width: 100%; border-collapse: collapse; }
         .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
@@ -335,7 +335,7 @@
         /* Modal Styles */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 900px; /* Increased max-width */ box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2.5em; line-height: 1; cursor: pointer; color: #aaa; transition: color 0.2s; }
         .modal-close:hover { color: #333; }
         .pattern-marker { position: absolute; width: 50px; height: 50px; background-color: rgba(59, 130, 246, 0.8); border: 3px solid var(--accent-color); animation: glowing 2s infinite; display: flex; justify-content: center; align-items: center; font-size: 1.5em; color: white; font-weight: bold; cursor: pointer; border-radius: 50%; }
@@ -343,20 +343,14 @@
         /* --- RESPONSIVE STYLES --- */
         @media (max-width: 768px) {
             .site-header { padding: 10px 20px; }
-            .site-header h1 { font-size: 1.2em; }
+            main { padding: 0; }
             .container { width: 100%; height: 100%; max-height: none; border-radius: 0; }
             .page { padding: 20px; }
             #start-page h1 { font-size: 2.5em; }
-            #start-page .subtitle { font-size: 1em; }
-
-            /* MODIFIED: Keep steps horizontal but smaller */
             .steps-container { gap: 10px; }
             .step-icon { width: 50px; height: 50px; font-size: 1.2em;}
             .step-label { font-size: 0.9em; }
             .step-arrow { font-size: 2em; }
-
-            .btn { font-size: 1.2em; padding: 15px 30px; }
-            .page-content-wrapper { justify-content: flex-start; }
             h2 { font-size: 1.5em; }
             .config-list { grid-template-columns: 1fr; }
             .modal-content { width: 90%; padding: 20px; }
@@ -365,9 +359,6 @@
 
         @media (max-width: 480px) {
             #start-page h1 { font-size: 2em; }
-            #start-page .subtitle { font-size: 0.9em; }
-
-            /* MODIFIED: Make steps even smaller for phones */
             .steps-container { gap: 5px; }
             .step-icon { width: 40px; height: 40px; font-size: 1em; }
             .step-label { font-size: 0.7em; margin-top: 8px; }
@@ -423,9 +414,9 @@
             <div id="current-config-page" class="page">
                 <div class="page-content-wrapper">
                     <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -459,9 +450,9 @@
             <div id="ideal-config-page" class="page">
                 <div class="page-content-wrapper">
                      <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -496,9 +487,9 @@
             <div id="result-page" class="page">
                 <div class="page-content-wrapper">
                      <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -606,10 +597,9 @@
             document.querySelectorAll('.step').forEach(step => step.classList.remove('active-step'));
             let activeStepNumber;
             if (pageId === 'start-page') {
-                // On start page, only highlight without animation
                 const firstStep = document.querySelector('#start-page .step[data-step="1"]');
                 if(firstStep) firstStep.classList.add('active-step');
-                return; // Exit here to prevent other logic from running
+                return;
             }
             if (pageId === 'current-config-page') activeStepNumber = 1;
             if (pageId === 'ideal-config-page') activeStepNumber = 2;
@@ -659,7 +649,7 @@
             
             initInputPage('current');
             initInputPage('ideal');
-            showPage('start-page'); // Set initial step highlight
+            showPage('start-page'); 
 
             window.addEventListener('resize', () => {
                 updateMapLayout('current-map-container');
