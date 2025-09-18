@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観配置調整ツール (レスポンシブ対応版)</title>
+    <title>鶴観配置調整ツール</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -43,16 +43,29 @@
         .site-header {
             width: 100%;
             padding: 10px 40px;
-            background-color: var(--header-bg-color);
+            background-color: var(--header-bg-color); /* Fallback color */
             color: white;
             box-sizing: border-box;
             flex-shrink: 0;
             z-index: 10;
+            position: relative; /* For pseudo-element */
+            background-image: url('YOUR_IMAGE_URL_HERE'); /* 画像URLをここに貼り付け */
+            background-size: cover;
+            background-position: center;
+        }
+        .site-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+            z-index: 1;
         }
         .site-header h1 {
             margin: 0;
             font-size: clamp(1.2em, 2vw, 1.5em);
             color: white;
+            position: relative;
+            z-index: 2; /* Ensure text is above overlay */
         }
         
         /* --- Main Content Area --- */
@@ -63,7 +76,7 @@
             align-items: center;
             width: 100%;
             overflow: hidden; 
-            padding: 2vh 2vw; /* Add some padding */
+            padding: 2vh 2vw;
             box-sizing: border-box;
         }
 
@@ -118,22 +131,19 @@
         #start-page {
             justify-content: center;
         }
-
         #start-page .page-content-wrapper {
              justify-content: center;
         }
-
         #start-page h1 {
             font-size: clamp(2.5em, 5vw, 4.5em);
             font-weight: 700;
             color: #1E3A8A;
             margin-bottom: 10px;
         }
-
         #start-page .subtitle {
             font-size: clamp(1em, 1.5vw, 1.2em);
             color: var(--secondary-text-color);
-            max-width: 600px; /* Increased width */
+            max-width: 600px;
             margin: 0 auto 40px;
         }
         
@@ -402,6 +412,13 @@
             background-color: rgba(0,0,0,0.5);
             padding: 2px 5px;
             border-radius: 4px;
+        }
+        /* NEW: Style for selected pattern marker in zoom view */
+        .pattern-marker.completed {
+            background-color: #10B981;
+            border-color: white;
+            animation: none;
+            background-image: none !important;
         }
 
 
@@ -688,9 +705,15 @@
 
         // --- UI DATA ---
         const markerPositions = {
-            'A': { top: '52%', left: '60%' }, 'B': { top: '48%', left: '56%' }, 'C': { top: '43%', left: '58%' },
-            'D': { top: '35%', left: '59%' }, 'E': { top: '34%', left: '43%' }, 'F': { top: '40%', left: '38%' },
-            'G': { top: '32%', left: '35%' }, 'H': { top: '50%', left: '32%' }, 'I': { top: '48%', left: '23%' },
+            'A': { top: '52%', left: '60%' },
+            'B': { top: '48%', left: '56%' },
+            'C': { top: '43%', left: '58%' },
+            'D': { top: '35%', left: '59%' },
+            'E': { top: '34%', left: '43%' },
+            'F': { top: '40%', left: '38%' },
+            'G': { top: '32%', left: '35%' },
+            'H': { top: '50%', left: '32%' },
+            'I': { top: '48%', left: '23%' },
             'J': { top: '69%', left: '43%' }
         };
 
@@ -861,6 +884,9 @@
             const zoomContainer = document.getElementById('zoom-map-container');
             zoomContainer.querySelectorAll('.pattern-marker').forEach(m => m.remove());
 
+            const config = (configType === 'current') ? currentConfig : idealConfig;
+            const selectedPattern = config[groupId];
+
             ['A', 'B', 'C'].forEach(pattern => {
                 const pos = patternMarkerPositions[groupId][pattern];
                 const marker = document.createElement('div');
@@ -871,6 +897,12 @@
                 } else {
                     marker.textContent = pattern;
                 }
+
+                if (pattern === selectedPattern) {
+                    marker.classList.add('completed');
+                    marker.innerHTML = '✔';
+                }
+
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
                 marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
@@ -1169,3 +1201,4 @@
     </script>
 </body>
 </html>
+
