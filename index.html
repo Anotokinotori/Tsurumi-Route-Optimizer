@@ -260,15 +260,26 @@
             flex-shrink: 0;
         }
         .page-footer .progress-text {
-            flex-grow: 1;
+            /* flex-grow: 1; */ /* Removed to allow specific spacing */
             text-align: center;
             font-size: 1.1em;
             font-weight: bold;
             color: var(--secondary-text-color);
         }
-        .page-footer-placeholder {
-            flex-grow: 1;
-            display: flex; 
+        .page-footer .left-action {
+             flex: 1 1 0%;
+             display: flex;
+             justify-content: flex-start;
+        }
+        .page-footer .center-action {
+             flex: 1 1 0%;
+             display: flex;
+             justify-content: center;
+        }
+         .page-footer .right-action {
+             flex: 1 1 0%;
+             display: flex;
+             justify-content: flex-end;
         }
 
         /* Tab UI for Input Pages */
@@ -393,9 +404,9 @@
                     </div>
                     
                     <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を選択</div> </div>
+                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置</div> </div>
                         <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を選択</div> </div>
+                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置</div> </div>
                         <div class="step-arrow">→</div>
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
@@ -439,9 +450,13 @@
                     </div>
                      
                     <div class="page-footer">
-                        <div class="page-footer-placeholder"></div>
-                        <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
-                        <button class="btn" id="go-to-ideal-btn" disabled>理想の配置へ進む</button>
+                        <div class="left-action"></div>
+                        <div class="center-action">
+                            <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
+                        </div>
+                        <div class="right-action">
+                            <button class="btn" id="go-to-ideal-btn" disabled>理想の配置へ進む</button>
+                        </div>
                      </div>
                 </div>
             </div>
@@ -476,9 +491,15 @@
                     </div>
 
                      <div class="page-footer">
-                        <div class="page-footer-placeholder"></div>
-                        <div class="progress-text" id="ideal-progress-text">入力完了: 0 / 10</div>
-                        <button class="btn" id="calculate-btn">調整プランを計算！</button>
+                        <div class="left-action">
+                            <button class="btn btn-secondary" id="set-recommended-btn">環境配置を自動入力</button>
+                        </div>
+                        <div class="center-action">
+                             <div class="progress-text" id="ideal-progress-text">入力完了: 0 / 10</div>
+                        </div>
+                        <div class="right-action">
+                             <button class="btn" id="calculate-btn">調整プランを計算！</button>
+                        </div>
                      </div>
                 </div>
             </div>
@@ -580,6 +601,11 @@
             'C': { top: '70%', left: '70%' }
         };
 
+        const recommendedConfig = {
+            'A': 'C', 'B': 'B', 'C': 'C', 'D': 'C', 'E': 'C',
+            'F': 'B', 'G': 'C', 'H': 'C', 'I': 'C', 'J': 'B'
+        };
+
         // --- APPLICATION STATE ---
         let currentConfig = {};
         let idealConfig = {};
@@ -641,6 +667,7 @@
             document.getElementById('copy-current-btn').addEventListener('click', copyCurrentToIdeal);
             document.getElementById('calculate-btn').addEventListener('click', calculatePlan);
             document.getElementById('reset-btn').addEventListener('click', resetApp);
+            document.getElementById('set-recommended-btn').addEventListener('click', setRecommendedConfig);
             
             document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('current', 'map'));
             document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('current', 'list'));
@@ -795,6 +822,12 @@
         function copyCurrentToIdeal() {
             for (const groupId in currentConfig) {
                  updateConfig('ideal', groupId, currentConfig[groupId]);
+            }
+        }
+        
+        function setRecommendedConfig() {
+            for (const groupId in recommendedConfig) {
+                updateConfig('ideal', groupId, recommendedConfig[groupId]);
             }
         }
         
