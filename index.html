@@ -70,8 +70,8 @@
         .container {
             width: 100%;
             height: 100%; 
-            max-width: 1600px; /* Increased max-width */
-            max-height: 900px; /* Increased max-height */
+            max-width: 1600px;
+            max-height: 900px;
             background-color: var(--panel-bg-color);
             border-radius: 20px;
             box-shadow: 0 10px 40px var(--shadow-color);
@@ -124,14 +124,14 @@
         }
 
         #start-page h1 {
-            font-size: clamp(2.5em, 5vw, 4.5em); /* Responsive font size */
+            font-size: clamp(2.5em, 5vw, 4.5em);
             font-weight: 700;
             color: #1E3A8A;
             margin-bottom: 10px;
         }
 
         #start-page .subtitle {
-            font-size: clamp(1em, 1.5vw, 1.2em); /* Responsive font size */
+            font-size: clamp(1em, 1.5vw, 1.2em);
             color: var(--secondary-text-color);
             max-width: 500px;
             margin: 0 auto 40px;
@@ -208,9 +208,9 @@
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: clamp(14px, 1.5vw, 20px) clamp(28px, 3vw, 44px); /* Responsive padding */
+            padding: clamp(14px, 1.5vw, 20px) clamp(28px, 3vw, 44px);
             border-radius: 50px;
-            font-size: clamp(1.1em, 2vw, 1.5em); /* Responsive font size */
+            font-size: clamp(1.1em, 2vw, 1.5em);
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
@@ -333,10 +333,35 @@
         .pattern-buttons button:hover { border-color: var(--accent-hover-color); }
         .pattern-buttons button.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         
-        /* Result Page Styles */
-        #result-page h2 { margin-top: 0; flex-shrink: 0;}
+        /* --- Result Page Styles --- */
+        .result-layout-container {
+            display: flex;
+            flex-grow: 1;
+            width: 100%;
+            gap: 20px;
+            min-height: 0; /* Important for flex children to scroll */
+        }
+        .result-map-container {
+            flex: 1 1 40%; /* Takes 40% of the space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .result-map-container img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+        .result-details-container {
+            flex: 1 1 60%; /* Takes 60% of the space */
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 1000px; /* Increased max-width */ }
+        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 1000px; }
         .result-table { width: 100%; border-collapse: collapse; }
         .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
@@ -345,12 +370,22 @@
         /* Modal Styles */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 900px; /* Increased max-width */ box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 900px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2.5em; line-height: 1; cursor: pointer; color: #aaa; transition: color 0.2s; }
         .modal-close:hover { color: #333; }
         .pattern-marker { position: absolute; width: 50px; height: 50px; background-color: rgba(59, 130, 246, 0.8); border: 3px solid var(--accent-color); animation: glowing 2s infinite; display: flex; justify-content: center; align-items: center; font-size: 1.5em; color: white; font-weight: bold; cursor: pointer; border-radius: 50%; }
 
         /* --- RESPONSIVE STYLES --- */
+        @media (max-width: 900px) { /* Breakpoint for result layout stacking */
+            .result-layout-container {
+                flex-direction: column;
+            }
+            .result-map-container {
+                flex: 0 0 200px; /* Give it a fixed height */
+                margin-bottom: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .site-header { padding: 10px 20px; }
             main { padding: 0; }
@@ -369,36 +404,32 @@
 
         @media (max-width: 480px) {
             #start-page h1 { font-size: 2em; }
-            
             .steps-container { gap: 5px; margin-top: 15px; margin-bottom: 10px;}
             .step-icon { width: 40px; height: 40px; font-size: 1em; }
             .step-label { font-size: 0.7em; margin-top: 8px; }
             .step-arrow { font-size: 1.5em; }
-
             .btn { font-size: 1em; padding: 12px 24px; }
             h2 { font-size: 1.3em; }
-            .view-switcher { margin-bottom: 10px; }
             .view-tab { padding: 8px 10px; font-size: 0.9em; }
             .page { padding: 15px; }
             .config-item-label { font-size: 1em; }
             .pattern-buttons button { width: 40px; height: 40px; padding: 5px; font-size: 0.9em;}
             
             .page-footer { 
-                padding: 10px 0;
-                margin-top: 10px;
                 flex-direction: row; 
                 flex-wrap: wrap;
                 gap: 10px;
             }
             .page-footer .left-action, .page-footer .right-action {
-                flex-basis: 50%;
+                flex-basis: auto; /* Allow natural width */
+                flex-grow: 0;
             }
              .page-footer .center-action {
                 flex-basis: 100%;
                 order: 3; /* Move to bottom */
             }
             .page-footer .right-action {
-                justify-content: flex-end;
+                margin-left: auto; /* Push to the right */
             }
             .page-footer .btn {
                 font-size: 0.9em;
@@ -539,16 +570,24 @@
                         <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
                     </div>
 
-                     <div id="result-summary"></div>
-                     <div class="result-table-container">
-                        <table class="result-table">
-                            <thead>
-                                <tr> <th>日付</th> <th>実施する調整箇所</th> <th>詳細</th> </tr>
-                            </thead>
-                            <tbody id="result-tbody">
-                            </tbody>
-                        </table>
-                     </div>
+                    <div class="result-layout-container">
+                        <div class="result-map-container">
+                            <img src="https://placehold.co/800x800/e9e9e9/333?text=Result+Map" alt="鶴観マップ" class="map-bg">
+                        </div>
+                        <div class="result-details-container">
+                             <div id="result-summary"></div>
+                             <div class="result-table-container">
+                                <table class="result-table">
+                                    <thead>
+                                        <tr> <th>日付</th> <th>実施する調整箇所</th> <th>詳細</th> </tr>
+                                    </thead>
+                                    <tbody id="result-tbody">
+                                    </tbody>
+                                </table>
+                             </div>
+                        </div>
+                    </div>
+
                       <div class="page-footer">
                          <div class="page-footer-placeholder"></div>
                          <div class="page-footer-placeholder"></div>
