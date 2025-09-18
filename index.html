@@ -308,10 +308,12 @@
         }
         .map-marker { 
             position: absolute; 
-            width: 30px; 
-            height: 30px; 
+            width: 40px;
+            height: 40px;
             background-color: rgba(59, 130, 246, 0.7); 
-            border-radius: 50%; border: 2px solid var(--accent-color); 
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%; border: 3px solid var(--accent-color); 
             cursor: pointer; 
             display: flex; 
             justify-content: center; 
@@ -322,7 +324,12 @@
             transition: all 0.3s ease; 
         }
         .map-marker.glowing { animation: glowing 2s infinite; }
-        .map-marker.completed { background-color: #10B981; border-color: white; animation: none; }
+        .map-marker.completed { 
+            background-color: #10B981; 
+            border-color: white; 
+            animation: none; 
+            background-image: none !important;
+        }
         @keyframes glowing { 0% { box-shadow: 0 0 5px var(--accent-color); } 50% { box-shadow: 0 0 20px var(--accent-color); } 100% { box-shadow: 0 0 5px var(--accent-color); } }
         
         /* List View Styles */
@@ -339,10 +346,10 @@
             flex-grow: 1;
             width: 100%;
             gap: 20px;
-            min-height: 0; /* Important for flex children to scroll */
+            min-height: 0;
         }
         .result-map-container {
-            flex: 1 1 40%; /* Takes 40% of the space */
+            flex: 1 1 40%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -354,14 +361,14 @@
             object-fit: contain;
         }
         .result-details-container {
-            flex: 1 1 60%; /* Takes 60% of the space */
+            flex: 1 1 60%;
             display: flex;
             flex-direction: column;
             min-height: 0;
         }
 
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 1000px; /* Increased max-width */ }
+        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-width: 1000px; }
         .result-table { width: 100%; border-collapse: collapse; }
         .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; }
@@ -370,18 +377,41 @@
         /* Modal Styles */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 900px; /* Increased max-width */ box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { background-color: #fff; color: var(--primary-text-color); padding: 30px; border-radius: 15px; position: relative; width: 90%; max-width: 900px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2.5em; line-height: 1; cursor: pointer; color: #aaa; transition: color 0.2s; }
         .modal-close:hover { color: #333; }
-        .pattern-marker { position: absolute; width: 50px; height: 50px; background-color: rgba(59, 130, 246, 0.8); border: 3px solid var(--accent-color); animation: glowing 2s infinite; display: flex; justify-content: center; align-items: center; font-size: 1.5em; color: white; font-weight: bold; cursor: pointer; border-radius: 50%; }
+        .pattern-marker { 
+            position: absolute; 
+            width: 50px; 
+            height: 50px; 
+            background-color: rgba(59, 130, 246, 0.8); 
+            border: 3px solid var(--accent-color); 
+            animation: glowing 2s infinite; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 1.5em; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+        .pattern-marker .pattern-label {
+            background-color: rgba(0,0,0,0.5);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
 
         /* --- RESPONSIVE STYLES --- */
-        @media (max-width: 900px) { /* Breakpoint for result layout stacking */
+        @media (max-width: 900px) {
             .result-layout-container {
                 flex-direction: column;
             }
             .result-map-container {
-                flex: 0 0 200px; /* Give it a fixed height */
+                flex: 0 0 200px;
                 margin-bottom: 20px;
             }
         }
@@ -436,6 +466,10 @@
              .page-footer .btn-secondary {
                 font-size: 0.9em;
                 padding: 10px;
+            }
+            .map-marker {
+                width: 35px;
+                height: 35px;
             }
         }
 
@@ -638,33 +672,39 @@
     <script>
         // --- DATA DEFINITION ---
         const eliteGroups = {
-            'A': { name: 'モシリ炎アビス' },   'B': { name: 'モシリ雷アビス' },
-            'C': { name: 'モシリ暴徒' },       'D': { name: 'チライ機兵' },
-            'E': { name: 'オイナ機兵' },       'F': { name: 'オイナ暴徒' },
-            'G': { name: 'シリコロ暴徒' },     'H': { name: 'アウタケ東' },
-            'I': { name: 'アウタケ西' },       'J': { name: 'ワクカウ' },
+            'A': { name: 'モシリ炎アビス', iconUrl: 'https://placehold.co/40x40/f87171/ffffff?text=A' },
+            'B': { name: 'モシリ雷アビス', iconUrl: 'https://placehold.co/40x40/a78bfa/ffffff?text=B' },
+            'C': { name: 'モシリ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=C' },
+            'D': { name: 'チライ機兵', iconUrl: 'https://placehold.co/40x40/a1a1aa/ffffff?text=D' },
+            'E': { name: 'オイナ機兵', iconUrl: 'https://placehold.co/40x40/a1a1aa/ffffff?text=E' },
+            'F': { name: 'オイナ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=F' },
+            'G': { name: 'シリコロ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=G' },
+            'H': { name: 'アウタケ東', iconUrl: 'https://placehold.co/40x40/4ade80/ffffff?text=H' },
+            'I': { name: 'アウタケ西', iconUrl: 'https://placehold.co/40x40/4ade80/ffffff?text=I' },
+            'J': { name: 'ワクカウ', iconUrl: 'https://placehold.co/40x40/22d3ee/ffffff?text=J' },
         };
         const groupKeys = Object.keys(eliteGroups);
         const totalGroups = groupKeys.length;
 
         // --- UI DATA ---
         const markerPositions = {
-            'A': { top: '52%', left: '60%' },
-            'B': { top: '48%', left: '56%' },
-            'C': { top: '43%', left: '58%' },
-            'D': { top: '35%', left: '59%' },
-            'E': { top: '34%', left: '43%' },
-            'F': { top: '40%', left: '38%' },
-            'G': { top: '32%', left: '35%' },
-            'H': { top: '50%', left: '32%' },
-            'I': { top: '48%', left: '23%' },
+            'A': { top: '52%', left: '60%' }, 'B': { top: '48%', left: '56%' }, 'C': { top: '43%', left: '58%' },
+            'D': { top: '35%', left: '59%' }, 'E': { top: '34%', left: '43%' }, 'F': { top: '40%', left: '38%' },
+            'G': { top: '32%', left: '35%' }, 'H': { top: '50%', left: '32%' }, 'I': { top: '48%', left: '23%' },
             'J': { top: '69%', left: '43%' }
         };
 
         const patternMarkerPositions = {
-            'A': { top: '30%', left: '20%' },
-            'B': { top: '50%', left: '50%' },
-            'C': { top: '70%', left: '70%' }
+            'A': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'B': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'C': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'D': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'E': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'F': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'G': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'H': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'I': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } },
+            'J': { 'A': { top: '30%', left: '25%' }, 'B': { top: '50%', left: '50%' }, 'C': { top: '70%', left: '75%' } }
         };
 
         const recommendedConfig = {
@@ -775,7 +815,11 @@
                 const marker = document.createElement('div');
                 marker.className = 'map-marker glowing';
                 marker.id = `${configType}-marker-${groupId}`;
-                marker.textContent = groupId;
+                if (group.iconUrl) {
+                    marker.style.backgroundImage = `url(${group.iconUrl})`;
+                } else {
+                    marker.textContent = groupId;
+                }
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
                 marker.addEventListener('click', () => openGroupSelector(configType, groupId));
@@ -818,10 +862,15 @@
             zoomContainer.querySelectorAll('.pattern-marker').forEach(m => m.remove());
 
             ['A', 'B', 'C'].forEach(pattern => {
-                const pos = patternMarkerPositions[pattern] || { top: '50%', left: '50%' };
+                const pos = patternMarkerPositions[groupId][pattern];
                 const marker = document.createElement('div');
                 marker.className = 'pattern-marker';
-                marker.textContent = pattern;
+                if (eliteGroups[groupId].iconUrl) {
+                    marker.style.backgroundImage = `url(${eliteGroups[groupId].iconUrl})`;
+                    marker.innerHTML = `<span class="pattern-label">${pattern}</span>`;
+                } else {
+                    marker.textContent = pattern;
+                }
                 marker.style.top = pos.top;
                 marker.style.left = pos.left;
                 marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
@@ -1120,4 +1169,3 @@
     </script>
 </body>
 </html>
-
