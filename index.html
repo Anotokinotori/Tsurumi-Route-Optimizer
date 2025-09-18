@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観調整シミュレーター (レスポンシブ対応版)</title>
+    <title>鶴観配置調整ツール</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -409,8 +409,6 @@
             .step-label { font-size: 0.7em; margin-top: 8px; }
             .step-arrow { font-size: 1.5em; }
             .btn { font-size: 1em; padding: 12px 24px; }
-            h2 { font-size: 1.3em; }
-            .view-tab { padding: 8px 10px; font-size: 0.9em; }
             .page { padding: 15px; }
             .config-item-label { font-size: 1em; }
             .pattern-buttons button { width: 40px; height: 40px; padding: 5px; font-size: 0.9em;}
@@ -421,15 +419,15 @@
                 gap: 10px;
             }
             .page-footer .left-action, .page-footer .right-action {
-                flex-basis: auto; /* Allow natural width */
+                flex-basis: auto;
                 flex-grow: 0;
             }
              .page-footer .center-action {
                 flex-basis: 100%;
-                order: 3; /* Move to bottom */
+                order: 3;
             }
             .page-footer .right-action {
-                margin-left: auto; /* Push to the right */
+                margin-left: auto;
             }
             .page-footer .btn {
                 font-size: 0.9em;
@@ -445,7 +443,7 @@
 </head>
 <body>
     <header class="site-header backdrop-blur">
-        <h1>鶴観調整ツール</h1>
+        <h1>鶴観配置調整ツール</h1>
     </header>
     <main>
         <div class="container backdrop-blur">
@@ -454,7 +452,7 @@
             <div id="start-page" class="page active">
                 <div class="page-content-wrapper">
                     <div class="start-header">
-                        <h1>鶴観調整ツール</h1>
+                        <h1>鶴観配置調整ツール</h1>
                         <p class="subtitle">現在と理想の配置を入力すると、最短の調整スケジュールを計算します。※PCでの使用をおすすめします。</p>
                     </div>
                     
@@ -1117,4 +1115,6 @@
     </script>
 </body>
 </html>
+
+
 
