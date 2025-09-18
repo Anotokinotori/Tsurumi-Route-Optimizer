@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観調整ツール </title>
+    <title>鶴観調整シミュレーター (レスポンシブ対応版)</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -192,6 +192,11 @@
         /* Disable animation on start page only */
         #start-page .step.active-step .step-icon {
             animation: none;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        #start-page .step.active-step .step-label {
+            color: var(--primary-text-color);
         }
 
 
@@ -343,10 +348,12 @@
             .page { padding: 20px; }
             #start-page h1 { font-size: 2.5em; }
             #start-page .subtitle { font-size: 1em; }
-            .steps-container { flex-direction: column; gap: 15px; }
-            .step-arrow { transform: rotate(90deg); }
+
+            /* MODIFIED: Keep steps horizontal but smaller */
+            .steps-container { gap: 10px; }
             .step-icon { width: 50px; height: 50px; font-size: 1.2em;}
-            .step-label { font-size: 1em; }
+            .step-label { font-size: 0.9em; }
+            .step-arrow { font-size: 2em; }
 
             .btn { font-size: 1.2em; padding: 15px 30px; }
             .page-content-wrapper { justify-content: flex-start; }
@@ -359,6 +366,13 @@
         @media (max-width: 480px) {
             #start-page h1 { font-size: 2em; }
             #start-page .subtitle { font-size: 0.9em; }
+
+            /* MODIFIED: Make steps even smaller for phones */
+            .steps-container { gap: 5px; }
+            .step-icon { width: 40px; height: 40px; font-size: 1em; }
+            .step-label { font-size: 0.7em; margin-top: 8px; }
+            .step-arrow { font-size: 1.5em; }
+
             .btn { font-size: 1em; padding: 12px 24px; }
             h2 { font-size: 1.3em; }
             .view-tab { padding: 8px 10px; font-size: 0.9em; }
@@ -384,7 +398,7 @@
                 <div class="page-content-wrapper">
                     <div class="start-header">
                         <h1>鶴観調整ツール</h1>
-                        <p class="subtitle">現在と理想の配置を入力すると、最短の調整スケジュールを計算します。　※PCでの使用をおすすめします。</p>
+                        <p class="subtitle">現在と理想の配置を入力すると、最短の調整スケジュールを計算します。※PCでの使用をおすすめします。</p>
                     </div>
                     
                     <div class="steps-container">
@@ -591,7 +605,12 @@
 
             document.querySelectorAll('.step').forEach(step => step.classList.remove('active-step'));
             let activeStepNumber;
-            if (pageId === 'start-page') activeStepNumber = 1;
+            if (pageId === 'start-page') {
+                // On start page, only highlight without animation
+                const firstStep = document.querySelector('#start-page .step[data-step="1"]');
+                if(firstStep) firstStep.classList.add('active-step');
+                return; // Exit here to prevent other logic from running
+            }
             if (pageId === 'current-config-page') activeStepNumber = 1;
             if (pageId === 'ideal-config-page') activeStepNumber = 2;
             if (pageId === 'result-page') activeStepNumber = 3;
