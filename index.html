@@ -245,6 +245,28 @@
             font-size: 1em;
             cursor: pointer;
         }
+
+        .help-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            background-color: #ddd;
+            color: var(--secondary-text-color);
+            border-radius: 50%;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 20px;
+            transition: all 0.2s ease;
+        }
+        .help-icon:hover {
+            background-color: var(--secondary-text-color);
+            color: white;
+            transform: scale(1.1);
+        }
         
         /* General Button Styles */
         .btn { border: none; padding: 14px 28px; border-radius: 50px; font-size: clamp(1em, 1.5vw, 1.2em); cursor: pointer; transition: all 0.3s ease; font-weight: bold; text-decoration: none; display: inline-block; }
@@ -255,6 +277,16 @@
         .btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-secondary { background: none; color: var(--secondary-text-color); font-size: 1em; text-decoration: underline; padding: 10px 20px; box-shadow: none; }
         .btn-secondary:hover { background: none; transform: none; box-shadow: none; color: var(--primary-text-color); }
+        .btn-light {
+            background-color: #f9fafb;
+            color: var(--primary-text-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .btn-light:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-2px);
+        }
         .btn-details { background-color: #6b7280; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9em; }
         .btn-details:hover { background-color: #4b5563; }
 
@@ -525,7 +557,56 @@
             border: 1px solid var(--border-color);
         }
 
+        /* New Grid Layout for Result Page */
+        .result-grid-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+            min-height: 0; /* Allow scrolling content inside */
+        }
+
         /* --- RESPONSIVE STYLES --- */
+        @media (min-width: 769px) { /* Desktop layout for result page */
+            .result-grid-container {
+                display: grid;
+                grid-template-columns: auto 1fr; /* Map column shrinks to content, action column takes rest */
+                grid-template-rows: auto 1fr;
+                grid-template-areas:
+                    "map actions"
+                    "table table";
+                gap: 0 25px; /* No row gap, 25px column gap */
+                overflow: hidden; /* Prevent parent from scrolling */
+            }
+
+            .result-map-container {
+                grid-area: map;
+                align-self: start; /* Align map to the top of its grid area */
+                justify-content: flex-start; /* Align image to the left */
+            }
+
+            .result-details-container {
+                grid-area: table;
+                margin-top: 20px; /* Add back some space */
+            }
+
+            /* Repurpose the footer as the side action panel */
+            #result-page .page-footer {
+                grid-area: actions;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch; /* Stretch items to fill the container width */
+                margin-top: 0;
+                width: auto;
+                flex-wrap: nowrap;
+                gap: 20px;
+            }
+            
+            #result-page .page-footer .btn {
+                margin: 0; /* Reset any potential margins */
+            }
+        }
+
         @media (max-width: 768px) {
             .site-header { padding: 10px 20px; }
             main { padding: 0; }
@@ -633,6 +714,7 @@
                     <div class="multi-mode-toggle">
                         <input type="checkbox" id="multiplayer-mode-checkbox">
                         <label for="multiplayer-mode-checkbox">周期ホールドを有効にする</label>
+                        <a href="https://youtu.be/2xqllaCTP5c?si=_P-LgtUukOdhN57k&t=1194" target="_blank" rel="noopener noreferrer" class="help-icon" aria-label="周期ホールドとは？" title="周期ホールドの解説動画">?</a>
                     </div>
 
                     <div class="start-footer">
@@ -748,27 +830,29 @@
                         <div class="header-placeholder"></div>
                     </div>
 
-                    <div class="result-map-container">
-                        <img src="https://github.com/Anotokinotori/test/blob/main/result.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
-                    </div>
+                    <div class="result-grid-container">
+                        <div class="result-map-container">
+                            <img src="https://github.com/Anotokinotori/test/blob/main/result.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
+                        </div>
 
-                    <div class="result-details-container">
-                         <h2 id="result-title">計算結果</h2>
-                         <div id="result-summary"></div>
-                         <div class="result-table-container">
-                            <table class="result-table">
-                                <thead>
-                                    <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
-                                </thead>
-                                <tbody id="result-tbody"></tbody>
-                            </table>
-                         </div>
-                    </div>
+                        <div class="result-details-container">
+                             <h2 id="result-title">計算結果</h2>
+                             <div id="result-summary"></div>
+                             <div class="result-table-container">
+                                <table class="result-table">
+                                    <thead>
+                                        <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
+                                    </thead>
+                                    <tbody id="result-tbody"></tbody>
+                                </table>
+                             </div>
+                        </div>
 
-                    <div class="page-footer">
-                        <button id="recalculate-alternate-mode-btn" class="btn" style="display: none;"></button>
-                        <button class="btn btn-secondary" onclick="resetApp()">最初からやり直す</button>
-                   </div>
+                        <div class="page-footer">
+                            <button id="recalculate-alternate-mode-btn" class="btn" style="display: none;"></button>
+                            <button class="btn btn-light" onclick="resetApp()">最初からやり直す</button>
+                       </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1407,6 +1491,12 @@ function generateActionDetailsHTML(actionString, playerRole) {
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
