@@ -680,31 +680,25 @@
     <script>
         // --- DATA DEFINITION ---
         const eliteGroups = {
-            'A': { name: 'モシリ炎アビス', iconUrl: 'https://placehold.co/40x40/f87171/ffffff?text=A' },
-            'B': { name: 'モシリ雷アビス', iconUrl: 'https://placehold.co/40x40/a78bfa/ffffff?text=B' },
-            'C': { name: 'モシリ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=C' },
-            'D': { name: 'チライ機兵', iconUrl: 'https://placehold.co/40x40/a1a1aa/ffffff?text=D' },
-            'E': { name: 'オイナ機兵', iconUrl: 'https://placehold.co/40x40/a1a1aa/ffffff?text=E' },
-            'F': { name: 'オイナ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=F' },
-            'G': { name: 'シリコロ暴徒', iconUrl: 'https://placehold.co/40x40/71717a/ffffff?text=G' },
-            'H': { name: 'アウタケ東', iconUrl: 'https://placehold.co/40x40/4ade80/ffffff?text=H' },
-            'I': { name: 'アウタケ西', iconUrl: 'https://placehold.co/40x40/4ade80/ffffff?text=I' },
-            'J': { name: 'ワクカウ', iconUrl: 'https://placehold.co/40x40/22d3ee/ffffff?text=J' },
+            'A': { name: 'モシリ炎アビス', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Pyro%2520Abyss%2520Mage_icon.png' },
+            'B': { name: 'モシリ雷アビス', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Electro%2520Abyss%2520Mage_icon.png' },
+            'C': { name: 'モシリ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png' },
+            'D': { name: 'チライ機兵', iconUrl: 'https://static.wikia.nocookie.net/gensin-impact/images/f/ff/Ruin_Cruiser_Icon.png/revision/latest/scale-to-width-down/250?cb=20230412030531' },
+            'E': { name: 'オイナ機兵', iconUrl: 'https://static.wikia.nocookie.net/gensin-impact/images/f/ff/Ruin_Cruiser_Icon.png/revision/latest/scale-to-width-down/250?cb=20230412030531' },
+            'F': { name: 'オイナ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png' },
+            'G': { name: 'シリコロ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png' },
+            'H': { name: 'アウタケ東', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/f98aad8ddb6a41ae54eb9b81c63f58da_8280051482592802504.png' },
+            'I': { name: 'アウタケ西', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/f98aad8ddb6a41ae54eb9b81c63f58da_8280051482592802504.png' },
+            'J': { name: 'ワクカウ', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/c0b9fccb976922890793a88cefa44525_4478418637550120506.png' },
         };
         const groupKeys = Object.keys(eliteGroups);
         const totalGroups = groupKeys.length;
 
         // --- UI DATA ---
         const markerPositions = {
-            'A': { top: '52%', left: '60%' },
-            'B': { top: '48%', left: '56%' },
-            'C': { top: '43%', left: '58%' },
-            'D': { top: '35%', left: '59%' },
-            'E': { top: '34%', left: '43%' },
-            'F': { top: '40%', left: '38%' },
-            'G': { top: '32%', left: '35%' },
-            'H': { top: '50%', left: '32%' },
-            'I': { top: '48%', left: '23%' },
+            'A': { top: '52%', left: '60%' }, 'B': { top: '48%', left: '56%' }, 'C': { top: '43%', left: '58%' },
+            'D': { top: '35%', left: '59%' }, 'E': { top: '34%', left: '43%' }, 'F': { top: '40%', left: '38%' },
+            'G': { top: '32%', left: '35%' }, 'H': { top: '50%', left: '32%' }, 'I': { top: '48%', left: '23%' },
             'J': { top: '69%', left: '43%' }
         };
 
@@ -883,7 +877,6 @@
                 const marker = document.createElement('div');
                 marker.className = 'pattern-marker';
                 
-                // REVERTED LOGIC: Always show text, no background image.
                 marker.textContent = pattern; 
 
                 if (pattern === selectedPattern) {
