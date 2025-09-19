@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観配置調整ツール (レスポンシブ対応版)</title>
+    <title>鶴観配置調整ツール</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -482,7 +482,6 @@
             background-image: none !important;
         }
 
-
         /* --- RESPONSIVE STYLES --- */
         @media (max-width: 900px) {
             .result-layout-container {
@@ -687,12 +686,16 @@
             <!-- Page 4: Result Page -->
             <div id="result-page" class="page">
                 <div class="page-content-wrapper">
-                     <div class="steps-container">
-                        <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を入力</div> </div>
-                        <div class="step-arrow">→</div>
-                        <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を入力</div> </div>
-                        <div class="step-arrow">→</div>
-                        <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
+                     <div class="page-header">
+                        <button id="back-to-ideal-btn" class="btn-back" aria-label="戻る"></button>
+                         <div class="steps-container">
+                            <div class="step" data-step="1"> <div class="step-icon">①</div> <div class="step-label">現在の配置を入力</div> </div>
+                            <div class="step-arrow">→</div>
+                            <div class="step" data-step="2"> <div class="step-icon">②</div> <div class="step-label">理想の配置を入力</div> </div>
+                            <div class="step-arrow">→</div>
+                            <div class="step" data-step="3"> <div class="step-icon">③</div> <div class="step-label">調整スケジュール</div> </div>
+                        </div>
+                        <div class="header-placeholder"></div>
                     </div>
 
                     <div class="result-layout-container">
@@ -713,10 +716,8 @@
                         </div>
                     </div>
 
-                      <div class="page-footer">
-                         <div class="page-footer-placeholder"></div>
-                         <div class="page-footer-placeholder"></div>
-                         <button class="btn btn-secondary" id="reset-btn">最初からやり直す</button>
+                     <div class="page-footer" style="justify-content: center;">
+                        <button class="btn btn-secondary" id="reset-btn">最初からやり直す</button>
                    </div>
                 </div>
             </div>
@@ -755,9 +756,9 @@
     
     <div id="day-detail-modal" class="modal backdrop-blur">
          <div class="modal-content">
-              <span class="modal-close" data-target="day-detail-modal">&times;</span>
-              <h2 id="day-detail-title"></h2>
-              <div id="day-detail-content" style="max-height: 70vh; overflow-y: auto;"></div>
+               <span class="modal-close" data-target="day-detail-modal">&times;</span>
+               <h2 id="day-detail-title"></h2>
+               <div id="day-detail-content" style="max-height: 70vh; overflow-y: auto;"></div>
        </div>
     </div>
 
@@ -778,6 +779,24 @@
         };
         const groupKeys = Object.keys(eliteGroups);
         const totalGroups = groupKeys.length;
+
+        const actionsData = [
+            {'id': 2, 'name': 'ワープ(2)', 'affectedGroups': ['A', 'D']},
+            {'id': 3, 'name': 'ワープ(3)', 'affectedGroups': ['A', 'B', 'C', 'D', 'E', 'J']},
+            {'id': 4, 'name': 'ワープ(4)', 'affectedGroups': ['B', 'C', 'D', 'E', 'F']},
+            {'id': 5, 'name': 'ワープ(5)', 'affectedGroups': ['B', 'E', 'F', 'G', 'H', 'I']},
+            {'id': 6, 'name': 'ワープ(6)', 'affectedGroups': ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I']},
+            {'id': 7, 'name': 'ワープ(7)', 'affectedGroups': ['A', 'J']},
+            {'id': 8, 'name': 'ワープ(8)', 'affectedGroups': ['J']},
+            {'id': 9, 'name': 'ボート(1から)', 'affectedGroups': ['A'], 'type': 'move'},
+            {'id': 10, 'name': 'ボート(1から)', 'affectedGroups': ['C', 'D'], 'type': 'move'},
+            {'id': 13, 'name': '歩き(8から)', 'affectedGroups': ['A', 'B', 'C', 'J'], 'type': 'move', 'details': 'モシリ炎アビス + モシリ雷アビス + モシリ暴徒 ロード位置'},
+            {'id': 15, 'name': '歩き(18から)', 'affectedGroups': ['E', 'G'], 'type': 'move', 'details': 'オイナ機兵+シリコロ暴徒 ロード位置'},
+            {'id': 17, 'name': '歩き(7から)', 'affectedGroups': ['A', 'H', 'J'], 'type': 'move', 'details': 'アウタケ東 ロード位置'},
+            {'id': 18, 'name': 'ワープ(ボート)', 'affectedGroups': ['E']},
+            {'id': 19, 'name': '歩き(18から)', 'affectedGroups': ['E', 'F', 'G', 'I'], 'type': 'move', 'details': 'オイナ機兵 + シリコロ暴徒 + オイナ暴徒 + アウタケ西 ロード位置'},
+            {'id': 20, 'name': 'ボート(ヤシオリから)', 'affectedGroups': ['H', 'I'], 'type': 'move'},
+        ];
 
         // --- UI DATA ---
         const markerPositions = {
@@ -868,54 +887,11 @@
         let currentConfig = {};
         let idealConfig = {};
         let activeSelection = { configType: null, groupId: null, pattern: null };
-        let actionsMap = null; 
-        const solutionCache = new Map(); 
-
-        // --- PAGE/MODAL MANAGEMENT ---
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            const el = document.getElementById(pageId);
-            if (!el) { console.error(`showPage: Element not found (id=${pageId})`); return; }
-            el.classList.add('active');
-
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active-step'));
-            let activeStepNumber;
-            if (pageId === 'start-page') {
-                const firstStep = document.querySelector('#start-page .step[data-step="1"]');
-                if(firstStep) firstStep.classList.add('active-step');
-                return;
-            }
-            if (pageId === 'current-config-page') activeStepNumber = 1;
-            if (pageId === 'ideal-config-page') activeStepNumber = 2;
-            if (pageId === 'result-page') activeStepNumber = 3;
-            
-            if(activeStepNumber) {
-                document.querySelectorAll(`.step[data-step="${activeStepNumber}"]`).forEach(stepEl => {
-                    stepEl.classList.add('active-step');
-                });
-            }
-        }
-        function showModal(modalId) { 
-            const el = document.getElementById(modalId);
-            if(el) el.classList.add('active');
-        }
-        function closeModal(modalId) { 
-            const el = document.getElementById(modalId);
-            if(el) el.classList.remove('active');
-        }
+        let possibleDailyActions = [];
         
-        // --- INITIALIZATION & EVENT LISTENERS ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('./actions_map.json');
-                if (!response.ok) throw new Error('actions_map.json not found');
-                actionsMap = await response.json();
-                console.log("Action map loaded successfully.");
-            } catch (error) {
-                console.error("Failed to load action map:", error);
-                alert("エラー: actions_map.json の読み込みに失敗しました。ファイルが正しく配置されているか、ローカルサーバー経由でアクセスしているか確認してください。");
-            }
-
+        // --- SCRIPT START ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attach event listeners
             document.getElementById('start-btn').addEventListener('click', () => showPage('current-config-page'));
             document.getElementById('guide-btn').addEventListener('click', () => showModal('guide-modal'));
             document.querySelectorAll('.modal-close').forEach(el => {
@@ -929,6 +905,7 @@
             
             document.getElementById('back-to-start-btn').addEventListener('click', () => showPage('start-page'));
             document.getElementById('back-to-current-btn').addEventListener('click', () => showPage('current-config-page'));
+            document.getElementById('back-to-ideal-btn').addEventListener('click', () => showPage('ideal-config-page'));
             
             document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('current', 'map'));
             document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('current', 'list'));
@@ -945,8 +922,7 @@
             });
             document.querySelectorAll('.map-bg').forEach(img => {
                 img.addEventListener('load', () => {
-                     updateMapLayout('current-map-container');
-                     updateMapLayout('ideal-map-container');
+                     updateMapLayout(img.closest('.map-container').id);
                 });
                 if (img.complete) {
                    updateMapLayout(img.closest('.map-container').id);
@@ -954,7 +930,27 @@
             });
         });
         
-        // --- GENERALIZED FUNCTIONS ---
+        // --- PAGE/UI LOGIC ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active-step'));
+            let activeStepNumber;
+            if (pageId.includes('current')) activeStepNumber = 1;
+            if (pageId.includes('ideal')) activeStepNumber = 2;
+            if (pageId.includes('result')) activeStepNumber = 3;
+            if (pageId === 'start-page') activeStepNumber = 1;
+            
+            if(activeStepNumber) {
+                document.querySelectorAll(`.step[data-step="${activeStepNumber}"]`).forEach(stepEl => {
+                    stepEl.classList.add('active-step');
+                });
+            }
+        }
+        function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
         function initInputPage(configType) {
             const mapContainer = document.getElementById(`${configType}-map-container`);
             const listContainer = document.getElementById(`${configType}-config-list`);
@@ -966,6 +962,8 @@
             for (const groupId in eliteGroups) {
                 const group = eliteGroups[groupId];
                 const patterns = ['A', 'B', 'C'];
+                
+                // Map Markers
                 const pos = markerPositions[groupId];
                 const marker = document.createElement('div');
                 marker.className = 'map-marker glowing';
@@ -975,11 +973,10 @@
                 } else {
                     marker.textContent = groupId;
                 }
-                marker.style.top = pos.top;
-                marker.style.left = pos.left;
                 marker.addEventListener('click', () => openGroupSelector(configType, groupId));
                 mapContainer.appendChild(marker);
 
+                // List Items
                 const item = document.createElement('div');
                 item.className = 'config-item';
                 item.innerHTML = `<span class="config-item-label">${groupId}: ${group.name}</span>`;
@@ -997,6 +994,7 @@
                 item.appendChild(buttons);
                 listContainer.appendChild(item);
             }
+             setTimeout(() => updateMapLayout(`${configType}-map-container`), 100);
         }
 
         function switchInputView(configType, viewType) {
@@ -1025,27 +1023,23 @@
             const selectedPattern = config[groupId];
 
             ['A', 'B', 'C'].forEach(pattern => {
-                const pos = patternMarkerPositions[groupId][pattern];
+                const pos = patternMarkerPositions[groupId]?.[pattern];
+                if (!pos) return;
+
                 const marker = document.createElement('div');
                 marker.className = 'pattern-marker';
                 
-                marker.textContent = pattern; 
+                marker.innerHTML = `<span class="pattern-label">${pattern}</span>`;
 
                 if (pattern === selectedPattern) {
                     marker.classList.add('completed');
-                    marker.textContent = '✔';
+                    marker.innerHTML = '✔';
                 }
-
-                // Convert user-friendly 'bottom' and 'right' values to CSS-friendly 'top' and 'left'
-                if (pos.bottom !== undefined && pos.right !== undefined) {
-                    const topValue = 100 - parseFloat(pos.bottom);
-                    const leftValue = 100 - parseFloat(pos.right);
-                    marker.style.top = `${topValue}%`;
-                    marker.style.left = `${leftValue}%`;
-                } else { // Fallback for old format
-                    marker.style.top = pos.top;
-                    marker.style.left = pos.left;
-                }
+                
+                const topValue = 100 - parseFloat(pos.bottom);
+                const leftValue = 100 - parseFloat(pos.right);
+                marker.style.top = `${topValue}%`;
+                marker.style.left = `${leftValue}%`;
                 
                 marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
                 zoomContainer.appendChild(marker);
@@ -1057,12 +1051,10 @@
             activeSelection.pattern = pattern;
             document.getElementById('screenshot-title').textContent = `${activeSelection.groupId} - パターン ${pattern} で合っていますか？`;
             
-            // Dynamically set the image source from the new screenshotImageUrls object
             const imageUrl = screenshotImageUrls[activeSelection.groupId]?.[activeSelection.pattern];
             if (imageUrl) {
                 document.getElementById('screenshot-img').src = imageUrl;
             } else {
-                // Fallback in case the URL is not found
                 console.error(`Screenshot URL not found for ${activeSelection.groupId}-${pattern}`);
                 document.getElementById('screenshot-img').src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
             }
@@ -1105,7 +1097,7 @@
             } else {
                 updateIdealProgress();
             }
-            updateGuideTextVisibility(); // Check visibility after every update
+            updateGuideTextVisibility();
         }
 
         function updateProgress() {
@@ -1124,7 +1116,7 @@
                  updateConfig('ideal', groupId, currentConfig[groupId]);
             }
         }
-        
+
         function setRecommendedConfig() {
             for (const groupId in recommendedConfig) {
                 updateConfig('ideal', groupId, recommendedConfig[groupId]);
@@ -1139,37 +1131,36 @@
             const markers = mapContainer.querySelectorAll('.map-marker');
 
             if (mapImage.complete && mapImage.naturalWidth > 0) {
-                const containerWidth = mapContainer.clientWidth;
-                const containerHeight = mapContainer.clientHeight;
+                const containerRect = mapContainer.getBoundingClientRect();
                 const imageAspectRatio = mapImage.naturalWidth / mapImage.naturalHeight;
-                const containerAspectRatio = containerWidth / containerHeight;
+                const containerAspectRatio = containerRect.width / containerRect.height;
 
                 let renderedWidth, renderedHeight, offsetX, offsetY;
 
                 if (imageAspectRatio > containerAspectRatio) {
-                    renderedWidth = containerWidth;
-                    renderedHeight = containerWidth / imageAspectRatio;
+                    renderedWidth = containerRect.width;
+                    renderedHeight = containerRect.width / imageAspectRatio;
                     offsetX = 0;
-                    offsetY = (containerHeight - renderedHeight) / 2;
+                    offsetY = (containerRect.height - renderedHeight) / 2;
                 } else {
-                    renderedHeight = containerHeight;
-                    renderedWidth = containerHeight * imageAspectRatio;
-                    offsetX = (containerWidth - renderedWidth) / 2;
+                    renderedHeight = containerRect.height;
+                    renderedWidth = containerRect.height * imageAspectRatio;
+                    offsetX = (containerRect.width - renderedWidth) / 2;
                     offsetY = 0;
                 }
 
                 mapImage.style.width = `${renderedWidth}px`;
                 mapImage.style.height = `${renderedHeight}px`;
+                mapImage.style.position = 'absolute';
+                mapImage.style.left = `${offsetX}px`;
+                mapImage.style.top = `${offsetY}px`;
 
                 markers.forEach(marker => {
                     const groupId = marker.id.split('-')[2];
                     const pos = markerPositions[groupId];
                     if (pos) {
-                        const topPercent = parseFloat(pos.top);
-                        const leftPercent = parseFloat(pos.left);
-
-                        const newLeft = offsetX + (renderedWidth * (leftPercent / 100));
-                        const newTop = offsetY + (renderedHeight * (topPercent / 100));
+                        const newLeft = offsetX + (renderedWidth * (parseFloat(pos.left) / 100));
+                        const newTop = offsetY + (renderedHeight * (parseFloat(pos.top) / 100));
                         
                         marker.style.left = `${newLeft - (marker.offsetWidth / 2)}px`;
                         marker.style.top = `${newTop - (marker.offsetHeight / 2)}px`;
@@ -1178,99 +1169,132 @@
             }
         }
 
-        // --- CALCULATION LOGIC (Your preferred version) ---
-        function configToString(config) {
-             return groupKeys.map(key => config[key] || 'A').join('');
+        function updateGuideTextVisibility() {
+            const isCurrentAnyConfigStarted = Object.keys(currentConfig).length > 0;
+            const isIdealAnyConfigStarted = Object.keys(idealConfig).length > 0;
+            document.querySelector('#current-map-container .map-guide-text').classList.toggle('hidden', isCurrentAnyConfigStarted);
+            document.querySelector('#ideal-map-container .map-guide-text').classList.toggle('hidden', isIdealAnyConfigStarted);
         }
+
+        // --- CALCULATION LOGIC ---
         
         const PATTERN_MAP = { 'A': 0, 'B': 1, 'C': 2 };
         const NEXT_PATTERN = ['B', 'C', 'A'];
 
         function getNextPattern(currentPattern) {
-            const nextIndex = (PATTERN_MAP[currentPattern] + 1) % 3;
-            return NEXT_PATTERN[nextIndex];
+            return NEXT_PATTERN[PATTERN_MAP[currentPattern]];
         }
-        
-        async function getSolutionForState(stateKey) {
-            const prefix = stateKey.substring(0, 3);
-            const url = `./solutions/${prefix}.json`;
-            
-            if (!solutionCache.has(prefix)) {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`File not found: ${url}`);
-                    const data = await response.json();
-                    solutionCache.set(prefix, data);
-                } catch (error) {
-                    console.error("Failed to load solution file:", error);
-                    return null;
+
+        function configToString(config) {
+            return groupKeys.map(key => config[key] || 'A').join('');
+        }
+
+        function generatePossibleDailyActions() {
+            if (possibleDailyActions.length > 0) return;
+            console.log("Generating all possible daily load patterns (brute-force)...");
+            const achievablePatterns = new Map();
+            const numActions = actionsData.length;
+            const maxCombinations = 1 << numActions;
+
+            for (let i = 0; i < maxCombinations; i++) {
+                const currentActions = [];
+                const affectedGroupsSet = new Set();
+                for (let j = 0; j < numActions; j++) {
+                    if ((i >> j) & 1) {
+                        const action = actionsData[j];
+                        currentActions.push(action);
+                        action.affectedGroups.forEach(group => affectedGroupsSet.add(group));
+                    }
+                }
+                const affectedGroups = Array.from(affectedGroupsSet).sort();
+                const key = affectedGroups.join(',');
+
+                if (!achievablePatterns.has(key)) {
+                    achievablePatterns.set(key, {
+                        name: currentActions.map(a => a.name).join(' + ') || "何もしない",
+                        actions: currentActions,
+                        affectedGroups: affectedGroups
+                    });
                 }
             }
-            
-            const solutionsForPrefix = solutionCache.get(prefix);
-            return solutionsForPrefix[stateKey] || null;
+            possibleDailyActions = Array.from(achievablePatterns.values());
+            console.log(`Generated ${possibleDailyActions.length} unique daily actions.`);
         }
 
-        async function calculatePlan() {
-            const calcButton = document.getElementById('calculate-btn');
-            calcButton.disabled = true;
-
-            if (!actionsMap) {
-                alert("エラー: actions_map.json がロードされていません。");
-                calcButton.disabled = false;
-                return;
-            }
+        function calculatePlan() {
             if (Object.keys(currentConfig).length !== totalGroups || Object.keys(idealConfig).length !== totalGroups) {
                 alert('全ての現在配置と理想配置を入力してください。');
-                calcButton.disabled = false;
                 return;
             }
 
+            const calcButton = document.getElementById('calculate-btn');
+            calcButton.disabled = true;
+            calcButton.textContent = "計算中..."
             showPage('result-page');
             const summary = document.getElementById('result-summary');
-            summary.textContent = '最適なルートを探しています...';
+            summary.textContent = '計算中です...（数秒〜十数秒かかります）';
             document.getElementById('result-tbody').innerHTML = '';
-            
-            const plan = [];
-            let tempConfig = { ...currentConfig };
-            
-            for (let i = 0; i < 20; i++) { 
-                const currentStateKey = configToString(tempConfig);
-                const idealStateKey = configToString(idealConfig);
 
-                if (currentStateKey === idealStateKey) break;
-                
-                const diffConfig = {};
-                for (const key of groupKeys) {
-                    const currentPattern = tempConfig[key] || 'A';
-                    const idealPattern = idealConfig[key] || 'A';
-                    const diff = (PATTERN_MAP[idealPattern] - PATTERN_MAP[currentPattern] + 3) % 3;
-                    diffConfig[key] = ['A', 'B', 'C'][diff];
-                }
-                const diffKey = configToString(diffConfig);
-                
-                const solution = await getSolutionForState(diffKey);
+            setTimeout(() => {
+                generatePossibleDailyActions();
 
-                if (!solution) {
-                    summary.textContent = `調整プランが見つかりませんでした (差分: ${diffKey})。データファイルに問題がある可能性があります。`;
+                const startConfig = { ...currentConfig };
+                const endConfig = { ...idealConfig };
+                
+                const startStr = configToString(startConfig);
+                const endStr = configToString(endConfig);
+
+                if (startStr === endStr) {
+                    displayResults([]);
                     calcButton.disabled = false;
+                    calcButton.textContent = "調整プランを計算！";
                     return;
                 }
-                
-                const [days, actionId] = solution;
-                const nextAction = actionsMap[actionId];
-                
-                plan.push(nextAction ? nextAction : { name: "何もしない", actions: [] });
 
-                const affectedGroups = nextAction ? nextAction.affectedGroups : [];
-                for (const group of affectedGroups) {
-                    const currentGroupPattern = tempConfig[group] || 'A';
-                    tempConfig[group] = getNextPattern(currentGroupPattern);
+                const queue = [{ config: startConfig, path: [] }];
+                const visited = new Set([startStr]);
+                
+                const maxIterations = 100000;
+                let iterations = 0;
+
+                let solutionPath = null;
+
+                while (queue.length > 0) {
+                    iterations++;
+                    if (iterations > maxIterations) {
+                        console.error("Calculation timed out.");
+                        solutionPath = null;
+                        break;
+                    }
+
+                    const currentNode = queue.shift();
+                    
+                    for (const action of possibleDailyActions) {
+                        let nextConfig = { ...currentNode.config };
+                        for (const group of action.affectedGroups) {
+                            nextConfig[group] = getNextPattern(nextConfig[group]);
+                        }
+                        
+                        const nextStr = configToString(nextConfig);
+
+                        if (nextStr === endStr) {
+                            solutionPath = currentNode.path.concat([action]);
+                            queue.length = 0; // End the while loop
+                            break;
+                        }
+                        
+                        if (!visited.has(nextStr)) {
+                            visited.add(nextStr);
+                            const newPath = currentNode.path.concat([action]);
+                            queue.push({ config: nextConfig, path: newPath });
+                        }
+                    }
                 }
-            }
-
-            displayResults(plan);
-            calcButton.disabled = false;
+                
+                displayResults(solutionPath);
+                calcButton.disabled = false;
+                calcButton.textContent = "調整プランを計算！";
+            }, 50);
         }
 
         // --- RESULT DISPLAY LOGIC ---
@@ -1281,13 +1305,12 @@
             
             const isAlreadyDone = configToString(currentConfig) === configToString(idealConfig);
 
-            if (plan === null || (plan.length === 0 && !isAlreadyDone)) {
+            if (plan === null) {
                 summary.textContent = '調整プランが見つかりませんでした。';
                 return;
             }
-            
             if (plan.length === 0 && isAlreadyDone) {
-                summary.textContent = '調整は不要です！現在の配置が理想の配置と一致しています。';
+                summary.textContent = '調整は不要です！';
                 return;
             }
             
@@ -1297,11 +1320,7 @@
                 const tr = document.createElement('tr');
                 const actionNames = dayPlan.name;
                 
-                tr.innerHTML = `
-                    <td>${index + 1}日目</td>
-                    <td>${actionNames}</td>
-                    <td><button class="btn btn-details">手順を確認</button></td>
-                `;
+                tr.innerHTML = `<td>${index + 1}日目</td><td>${actionNames}</td><td><button class="btn btn-details">手順を確認</button></td>`;
                 tr.querySelector('.btn-details').addEventListener('click', () => showDayDetail(dayPlan, index + 1));
                 tbody.appendChild(tr);
             });
@@ -1322,23 +1341,17 @@
                     const item = document.createElement('div');
                     item.className = 'action-item';
                     let detailsText = action.details ? `<p><strong>詳細:</strong> ${action.details}</p>` : '';
-                    item.innerHTML = `
-                        <h3>行動: ${action.name}</h3>
-                        <p>影響を受けるグループ: ${action.affectedGroups.join(', ')}</p>
-                        ${detailsText}
-                        <img src="https://placehold.co/400x250/eef2ff/312e81?text=Action+${action.id}+Route" alt="操作手順GIF">
-                    `;
+                    item.innerHTML = `<h3>行動: ${action.name}</h3> <p>影響を受けるグループ: ${action.affectedGroups.join(', ')}</p> ${detailsText}`;
                     content.appendChild(item);
                 });
             }
-            
+           
             showModal('day-detail-modal');
         }
         
         function resetApp() {
             currentConfig = {};
             idealConfig = {};
-            solutionCache.clear();
             
             initInputPage('current');
             initInputPage('ideal');
@@ -1349,16 +1362,8 @@
             switchInputView('ideal', 'map');
             
             showPage('start-page');
-            updateGuideTextVisibility(); // Show guide text again on reset
+            updateGuideTextVisibility();
         }
-
-        function updateGuideTextVisibility() {
-            const isAnyConfigStarted = Object.keys(currentConfig).length > 0 || Object.keys(idealConfig).length > 0;
-            document.querySelectorAll('.map-guide-text').forEach(el => {
-                el.classList.toggle('hidden', isAnyConfigStarted);
-            });
-        }
-
     </script>
 </body>
 </html>
