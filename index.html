@@ -720,8 +720,8 @@
         <div class="modal-content">
              <span class="modal-close" data-target="screenshot-popup">&times;</span>
              <h3 id="screenshot-title">この配置で合っていますか？</h3>
-             <img id="screenshot-img" src="https://placehold.co/500x300/eef2ff/312e81?text=In-Game+Screenshot" alt="ゲーム内スクリーンショット">
-             <button id="confirm-pattern-btn" class="btn">確定</button>
+             <img id="screenshot-img" src="https://placehold.co/500x300/eef2ff/312e81?text=In-Game+Screenshot" alt="ゲーム内スクリーンショット" style="width: 100%; height: auto; border-radius: 10px; margin: 15px 0;">
+             <button id="confirm-pattern-btn" class="btn" style="margin-top: 15px;">確定</button>
         </div>
     </div>
     
@@ -765,7 +765,6 @@
             'J': { top: '69%', left: '43%' }
         };
         
-        // --- [EDIT HERE!] You can now adjust positions using 'bottom' and 'right' properties ---
         const patternMarkerPositions = {
             'A': { 'A': { bottom: '46%', right: '43%' }, 'B': { bottom: '54%', right: '47%' }, 'C': { bottom: '40%', right: '51%' } },
             'B': { 'A': { bottom: '62%', right: '57%' }, 'B': { bottom: '52%', right: '52%' }, 'C': { bottom: '61%', right: '48%' } },
@@ -777,6 +776,59 @@
             'H': { 'A': { bottom: '41.3%', right: '58.7%' }, 'B': { bottom: '45.2%', right: '63.4%' }, 'C': { bottom: '47.0%', right: '57.6%' } },
             'I': { 'A': { bottom: '58.4%', right: '66.3%' }, 'B': { bottom: '61.1%', right: '61.0%' }, 'C': { bottom: '51.0%', right: '67.5%' } },
             'J': { 'A': { bottom: '58.0%', right: '40.8%' }, 'B': { bottom: '51.8%', right: '56.5%' }, 'C': { bottom: '28.5%', right: '52.6%' } }
+        };
+        
+        const screenshotImageUrls = {
+            'A': {
+                'A': 'https://assets.st-note.com/img/1738372100-wkRfaQDElqCepTY12bHVJszm.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738372108-Ozf8gFbjTZEaGJMDx7qHAoVN.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738420209-Vs9IFoQq3dJxwOGv5RM7Xh0C.jpg?width=1200'
+            },
+            'B': {
+                'A': 'https://assets.st-note.com/img/1738419367-4wCdF5eOLbmtVuDAURYSaIr1.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419379-3mOLkEy16jefW0nvGlctzK9B.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419389-Zm5ra9xD6JU2SKfNzeBHpIl1.jpg?width=1200'
+            },
+            'C': {
+                'A': 'https://assets.st-note.com/img/1738419522-lgzSU9nI2x6ZYhkNfHqiPXOo.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419532-g9URz8f04FckmJtAseBhu7Qj.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419541-1IgcObQjl3dH4rwy2LNM6SP9.jpg?width=1200'
+            },
+            'D': {
+                'A': 'https://assets.st-note.com/img/1738419563-xyMQ1nkuOjbpa6Dwm3KWoYh9.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419572-YuweId6SiyKDBAtWgOlojQGa.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419580-quLQMGeRlbfv0wSgmh8jCINt.jpg?width=1200'
+            },
+            'E': {
+                'A': 'https://assets.st-note.com/img/1738419683-Y3pzloUPmn861idxQvLaMNZy.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419695-t41JA6FX2CeViT9GB3UOdhlK.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419704-xdZlTOuatBockhDLVgsN4I3w.jpg?width=1200'
+            },
+            'F': {
+                'A': 'https://assets.st-note.com/img/1738419747-YfBn7iOzKVekQRAJ9DParxlv.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419755-5CmQ8u0hGFrsfRyZojIH2kpX.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419763-zFvuEZK9nYgd61OsrM5NeRAP.jpg?width=1200'
+            },
+            'G': {
+                'A': 'https://assets.st-note.com/img/1738586151-mkVNDUfHbGTQFJ7M9opaYRK2.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419796-1mHqF5OyP6rEAoU3YZNcuQKj.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419805-MF0UpPyI6cNzqldvXADiuEwg.jpg?width=1200'
+            },
+            'H': {
+                'A': 'https://assets.st-note.com/img/1738419821-2VtSLA5DROoJ0wBClZIxvMTu.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419829-4evqad8bPjYEAmBfpZH9RuT1.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419837-4tSaJMW6y7BzDZQ3fRC2LXqH.jpg?width=1200'
+            },
+            'I': {
+                'A': 'https://assets.st-note.com/img/1738419855-V8XBf5WexFzy60psuQGvmNdY.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738586173-KCQXfOlVjNtUoBn37qg5Fcu0.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419868-YORuncAJ3DgLoZ560WwCv4Uq.jpg?width=1200'
+            },
+            'J': {
+                'A': 'https://assets.st-note.com/img/1738419900-C9ZW6JqmkxnVz5vBrKbAXtDo.jpg?width=1200',
+                'B': 'https://assets.st-note.com/img/1738419916-pQNEJcL0dXovR7jnTfa8qzeh.jpg?width=1200',
+                'C': 'https://assets.st-note.com/img/1738419933-zFKX9tqVyjMilUBRdJIWNYrH.jpg?width=1200'
+            }
         };
 
         const recommendedConfig = {
@@ -956,7 +1008,6 @@
                     marker.textContent = '✔';
                 }
 
-                // --- MODIFICATION START ---
                 // Convert user-friendly 'bottom' and 'right' values to CSS-friendly 'top' and 'left'
                 if (pos.bottom !== undefined && pos.right !== undefined) {
                     const topValue = 100 - parseFloat(pos.bottom);
@@ -967,7 +1018,6 @@
                     marker.style.top = pos.top;
                     marker.style.left = pos.left;
                 }
-                // --- MODIFICATION END ---
                 
                 marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
                 zoomContainer.appendChild(marker);
@@ -978,7 +1028,17 @@
         function selectPatternForConfirmation(pattern) {
             activeSelection.pattern = pattern;
             document.getElementById('screenshot-title').textContent = `${activeSelection.groupId} - パターン ${pattern} で合っていますか？`;
-            document.getElementById('screenshot-img').src = `https://placehold.co/500x300/eef2ff/312e81?text=Group+${activeSelection.groupId}+Pattern+${pattern}`;
+            
+            // Dynamically set the image source from the new screenshotImageUrls object
+            const imageUrl = screenshotImageUrls[activeSelection.groupId]?.[activeSelection.pattern];
+            if (imageUrl) {
+                document.getElementById('screenshot-img').src = imageUrl;
+            } else {
+                // Fallback in case the URL is not found
+                console.error(`Screenshot URL not found for ${activeSelection.groupId}-${pattern}`);
+                document.getElementById('screenshot-img').src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
+            }
+
             document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
             showModal('screenshot-popup');
         }
@@ -1265,4 +1325,5 @@
     </script>
 </body>
 </html>
+
 
