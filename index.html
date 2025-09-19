@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観配置調整ツール</title>
+    <title>鶴観配置調整ツール (レスポンシブ対応版)</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -11,7 +11,7 @@
         :root {
             --bg-color: #f0f2f5;
             --panel-bg-color: rgba(255, 255, 255, 0.85);
-            --header-bg-color: rgba(26, 32, 44, 0.8);
+            --header-bg-color: #1a202c; /* Dark fallback color */
             --primary-text-color: #333;
             --secondary-text-color: #555;
             --accent-color: #3B82F6; /* Blue accent */
@@ -43,29 +43,16 @@
         .site-header {
             width: 100%;
             padding: 10px 40px;
-            background-color: var(--header-bg-color); /* Fallback color */
+            background-color: var(--header-bg-color);
             color: white;
             box-sizing: border-box;
             flex-shrink: 0;
             z-index: 10;
-            position: relative; /* For pseudo-element */
-            background-image: url('YOUR_IMAGE_URL_HERE'); /* 画像URLをここに貼り付け */
-            background-size: cover;
-            background-position: center;
-        }
-        .site-header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-            z-index: 1;
         }
         .site-header h1 {
             margin: 0;
             font-size: clamp(1.2em, 2vw, 1.5em);
             color: white;
-            position: relative;
-            z-index: 2; /* Ensure text is above overlay */
         }
         
         /* --- Main Content Area --- */
@@ -413,7 +400,6 @@
             padding: 2px 5px;
             border-radius: 4px;
         }
-        /* NEW: Style for selected pattern marker in zoom view */
         .pattern-marker.completed {
             background-color: #10B981;
             border-color: white;
@@ -447,6 +433,10 @@
             .config-list { grid-template-columns: 1fr; }
             .modal-content { width: 90%; padding: 20px; }
             .result-table th, .result-table td { padding: 10px; font-size: 0.9em;}
+            .map-marker {
+                width: 35px;
+                height: 35px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -485,8 +475,9 @@
                 padding: 10px;
             }
             .map-marker {
-                width: 35px;
-                height: 35px;
+                width: 28px;
+                height: 28px;
+                border-width: 2px;
             }
         }
 
@@ -891,16 +882,13 @@
                 const pos = patternMarkerPositions[groupId][pattern];
                 const marker = document.createElement('div');
                 marker.className = 'pattern-marker';
-                if (eliteGroups[groupId].iconUrl) {
-                    marker.style.backgroundImage = `url(${eliteGroups[groupId].iconUrl})`;
-                    marker.innerHTML = `<span class="pattern-label">${pattern}</span>`;
-                } else {
-                    marker.textContent = pattern;
-                }
+                
+                // REVERTED LOGIC: Always show text, no background image.
+                marker.textContent = pattern; 
 
                 if (pattern === selectedPattern) {
                     marker.classList.add('completed');
-                    marker.innerHTML = '✔';
+                    marker.textContent = '✔';
                 }
 
                 marker.style.top = pos.top;
