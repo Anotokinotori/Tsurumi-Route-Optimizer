@@ -846,7 +846,7 @@
 
                      <div class="page-footer">
                         <div class="left-action">
-                            <button class="btn btn-secondary-link" id="set-recommended-btn">環境配置を自動入力</button>
+                             <button class="btn btn-secondary-link" id="set-recommended-btn">環境配置を自動入力</button>
                         </div>
                         <div class="center-action">
                             <div class="progress-text" id="ideal-progress-text">入力完了: 0 / 10</div>
@@ -959,10 +959,10 @@
     
     <div id="day-detail-modal" class="modal backdrop-blur">
          <div class="modal-content">
-               <span class="modal-close" data-target="day-detail-modal">&times;</span>
-               <h2 id="day-detail-title"></h2>
-               <div id="day-detail-content"></div>
-        </div>
+              <span class="modal-close" data-target="day-detail-modal">&times;</span>
+              <h2 id="day-detail-title"></h2>
+              <div id="day-detail-content"></div>
+       </div>
     </div>
 
     <div id="credit-modal" class="modal backdrop-blur">
@@ -1014,22 +1014,28 @@ const eliteGroups = {
 const groupKeys = Object.keys(eliteGroups);
 const totalGroups = groupKeys.length;
 
+// ★★★ ここに削除されていたIDをすべて反映させます ★★★
 const actionsData = [
-    {id: 2, name: 'ワープ(2)', affectedGroups: ['A', 'D']},
-    {id: 3, name: 'ワープ(3)', affectedGroups: ['A', 'B', 'C', 'D', 'E', 'J']},
-    {id: 4, name: 'ワープ(4)', affectedGroups: ['B', 'C', 'D', 'E', 'F']},
-    {id: 5, name: 'ワープ(5)', affectedGroups: ['B', 'E', 'F', 'G', 'H', 'I']},
-    {id: 6, name: 'ワープ(6)', affectedGroups: ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I']},
-    {id: 7, name: 'ワープ(7)', affectedGroups: ['A', 'J']},
-    {id: 8, name: 'ワープ(8)', affectedGroups: ['J']},
-    {id: 9, name: 'ボート(1から/A)', affectedGroups: ['A']},
-    {id: 10, name: 'ボート(1から/CD)', affectedGroups: ['C', 'D']},
-    {id: 13, name: '歩き(8から/ABCJ)', affectedGroups: ['A', 'B', 'C', 'J']},
-    {id: 15, name: '歩き(18から/EG)', affectedGroups: ['E', 'G']},
-    {id: 17, name: '歩き(7から/AHJ)', affectedGroups: ['A', 'H', 'J']},
-    {id: 18, name: 'ワープ(ボート)', affectedGroups: ['E']},
-    {id: 19, name: '歩き(18から/EFGI)', affectedGroups: ['E', 'F', 'G', 'I']},
-    {id: 20, name: 'ボート(ヤシオリから)', affectedGroups: ['H', 'I']},
+    {id: 2, name: 'ワープ②', affectedGroups: ['A', 'D']},
+    {id: 3, name: 'ワープ③', affectedGroups: ['A', 'B', 'C', 'D', 'E', 'J']},
+    {id: 4, name: 'ワープ④', affectedGroups: ['B', 'C', 'D', 'E', 'F']},
+    {id: 5, name: 'ワープ⑤', affectedGroups: ['B', 'E', 'F', 'G', 'H', 'I']},
+    {id: 6, name: 'ワープ⑥', affectedGroups: ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I']},
+    {id: 7, name: 'ワープ⑦', affectedGroups: ['A', 'J']},
+    {id: 8, name: 'ワープ⑧', affectedGroups: ['J']},
+    {id: 9, name: 'ボート⑨', affectedGroups: ['A']},
+    {id: 10, name: 'ボート⑩', affectedGroups: ['C', 'D']},
+    {id: 11, name: 'ボート⑪', affectedGroups: ['B', 'C', 'D']},
+    {id: 12, name: 'ボート⑫', affectedGroups: ['D']},
+    {id: 13, name: '歩き⑬', affectedGroups: ['A', 'B', 'C', 'J']},
+    {id: 14, name: '歩き⑭', affectedGroups: ['A', 'B', 'J']},
+    {id: 15, name: '歩き⑮', affectedGroups: ['E', 'G']},
+    {id: 16, name: '歩き⑯', affectedGroups: ['E', 'F', 'G']},
+    {id: 17, name: '歩き⑰', affectedGroups: ['A', 'H', 'J']},
+    {id: 18, name: 'ポケワ⑱', affectedGroups: ['E']},
+    {id: 19, name: '歩き⑲', affectedGroups: ['E', 'F', 'G', 'I']},
+    {id: 20, name: 'ボート⑳', affectedGroups: ['H', 'I']},
+    {id: 21, name: 'ボート㉑', affectedGroups: ['I']},
 ];
 const recommendedConfig = {
     'A': 'C', 'B': 'B', 'C': 'C', 'D': 'C', 'E': 'C',
@@ -1230,9 +1236,9 @@ function selectPatternForConfirmation(pattern) {
     document.getElementById('screenshot-title').textContent = `${groupName} - パターン ${pattern} で合っていますか？`;
     const imageUrl = screenshotImageUrls[activeSelection.groupId]?.[activeSelection.pattern];
      if (imageUrl) {
-        document.getElementById('screenshot-img').src = imageUrl;
+         document.getElementById('screenshot-img').src = imageUrl;
     } else {
-        document.getElementById('screenshot-img').src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
+         document.getElementById('screenshot-img').src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
     }
     document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
     showModal('screenshot-popup');
@@ -1477,7 +1483,7 @@ function displayResults(plan, isMultiplayer) {
     const tbody = document.getElementById('result-tbody');
     tbody.innerHTML = '';
     
-    document.getElementById('result-title').textContent = isMultiplayer ? "計算結果 (マルチモード)" : "計算結果 (ソロモード)";
+    document.getElementById('result-title').textContent = isMultiplayer ? "計算結果 (周期ホールドON)" : "計算結果 (周期ホールドOFF)";
     const summaryEl = document.getElementById('result-summary');
     
     const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
@@ -1492,7 +1498,7 @@ function displayResults(plan, isMultiplayer) {
     }
 
     if (plan === null) {
-        summaryEl.textContent = '調整プランが見つかりませんでした。';
+        summaryEl.textContent = '8日以内に完了する調整プランは見つかりませんでした。';
         alternateCalcBtn.style.display = 'block';
     } else if (plan.length === 0) {
         summaryEl.textContent = '調整は不要です！';
@@ -1526,24 +1532,32 @@ function showDayDetail(dayData, dayNumber) {
 
     if (dayData.mode === 'ソロ') {
         contentHTML += `<h3>ソロモードでの行動</h3>`;
-        contentHTML += `<p>以下の行動で影響範囲内のエネミーの配置を1つ進めます。</p>`;
-        contentHTML += generateActionDetailsHTML(dayData.advanceAction.name, "ソロ");
+        contentHTML += `<p>以下の行動で、影響範囲内のエネミーの周期を1つ進めます。ワープポイントに飛んだら、移動せずにすぐ別の場所にワープしてOKです。</p>`;
+        contentHTML += generateActionDetailsHTML(dayData.advanceAction, "1P (ホスト)");
     } else { // multi
-        contentHTML += `<h3>マルチモードでの行動</h3>`;
-        contentHTML += `<h4>2P (ホールド役) の行動</h4>`;
+        const effectiveAdvanceGroups = new Set([...dayData.advanceAction.affectedGroups].filter(x => !dayData.holdAction.affectedGroups.has(x)));
+
+        contentHTML += `<h3>マルチモード（周期ホールド）での行動</h3>`;
+        
+        contentHTML += `<h4>Step 1: 2P (ゲスト) の行動</h4>`;
         if (dayData.holdAction.name === '何もしない' || dayData.holdAction.name === '---') {
-             contentHTML += `<p>何もしません。ログイン後、その場で待機してください。</p>`;
+             contentHTML += `<p><strong>行動:</strong> なし</p><p>ゲストは何もしません。ホストの世界に入ったら、鶴見以外の場所（例えば塵歌壺など）で待機してください。</p>`;
         } else {
-            contentHTML += `<p>以下の行動で、ホールド対象のエネミーの周期を固定します。</p>`;
-            contentHTML += generateActionDetailsHTML(dayData.holdAction.name, "2P");
+            contentHTML += `<p><strong>目的:</strong> 下記グループの周期を<strong>ホールド(固定)</strong>します。</p>`;
+            contentHTML += generateActionDetailsHTML(dayData.holdAction, "2P (ゲスト)");
+            contentHTML += `<p><strong>[重要]</strong> ゲストは上記行動を終えたら、ホストが次の行動を完了するまで、<strong>鶴見以外の場所（塵歌壺など）</strong>に移動して待機してください。</p>`;
         }
-       
-        contentHTML += `<h4 style="margin-top: 20px;">1P (ホスト) の行動</h4>`;
-        if (dayData.advanceAction.name === '何もしない' || dayData.advanceAction.name === '---') {
-            contentHTML += `<p>特別な行動は不要です。</p>`;
+        
+        contentHTML += `<h4 style="margin-top: 25px;">Step 2: 1P (ホスト) の行動</h4>`;
+        if (dayData.advanceAction.name === '何もしない' || dayData.advanceAction.name === '---' || effectiveAdvanceGroups.size === 0) {
+            contentHTML += `<p><strong>行動:</strong> なし</p><p>ホストの特別な行動は不要です。日付が変わるのを待ってください。</p>`;
         } else {
-            contentHTML += `<p>2Pがホールドした後、以下の行動でターゲットのエネミーの配置を1つ進めます。</p>`;
-            contentHTML += generateActionDetailsHTML(dayData.advanceAction.name, "1P");
+            contentHTML += `<p><strong>目的:</strong> ゲストがホールドしなかった、下記グループの周期を1つ<strong>進めます</strong>。</p>`;
+            const effectiveAdvanceAction = {
+                name: dayData.advanceAction.name,
+                affectedGroups: effectiveAdvanceGroups
+            };
+            contentHTML += generateActionDetailsHTML(effectiveAdvanceAction, "1P (ホスト)");
         }
     }
 
@@ -1551,19 +1565,26 @@ function showDayDetail(dayData, dayNumber) {
     showModal('day-detail-modal');
 }
 
-function generateActionDetailsHTML(actionString, playerRole) {
-    if (!actionString || actionString === '---' || actionString === '何もしない') return '<p>特別な行動は不要です。</p>';
+function generateActionDetailsHTML(actionData, playerRole) {
+    if (!actionData || !actionData.name || actionData.name === '---' || actionData.name === '何もしない') return '<p>特別な行動は不要です。</p>';
     
-    const actions = actionString.split(' + ');
-    let html = '<ul>';
+    const actions = actionData.name.split(' + ');
+    const affectedGroupsList = Array.from(actionData.affectedGroups).map(key => 
+        `「${key}: ${eliteGroups[key].name}」`
+    ).join('、');
+
+    let html = `
+        <p><strong>実行する行動:</strong> ${actions.join(', ')}</p>
+        <p><strong>影響を受けるグループ:</strong> ${affectedGroupsList}</p>
+        <ul>`;
+
     actions.forEach(actionName => {
-        // This is a placeholder for actual details.
-        const detailText = `「${actionName}」を実行します。影響を受ける敵グループを確認し、ルートに沿って移動してください。`;
-        const imageUrl = `https://placehold.co/400x250/e9e9e9/333?text=${encodeURIComponent(actionName.replace(/\//g, ''))}`;
+        // 画像は現在プレースホルダーですが、将来的に差し替え可能です
+        const imageUrl = `https://placehold.co/450x280/eef2ff/312e81?text=${encodeURIComponent(actionName.replace(/\//g, ''))}`;
         html += `
             <li>
                 <strong>${actionName}</strong>
-                <p>${detailText}</p>
+                <p>ワープポイントに移動し、ロードが完了したらすぐ他の場所に移動します。影響範囲を広げないよう、ロード後の移動は不要です。</p>
                 <img src="${imageUrl}" alt="${actionName} のルート図" >
             </li>`;
     });
