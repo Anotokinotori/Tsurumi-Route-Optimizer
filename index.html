@@ -106,6 +106,10 @@
             text-align: center;
             pointer-events: none;
         }
+        #result-page {
+            overflow-y: auto;
+            justify-content: flex-start;
+        }
 
         .page.active {
             opacity: 1;
@@ -456,17 +460,17 @@
 
         .result-details-container {
             grid-column: 1 / -1; /* Span full width on mobile */
-            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            min-height: 0; 
             width: 100%;
             max-width: 1200px;
             margin-top: 20px;
         }
 
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-        .result-table-container { flex-grow: 1; overflow-y: auto; width: 100%; max-height: 250px;}
+        .result-table-container { 
+            width: 100%;
+        }
         .result-table { width: 100%; border-collapse: collapse; }
         .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .result-table th { background-color: #f9f9f9; position: sticky; top: 0; z-index: 1; }
@@ -973,9 +977,9 @@
             <p>ツール内で使用している各配置の画像や、精鋭エネミーの出現パターンに関する情報は、以下のnote記事を参考にさせていただきました。非常に分かりやすくまとめられており、開発の大きな助けとなりました。</p>
             <p style="padding-left: 1em;"><strong>note記事:</strong> <a href="https://note.com/nekoshita_g/n/nba4aff6a13ff" target="_blank" rel="noopener noreferrer">【原神】鶴観の精鋭の仕組みと調整方法</a></p>
             
-            <h4>■ 周期ホールドの解説</h4>
-            <p>本ツールで採用している「周期ホールド」の仕組みについては、以下の動画で大変分かりやすく解説されています。鶴観調整の理解が飛躍的に深まるため、ぜひご覧ください。</p>
-            <p style="padding-left: 1em;"><strong>解説動画:</strong> <a href="https://youtu.be/2xqllaCTP5c?si=_P-LgtUukOdhN57k&t=1194" target="_blank" rel="noopener noreferrer">【原神】鶴観の精鋭の仕組みと調整方法 (YouTube)</a></p>
+            <h4>■ 調整方法の解説</h4>
+            <p>本ツールの計算ロジックは、以下の動画で解説されている調整方法を基にプログラムとして実装したものです。鶴観調整の仕組みそのものについて、大変分かりやすく解説されていますので、ぜひご覧ください。</p>
+            <p style="padding-left: 1em;"><strong>解説動画:</strong> <a href="https://youtu.be/2xqllaCTP5c?si=jY3Vn64mj6y91Vte" target="_blank" rel="noopener noreferrer">【原神】鶴観の精鋭の仕組みと調整方法 (YouTube)</a></p>
             
             <hr style="margin: 20px 0;">
             
