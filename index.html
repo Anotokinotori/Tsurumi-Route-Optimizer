@@ -268,6 +268,7 @@
             align-items: center;
             margin-top: 20px;
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
         .page-footer .progress-text {
             text-align: center;
@@ -292,6 +293,11 @@
              justify-content: flex-end;
              gap: 15px;
         }
+        #result-page .page-footer {
+            justify-content: center;
+            gap: 15px;
+        }
+
 
         /* Tab UI for Input Pages */
         .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; align-items: center; flex-wrap: wrap; }
@@ -567,6 +573,10 @@
             .page-footer .right-action {
                 margin-left: auto;
             }
+             #result-page .page-footer .center-action, #result-page .page-footer .right-action {
+                flex-basis: auto;
+                order: 0;
+            }
             .page-footer .btn {
                 font-size: 0.9em;
                 padding: 10px 20px;
@@ -745,9 +755,9 @@
                          </div>
                     </div>
 
-                      <div class="page-footer" style="justify-content: center; gap: 20px;">
-                         <button class="btn btn-secondary" onclick="showPage('ideal-config-page')">再計算する</button>
-                         <button class="btn btn-secondary" onclick="resetApp()">最初からやり直す</button>
+                    <div class="page-footer">
+                        <button id="recalculate-alternate-mode-btn" class="btn" style="display: none;"></button>
+                        <button class="btn btn-secondary" onclick="resetApp()">最初からやり直す</button>
                    </div>
                 </div>
             </div>
@@ -807,6 +817,7 @@
             <h2>計算中...</h2>
             <p>最適なルートを探索しています。<br>組み合わせが複雑な場合、十数秒かかることがあります。</p>
             <div class="loader"></div>
+            <p id="loading-progress-text" style="margin-top: 15px; font-weight: bold; color: var(--secondary-text-color);"></p>
          </div>
     </div>
     
@@ -1189,27 +1200,38 @@ function calculatePlan(isMultiplayer) {
         alert('全ての現在配置と、1つ以上の理想配置を入力してください。');
         return;
     }
-    showModal('loading-modal');
-    
-    setTimeout(() => {
-        const startConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[currentConfig[k]]])));
-        const endConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[idealConfig[k] || currentConfig[k]]])));
 
-        if (startConfigStr === endConfigStr) {
+    // UI setup
+    document.getElementById('loading-progress-text').textContent = '調整パターンの検証を開始...';
+    showModal('loading-modal');
+
+    // BFS setup
+    const startConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[currentConfig[k]]])));
+    const endConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[idealConfig[k] || currentConfig[k]]])));
+
+    if (startConfigStr === endConfigStr) {
+        setTimeout(() => { // Give modal time to show
             displayResults([], isMultiplayer);
             closeModal('loading-modal');
-            return;
-        }
+        }, 50);
+        return;
+    }
 
-        const queue = [{ config: startConfigStr, path: [] }];
-        const visited = new Set([startConfigStr]);
-        let solutionPath = null;
+    const queue = [{ config: startConfigStr, path: [] }];
+    const visited = new Set([startConfigStr]);
+    let solutionPath = null;
+    let exploredCount = 0;
 
-        while (queue.length > 0) {
+    function processChunk() {
+        const batchStartTime = performance.now();
+
+        while (performance.now() - batchStartTime < 30 && queue.length > 0) { // Process for up to 30ms to keep UI responsive
             const { config, path } = queue.shift();
-            if (path.length >= 10) continue; // Safety break
+            exploredCount++;
 
-            // Solo Mode (always available)
+            if (path.length >= 10) continue;
+
+            // Solo Mode
             for (const soloAction of possibleDailyActions) {
                 let nextConfigArr = config.split('').map(Number);
                 for (const group of soloAction.affectedGroups) {
@@ -1227,16 +1249,16 @@ function calculatePlan(isMultiplayer) {
             }
             if (solutionPath) break;
 
-            // Multiplayer Mode (only if enabled)
+            // Multiplayer Mode
             if (isMultiplayer) {
                 for (const holdAction of possibleDailyActions) {
                     for (const advanceAction of possibleDailyActions) {
                         const effectiveAdvance = new Set([...advanceAction.affectedGroups].filter(x => !holdAction.affectedGroups.has(x)));
-                        if (effectiveAdvance.size === 0) continue; // Skip if no effective change
-                        
+                        if (effectiveAdvance.size === 0) continue;
+
                         let nextConfigArr = config.split('').map(Number);
                         for (const group of effectiveAdvance) {
-                             nextConfigArr[groupKeys.indexOf(group)] = (nextConfigArr[groupKeys.indexOf(group)] + 1) % 3;
+                            nextConfigArr[groupKeys.indexOf(group)] = (nextConfigArr[groupKeys.indexOf(group)] + 1) % 3;
                         }
                         const nextConfigStr = nextConfigArr.join('');
                         if (nextConfigStr === endConfigStr) {
@@ -1253,10 +1275,22 @@ function calculatePlan(isMultiplayer) {
             }
             if (solutionPath) break;
         }
-        
-        displayResults(solutionPath, isMultiplayer);
-        closeModal('loading-modal');
-    }, 50);
+
+        // Update UI
+        document.getElementById('loading-progress-text').textContent = `調整パターンを検証中... [${exploredCount}]`;
+
+        if (solutionPath || queue.length === 0) {
+            // Done
+            displayResults(solutionPath, isMultiplayer);
+            closeModal('loading-modal');
+        } else {
+            // Schedule next chunk
+            setTimeout(processChunk, 0);
+        }
+    }
+
+    // Kick off the processing
+    setTimeout(processChunk, 50);
 }
 
 
@@ -1268,11 +1302,25 @@ function displayResults(plan, isMultiplayer) {
     
     document.getElementById('result-title').textContent = isMultiplayer ? "計算結果 (マルチモード)" : "計算結果 (ソロモード)";
     const summaryEl = document.getElementById('result-summary');
+    
+    const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
+    if (isMultiplayer) {
+        alternateCalcBtn.textContent = '周期ホールドOFFで再計算';
+        alternateCalcBtn.onclick = () => calculatePlan(false);
+        alternateCalcBtn.className = 'btn btn-primary'; // Blue for solo
+        alternateCalcBtn.style.display = 'inline-block';
+    } else {
+        alternateCalcBtn.textContent = '周期ホールドONで再計算';
+        alternateCalcBtn.onclick = () => calculatePlan(true);
+        alternateCalcBtn.className = 'btn btn-multi'; // Pink for multi
+        alternateCalcBtn.style.display = 'inline-block';
+    }
 
     if (plan === null) {
         summaryEl.textContent = '調整プランが見つかりませんでした。';
     } else if (plan.length === 0) {
         summaryEl.textContent = '調整は不要です！';
+        alternateCalcBtn.style.display = 'none'; // No need to recalculate if it's already done
     } else {
         summaryEl.textContent = `最短 ${plan.length} 日で調整が完了します！`;
         plan.forEach((day, index) => {
@@ -1349,4 +1397,9 @@ function generateActionDetailsHTML(actionString, playerRole) {
 </script>
 </body>
 </html>
+
+
+
+
+
 
