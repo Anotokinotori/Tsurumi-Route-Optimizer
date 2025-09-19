@@ -321,6 +321,32 @@
             justify-content: center;
             align-items: center;
         }
+        .map-guide-text {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            pointer-events: none; /* So it doesn't block clicks */
+            z-index: 5;
+            opacity: 0.8;
+            transition: opacity 0.5s ease-in-out;
+            animation: pulsing-text 2.5s infinite ease-in-out;
+        }
+        @keyframes pulsing-text {
+            0% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+            100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+        }
+        .map-guide-text.hidden {
+            opacity: 0;
+            animation: none;
+        }
         .map-container img.map-bg {
             max-width: 100%;
             max-height: 100%;
@@ -588,6 +614,7 @@
                     <div class="input-views-container">
                         <div id="current-map-view" class="input-view active">
                             <div class="map-container" id="current-map-container">
+                                 <div class="map-guide-text">アイコンをタップして選択</div>
                                  <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/input_page_map.png?raw=true" alt="鶴観マップ" class="map-bg">
                             </div>
                         </div>
@@ -633,6 +660,7 @@
                     <div class="input-views-container">
                         <div id="ideal-map-view" class="input-view active">
                             <div class="map-container" id="ideal-map-container">
+                                 <div class="map-guide-text">アイコンをタップして選択</div>
                                  <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/input_page_map.png?raw=true" alt="鶴観マップ" class="map-bg">
                             </div>
                         </div>
@@ -1077,6 +1105,7 @@
             } else {
                 updateIdealProgress();
             }
+            updateGuideTextVisibility(); // Check visibility after every update
         }
 
         function updateProgress() {
@@ -1320,10 +1349,17 @@
             switchInputView('ideal', 'map');
             
             showPage('start-page');
+            updateGuideTextVisibility(); // Show guide text again on reset
+        }
+
+        function updateGuideTextVisibility() {
+            const isAnyConfigStarted = Object.keys(currentConfig).length > 0 || Object.keys(idealConfig).length > 0;
+            document.querySelectorAll('.map-guide-text').forEach(el => {
+                el.classList.toggle('hidden', isAnyConfigStarted);
+            });
         }
 
     </script>
 </body>
 </html>
-
 
