@@ -379,7 +379,42 @@
              display: flex;
              justify-content: flex-end;
              gap: 15px;
+             position: relative; /* For validation message */
         }
+        
+        /* ★★★ ここからが変更箇所です ★★★ */
+        .validation-message {
+            color: #ef4444; /* red-500 */
+            font-weight: bold;
+            font-size: 0.9em;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ef4444;
+            position: absolute;
+            bottom: 110%; /* Position above the button */
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(10px);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .validation-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes shake {
+          10%, 90% { transform: translateX(-1px); }
+          20%, 80% { transform: translateX(2px); }
+          30%, 50%, 70% { transform: translateX(-3px); }
+          40%, 60% { transform: translateX(3px); }
+        }
+        .shake {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        /* ★★★ ここまでが変更箇所です ★★★ */
+
 
         /* Tab UI for Input Pages */
         .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; align-items: center; flex-wrap: wrap; }
@@ -735,39 +770,38 @@
         }
         
         @media (max-width: 768px) {
-            html, body {
-                height: auto; /* allow body to grow with content */
-                min-height: 100vh;
+            body {
+                overflow: auto; /* Allow body scroll */
+                height: auto;
             }
             main {
                  padding: 0;
-                 flex-grow: 1; /* allow main to take available space */
+                 height: auto;
             }
             .container { 
                 width: 100%; 
-                height: auto; /* auto height for container */
-                min-height: calc(100vh - 58px); /* Full viewport height minus header */
+                height: auto;
+                min-height: calc(100vh - 58px - 40px); /* Adjust for header and footer */
                 max-height: none; 
                 border-radius: 0; 
+                overflow: visible;
             }
-            body {
-                padding-bottom: 40px; /* Add space for fixed footer */
-            }
+            
             .page { 
                 padding: 20px; 
-                height: auto; /* allow page to grow */
-                position: relative; /* change from absolute */
+                height: auto; 
+                position: relative;
                 opacity: 1;
                 visibility: visible;
                 transform: none;
-                display: none; /* hide pages by default */
-                justify-content: flex-start; /* Align content to top */
+                display: none; 
+                justify-content: flex-start; 
             }
             .page.active {
-                display: flex; /* show active page */
+                display: flex;
             }
             #start-page {
-                justify-content: center; /* Keep start page centered */
+                justify-content: center;
             }
             
             .site-header, .site-credit-footer { padding: 10px 20px; }
@@ -781,17 +815,25 @@
             .modal-content { width: 90%; padding: 20px; }
             .result-table th, .result-table td { padding: 10px; font-size: 0.9em;}
             .site-credit-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
+                position: relative; /* Changed from fixed */
             }
             
+            .page-content-wrapper {
+                height: auto; 
+            }
             .input-views-container {
-                flex-grow: 0; /* Stop container from stretching vertically */
+                flex-grow: 0; 
+                min-height: auto; 
             }
             .input-views-container .map-container {
                 height: auto;
-                aspect-ratio: 1.6; /* Give it a consistent aspect ratio */
+                aspect-ratio: 1.6; 
+                min-height: 200px; 
+            }
+            .config-list {
+                height: auto; 
+                max-height: 300px;
+                overflow-y: auto;
             }
         }
 
@@ -839,35 +881,40 @@
         
         @media (max-height: 800px) and (min-width: 769px) {
             .page {
-                padding-top: 1.5vw;
-                padding-bottom: 1.5vw;
+                padding-top: 1vw;
+                padding-bottom: 1vw;
             }
             .page-header {
-                margin-bottom: 10px;
+                margin-bottom: 8px;
+            }
+            .btn-back, .header-placeholder {
+                width: 32px;
+                height: 32px;
             }
             .steps-container {
-                gap: 15px;
+                gap: 10px;
             }
             .step-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 1.2em;
+                width: 40px;
+                height: 40px;
+                font-size: 1.1em;
             }
             .step-label {
-                margin-top: 8px;
-                font-size: 0.9em;
+                margin-top: 5px;
+                font-size: 0.8em;
             }
             .step-arrow {
-                font-size: 1.8em;
+                font-size: 1.5em;
             }
             .view-switcher {
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
             .view-tab {
-                padding: 8px 16px;
+                padding: 6px 12px;
+                font-size: 0.9em;
             }
             .page-footer {
-                margin-top: 15px;
+                margin-top: 10px;
             }
         }
     </style>
@@ -956,6 +1003,7 @@
                             <div class="progress-text" id="progress-text">入力完了: 0 / 10</div>
                         </div>
                         <div class="right-action">
+                            <div id="validation-message" class="validation-message"></div>
                             <button id="go-to-ideal-btn" class="btn btn-primary" disabled>理想の配置へ</button>
                         </div>
                    </div>
@@ -1283,7 +1331,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('credit-modal-trigger').addEventListener('click', () => showModal('credit-modal'));
     document.querySelectorAll('.modal-close').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.target)));
     
-    document.getElementById('go-to-ideal-btn').addEventListener('click', () => showPage('ideal-config-page'));
+    // ★★★ ここからが変更箇所です ★★★
+    document.getElementById('go-to-ideal-btn').addEventListener('click', (e) => {
+        if (e.currentTarget.disabled) {
+            const validationMessage = document.getElementById('validation-message');
+            const button = e.currentTarget;
+            
+            validationMessage.textContent = 'すべての配置を入力してください。';
+            validationMessage.classList.add('show');
+            button.classList.add('shake');
+            
+            setTimeout(() => {
+                validationMessage.classList.remove('show');
+            }, 2000); // Message disappears after 2 seconds
+
+            setTimeout(() => {
+                button.classList.remove('shake');
+            }, 600); // Animation duration
+        } else {
+            showPage('ideal-config-page');
+        }
+    });
+    // ★★★ ここまでが変更箇所です ★★★
+
     document.getElementById('set-recommended-btn').addEventListener('click', setRecommendedConfig);
     document.getElementById('calculate-plan-btn').addEventListener('click', () => {
         const isMultiplayer = document.getElementById('multiplayer-mode-checkbox').checked;
@@ -1832,4 +1902,6 @@ function generateActionDetailsHTML(actionData, playerRole) {
 </script>
 </body>
 </html>
+
+
 
