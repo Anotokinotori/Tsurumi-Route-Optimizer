@@ -405,10 +405,10 @@
             transform: translateY(0);
         }
         @keyframes shake {
-          10%, 90% { transform: translateX(-1px); }
-          20%, 80% { transform: translateX(2px); }
-          30%, 50%, 70% { transform: translateX(-3px); }
-          40%, 60% { transform: translateX(3px); }
+         10%, 90% { transform: translateX(-1px); }
+         20%, 80% { transform: translateX(2px); }
+         30%, 50%, 70% { transform: translateX(-3px); }
+         40%, 60% { transform: translateX(3px); }
         }
         .shake {
             animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
@@ -751,9 +751,9 @@
             padding-bottom: 8px;
         }
 
-        /* ★★★ ここからが変更箇所です (Scroll Indicator) ★★★ */
+        /* Scroll Down Indicator */
         .scroll-indicator {
-            display: none; /* Hidden by default */
+            display: none; /* Hidden by default, enabled via media queries */
             position: absolute;
             bottom: 20px;
             left: 50%;
@@ -788,7 +788,6 @@
                 transform: translateY(-5px);
             }
         }
-        /* ★★★ ここまでが変更箇所です ★★★ */
 
         /* --- RESPONSIVE STYLES --- */
         @media (min-width: 992px) {
@@ -811,7 +810,7 @@
             body {
                 overflow: auto;
                 height: auto;
-                min-height: 100%;
+                min-height: 100vh;
             }
             main {
                  padding: 0;
@@ -832,6 +831,7 @@
             .page { 
                 padding: 20px; 
                 height: auto;
+                min-height: calc(100vh - 80px); /* Adjust for header (~40px) + footer (~40px) */
                 position: relative;
                 opacity: 1;
                 visibility: visible;
@@ -844,8 +844,19 @@
             }
             #start-page {
                 justify-content: center;
+                /* === [修正] スマホ表示で高さが引き伸ばされるのをやめ、paddingで余白を調整 === */
+                min-height: unset;
+                padding-top: 1vh;
+                padding-bottom: 1vh;
             }
-            
+
+            /* 古い、不要なスタイルを削除 */
+            /*
+            #start-page .page-content-wrapper { ... }
+            #start-page .subtitle { ... }
+            .start-buttons { ... }
+            */
+
             .site-header, .site-credit-footer { padding: 10px 20px; }
             #start-page h1 { font-size: 2.5em; }
             .steps-container { gap: 10px; }
@@ -858,11 +869,14 @@
             .result-table th, .result-table td { padding: 10px; font-size: 0.9em;}
             
             .page-content-wrapper {
-                height: auto; 
+                height: auto;
+                min-height: calc(100vh - 80px); /* Ensure wrapper takes full viewport minus fixed elements */
             }
             .input-views-container {
-                flex-grow: 1;
-                min-height: 250px;
+                /* 柔軟に伸びる設定をやめ、高さを直接指定できるように変更 */
+                flex-grow: 0;
+                /* min-heightからheightに変更し、高さを固定。ユーザー指定の43vhに調整 */
+                height: 43vh;
             }
             .input-views-container .map-container {
                 height: 100%;
@@ -877,6 +891,11 @@
                 bottom: 0;
                 left: 0;
             }
+            
+            /* === [修正] スマホ表示でもスクロール矢印を表示 === */
+            #result-page #scroll-indicator {
+                display: flex;
+            }
         }
 
         @media (max-width: 480px) {
@@ -887,9 +906,9 @@
             .step-arrow { font-size: 1.5em; }
             .btn { font-size: 1em; padding: 12px 24px; }
              #go-to-current-btn {
-                padding: 18px 36px;
-                font-size: 1.3em;
-            }
+                 padding: 18px 36px;
+                 font-size: 1.3em;
+             }
             .page { padding: 15px; }
             .config-item-label { font-size: 1em; }
             .pattern-buttons button { width: 40px; height: 40px; padding: 5px; font-size: 0.9em;}
@@ -958,11 +977,10 @@
             .page-footer {
                 margin-top: 10px;
             }
-            /* ★★★ ここからが変更箇所です ★★★ */
+            
             #result-page #scroll-indicator {
                 display: flex;
             }
-            /* ★★★ ここまでが変更箇所です ★★★ */
         }
     </style>
 </head>
@@ -1132,7 +1150,7 @@
                     <div id="result-details" class="result-details-container">
                          <h2 id="result-title">計算結果</h2>
                          <div id="solo-mode-note">
-                            <p>周期ホールドを使わない調整方法です。周期ホールドを使ったらもっと調整期間を短縮できるかもしれません。<br>
+                            <p>周期ホールドを使わない方法です。使用したら期間を短縮できるかもしれません。<br>
                             <a href="https://youtu.be/2xqllaCTP5c?si=-jzSEDAzIkSjZ87P&t=1194" target="_blank" rel="noopener noreferrer">詳しくは動画で</a></p>
                          </div>
                          <div id="result-summary"></div>
@@ -1214,9 +1232,9 @@
     
     <div id="day-detail-modal" class="modal backdrop-blur">
          <div class="modal-content">
-              <span class="modal-close" data-target="day-detail-modal">&times;</span>
-              <h2 id="day-detail-title"></h2>
-              <div id="day-detail-content"></div>
+               <span class="modal-close" data-target="day-detail-modal">&times;</span>
+               <h2 id="day-detail-title"></h2>
+               <div id="day-detail-content"></div>
        </div>
     </div>
 
@@ -1295,7 +1313,7 @@ const actionsData = [
 const actionDetails = {
     2:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202210.png?raw=true'], videoUrl: null, note: null },
     3:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202231.png?raw=true'], videoUrl: null, note: null },
-    4:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%Bーン%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202321.png?raw=true'], videoUrl: null, note: null },
+    4:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202321.png?raw=true'], videoUrl: null, note: null },
     5:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202329.png?raw=true'], videoUrl: null, note: null },
     6:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202336.png?raw=true'], videoUrl: null, note: null },
     7:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202343.png?raw=true'], videoUrl: null, note: null },
@@ -1474,9 +1492,21 @@ function showPage(pageId) {
     else activeStepNumber = 1;
     
     document.querySelectorAll(`.step[data-step="${activeStepNumber}"]`).forEach(stepEl => stepEl.classList.add('active-step'));
+
+    // ★★★ アイコンの重なり問題を修正するため、以下の処理を追加 ★★★
+    // ページが表示された直後にマップのレイアウトを更新し、アイコンを正しい位置に再配置します。
+    if (pageId === 'current-config-page') {
+        setTimeout(() => updateMapLayout('current-map-container'), 50);
+    } else if (pageId === 'ideal-config-page') {
+        setTimeout(() => updateMapLayout('ideal-map-container'), 50);
+    }
 }
 
-function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+function showModal(modalId) { 
+    document.getElementById(modalId).classList.add('active'); 
+}
+
+// ★★★ 誤ったコメントを修正 ★★★
 function closeModal(modalId) { 
     if (modalId === 'loading-modal' && calculationTask) {
         clearTimeout(calculationTask);
@@ -1567,9 +1597,9 @@ function selectPatternForConfirmation(pattern) {
     const imageUrl = screenshotImageUrls[activeSelection.groupId]?.[activeSelection.pattern];
      if (imageUrl) {
          document.getElementById('screenshot-img').src = imageUrl;
-    } else {
+     } else {
          document.getElementById('screenshot-img').src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
-    }
+     }
     document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
     showModal('screenshot-popup');
 }
@@ -1962,7 +1992,7 @@ function generateActionDetailsHTML(actionData, playerRole) {
                     if (timestamp) {
                          const timeParts = timestamp.split('t=');
                          if(timeParts.length > 1) {
-                            embedUrl += `?start=${timeParts[1].replace('s', '')}`;
+                             embedUrl += `?start=${timeParts[1].replace('s', '')}`;
                          }
                     }
 
