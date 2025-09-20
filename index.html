@@ -33,7 +33,6 @@
             background-position: center;
             background-attachment: fixed;
             height: 100vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
@@ -551,15 +550,15 @@
 
         .pattern-marker { 
             position: absolute; 
-            width: clamp(35px, 6vw, 50px); 
-            height: clamp(35px, 6vw, 50px);
+            width: clamp(25px, 4vw, 35px); 
+            height: clamp(25px, 4vw, 35px);
             background-color: rgba(59, 130, 246, 0.8); 
-            border: 3px solid var(--accent-color); 
+            border: 2px solid var(--accent-color); 
             animation: glowing 2s infinite; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            font-size: 1.5em; 
+            font-size: 1.1em; 
             color: white; 
             font-weight: bold; 
             cursor: pointer; 
@@ -570,8 +569,8 @@
         }
         .pattern-marker .pattern-label {
             background-color: rgba(0,0,0,0.5);
-            padding: 2px 5px;
-            border-radius: 4px;
+            padding: 1px 4px;
+            border-radius: 3px;
         }
         .pattern-marker.completed {
             background-color: #10B981;
@@ -726,10 +725,30 @@
 
         @media (max-width: 768px) {
             .site-header, .site-credit-footer { padding: 10px 20px; }
-            main { padding: 0 0 40px 0; } /* Add padding for footer */
-            body { padding-bottom: 40px; } /* Ensure space for fixed footer */
-            .container { width: 100%; height: 100%; max-height: none; border-radius: 0; }
-            .page { padding: 20px; }
+            body { 
+                padding-bottom: 40px; /* Ensure space for fixed footer */
+                height: auto; /* Allow body to grow */
+                min-height: 100vh;
+            } 
+            main {
+                 padding: 0;
+                 flex-grow: 1; /* Allow main to take available space */
+            }
+            .container { 
+                width: 100%; 
+                height: 100%; 
+                min-height: calc(100vh - 58px - 40px); /* header and footer height */
+                max-height: none; 
+                border-radius: 0; 
+            }
+            .page { 
+                padding: 20px; 
+                overflow-y: auto; /* Allow page content to scroll */
+                justify-content: flex-start; /* Align content to top */
+            }
+            #start-page {
+                justify-content: center; /* Keep start page centered */
+            }
             #start-page h1 { font-size: 2.5em; }
             .steps-container { gap: 10px; }
             .step-icon { width: 50px; height: 50px; font-size: 1.2em;}
@@ -765,6 +784,7 @@
                 flex-direction: row; 
                 flex-wrap: wrap;
                 gap: 10px;
+                padding-bottom: 15px; /* Add some bottom padding */
             }
             .page-footer .left-action, .page-footer .right-action {
                 flex-basis: auto;
@@ -793,12 +813,10 @@
         <h1>鶴観配置調整ツール (マルチ対応版)</h1>
     </header>
 
-    <!-- ★★★ ここからが変更箇所です ★★★ -->
     <div id="info-banner" class="info-banner">
         <p>鶴観の精鋭の仕組みについて詳しく知りたい方は、<a href="https://youtu.be/2xqllaCTP5c?si=m9yyxXo5GS0rwFG9" target="_blank" rel="noopener noreferrer">こちらの解説動画</a>をご覧ください。</p>
         <button id="close-banner-btn" class="close-banner-btn" title="閉じる">&times;</button>
     </div>
-    <!-- ★★★ ここまでが変更箇所です ★★★ -->
 
     <main>
         <div class="container backdrop-blur">
@@ -954,6 +972,10 @@
 
                     <div class="result-details-container">
                          <h2 id="result-title">計算結果</h2>
+                         <div id="solo-mode-note" style="display: none; font-size: 0.9em; color: var(--secondary-text-color); margin-top: -10px; margin-bottom: 20px;">
+                            <p style="margin: 0;">周期ホールドを使わない調整方法です。周期ホールドを使ったらもっと調整期間を短縮できるかもしれません。<br>
+                            <a href="https://youtu.be/2xqllaCTP5c?si=-jzSEDAzIkSjZ87P&t=1194" target="_blank" rel="noopener noreferrer">詳しくは動画で</a></p>
+                         </div>
                          <div id="result-summary"></div>
                          <div class="result-table-container">
                             <table class="result-table">
@@ -1106,8 +1128,6 @@ const actionsData = [
     {id: 21, name: 'ボート㉑', affectedGroups: ['I']},
 ];
 
-// --- ★★★ 変更点 ★★★ ---
-// 各アクションの詳細情報をExcelファイルの内容に基づいて更新
 const actionDetails = {
     2:  { images: [], videoUrl: null, note: null },
     3:  { images: [], videoUrl: null, note: null },
@@ -1180,7 +1200,6 @@ const PATTERN_MAP = { 'A': 0, 'B': 1, 'C': 2 };
 
 // --- SCRIPT START ---
 document.addEventListener('DOMContentLoaded', () => {
-    // ★★★ ここからが変更箇所です ★★★
     const infoBanner = document.getElementById('info-banner');
     const closeBannerBtn = document.getElementById('close-banner-btn');
     
@@ -1194,7 +1213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // localStorageに状態を保存
         localStorage.setItem('tsurumiBannerClosed', 'true');
     });
-    // ★★★ ここまでが変更箇所です ★★★
 
     document.getElementById('go-to-current-btn').addEventListener('click', () => showPage('current-config-page'));
     document.getElementById('guide-btn').addEventListener('click', () => showModal('guide-modal'));
@@ -1595,13 +1613,16 @@ function displayResults(plan, isMultiplayer) {
     
     document.getElementById('result-title').textContent = isMultiplayer ? "計算結果 (周期ホールドON)" : "計算結果 (周期ホールドOFF)";
     const summaryEl = document.getElementById('result-summary');
+    const soloNoteEl = document.getElementById('solo-mode-note');
     
     const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
     if (isMultiplayer) {
+        soloNoteEl.style.display = 'none';
         alternateCalcBtn.textContent = '周期ホールドOFFで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(false);
         alternateCalcBtn.className = 'btn btn-primary';
     } else {
+        soloNoteEl.style.display = 'block';
         alternateCalcBtn.textContent = '周期ホールドONで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(true);
         alternateCalcBtn.className = 'btn btn-multi';
@@ -1632,7 +1653,6 @@ function displayResults(plan, isMultiplayer) {
     showPage('result-page');
 }
 
-// --- ★★★ ここからが変更箇所です ★★★
 function showDayDetail(dayData, dayNumber) {
     const titleEl = document.getElementById('day-detail-title');
     const contentEl = document.getElementById('day-detail-content');
@@ -1739,7 +1759,6 @@ function generateActionDetailsHTML(actionData, playerRole) {
     html += '</ul>';
     return html;
 }
-// ★★★ ここまでが変更箇所です ★★★
 
 </script>
 </body>
