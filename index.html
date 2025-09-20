@@ -58,7 +58,7 @@
             color: white;
         }
 
-        /* --- Info Banner (New) --- */
+        /* --- Info Banner --- */
         .info-banner {
             background-color: rgba(229, 231, 235, 0.95); /* Light gray */
             color: var(--secondary-text-color);
@@ -509,6 +509,17 @@
             max-width: 1200px;
             margin-top: 20px;
         }
+        #solo-mode-note {
+            display: none; 
+            font-size: 0.9em; 
+            color: var(--secondary-text-color); 
+            margin-top: -10px; 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #solo-mode-note p {
+            margin: 0;
+        }
 
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
         .result-table-container { 
@@ -723,32 +734,43 @@
             }
         }
 
+        /* ★★★ ここからが変更箇所です (スマホ/タブレット向け) ★★★ */
         @media (max-width: 768px) {
-            .site-header, .site-credit-footer { padding: 10px 20px; }
-            body { 
-                padding-bottom: 40px; /* Ensure space for fixed footer */
-                height: auto; /* Allow body to grow */
+            html, body {
+                height: auto; /* allow body to grow with content */
                 min-height: 100vh;
-            } 
+            }
             main {
                  padding: 0;
-                 flex-grow: 1; /* Allow main to take available space */
+                 flex-grow: 1; /* allow main to take available space */
             }
             .container { 
                 width: 100%; 
-                height: 100%; 
-                min-height: calc(100vh - 58px - 40px); /* header and footer height */
+                height: auto; /* auto height for container */
+                min-height: calc(100vh - 58px); /* Full viewport height minus header */
                 max-height: none; 
                 border-radius: 0; 
             }
+            body {
+                padding-bottom: 40px; /* Add space for fixed footer */
+            }
             .page { 
                 padding: 20px; 
-                overflow-y: auto; /* Allow page content to scroll */
-                justify-content: flex-start; /* Align content to top */
+                height: auto; /* allow page to grow */
+                position: relative; /* change from absolute */
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                display: none; /* hide pages by default */
+            }
+            .page.active {
+                display: flex; /* show active page */
             }
             #start-page {
                 justify-content: center; /* Keep start page centered */
             }
+            
+            .site-header, .site-credit-footer { padding: 10px 20px; }
             #start-page h1 { font-size: 2.5em; }
             .steps-container { gap: 10px; }
             .step-icon { width: 50px; height: 50px; font-size: 1.2em;}
@@ -806,6 +828,42 @@
                 padding: 10px;
             }
         }
+        
+        /* ★★★ ここからが変更箇所です (13インチノートPCなど、高さが狭い画面向け) ★★★ */
+        @media (max-height: 800px) and (min-width: 769px) {
+            .page {
+                padding-top: 1.5vw;
+                padding-bottom: 1.5vw;
+            }
+            .page-header {
+                margin-bottom: 10px;
+            }
+            .steps-container {
+                gap: 15px;
+            }
+            .step-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2em;
+            }
+            .step-label {
+                margin-top: 8px;
+                font-size: 0.9em;
+            }
+            .step-arrow {
+                font-size: 1.8em;
+            }
+            .view-switcher {
+                margin-bottom: 10px;
+            }
+            .view-tab {
+                padding: 8px 16px;
+            }
+            .page-footer {
+                margin-top: 15px;
+            }
+        }
+        /* ★★★ ここまでが変更箇所です ★★★ */
     </style>
 </head>
 <body>
@@ -1724,9 +1782,6 @@ function generateActionDetailsHTML(actionData, playerRole) {
             details.images.forEach(imgUrl => {
                 html += `<img src="${imgUrl}" alt="${actionName} のルート図" >`;
             });
-        } else {
-            // Fallback placeholder image
-            html += `<img src="https://placehold.co/450x280/eef2ff/312e81?text=${encodeURIComponent(actionName.replace(/\//g, ''))}" alt="${actionName} のルート図" >`;
         }
 
         // Handle YouTube video
@@ -1734,16 +1789,23 @@ function generateActionDetailsHTML(actionData, playerRole) {
             try {
                 const url = new URL(details.videoUrl);
                 let videoId = url.searchParams.get('v');
-                if (!videoId && url.hostname === 'youtu.be') {
-                    videoId = url.pathname.slice(1);
+                if (!videoId && (url.hostname === 'youtu.be' || url.hostname === 'www.youtu.be')) {
+                    videoId = url.pathname.split('/').pop();
                 }
                 
                 if (videoId) {
+                    // Extract timestamp if available
+                    const timestamp = url.searchParams.get('t');
+                    let embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    if (timestamp) {
+                        embedUrl += `?start=${timestamp.replace('s', '')}`;
+                    }
+
                     html += `
                         <p style="margin-top:15px;"><strong>参考動画:</strong></p>
                         <div class="video-container">
                             <iframe 
-                                src="https://www.youtube.com/embed/${videoId}" 
+                                src="${embedUrl}" 
                                 title="YouTube video player" 
                                 frameborder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
