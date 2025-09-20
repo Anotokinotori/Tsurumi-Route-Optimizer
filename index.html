@@ -1,10 +1,9 @@
-39
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観配置調整ツール (マルチ対応版)</title>
+    <title>鶴観調整ツール</title>
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -171,6 +170,9 @@
         #start-page .page-content-wrapper {
              height: auto;
              justify-content: center;
+             display: flex;
+             flex-direction: column;
+             gap: 2vh;
         }
         #start-page h1 {
             font-size: clamp(2.5em, 5vw, 4.5em);
@@ -505,13 +507,23 @@
         #result-page .page-content-wrapper {
             display: block; /* Use block to allow children to layout normally */
         }
-        .result-layout-container {
+        
+        /* === [NEW] Grid container for 2-column layout on desktop === */
+        .result-grid {
             display: grid;
             grid-template-columns: 1fr; /* Mobile first */
             gap: 20px;
-            align-items: center;
+            align-items: flex-start; /* Align items to the top of their grid area */
             width: 100%;
         }
+
+        .result-layout-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
         .result-map-container {
             width: 100%;
             height: auto;
@@ -537,23 +549,9 @@
         }
 
         .result-details-container {
-            grid-column: 1 / -1; /* Span full width on mobile */
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
-        }
-        #solo-mode-note {
-            display: none; 
-            font-size: 0.9em; 
-            color: var(--secondary-text-color); 
-            margin-top: -10px; 
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #solo-mode-note p {
-            margin: 0;
         }
 
         #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
@@ -754,7 +752,7 @@
 
         /* Scroll Down Indicator */
         .scroll-indicator {
-            display: none; /* Hidden by default, enabled via media queries */
+            display: none; /* Hidden by default, shown via JS */
             position: absolute;
             bottom: 20px;
             left: 50%;
@@ -792,18 +790,24 @@
 
         /* --- RESPONSIVE STYLES --- */
         @media (min-width: 992px) {
+             /* === [MODIFIED] Apply two-column layout to the new grid container === */
+            .result-grid {
+                grid-template-columns: minmax(350px, 4fr) 6fr; /* Left column for map, right for table */
+                gap: 40px; /* Wider gap on desktop */
+                align-items: flex-start;
+            }
+
+            /* Make the left panel (map + buttons) sticky */
             .result-layout-container {
-                grid-template-columns: minmax(auto, 400px) 1fr;
-                align-items: center;
+                position: sticky;
+                top: 20px;
             }
-            .result-map-container {
-                justify-self: start;
-                margin: 0;
-            }
-            .result-actions-container {
-                justify-content: center;
-                align-items: center;
-                height: 100%;
+
+            /* === [NEW] Increase zoom map icon size on large screens === */
+            .pattern-marker {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
             }
         }
         
@@ -832,8 +836,6 @@
             .page { 
                 padding: 20px; 
                 height: auto;
-                /* ページ全体に適用されていた最小の高さを削除 */
-                /* min-height: calc(100vh - 80px); */
                 position: relative;
                 opacity: 1;
                 visibility: visible;
@@ -846,22 +848,13 @@
             }
             #start-page {
                 justify-content: center;
-                /* スタートページの高さを自然にし、paddingで余白を調整 */
                 padding-top: 2vh;
                 padding-bottom: 2vh;
             }
 
-            /* 最小の高さが必要な入力ページにのみ、スタイルを適用 */
             #current-config-page, #ideal-config-page {
                 min-height: calc(100vh - 80px);
             }
-
-            /* 古い、不要なスタイルを削除 */
-            /*
-            #start-page .page-content-wrapper { ... }
-            #start-page .subtitle { ... }
-            .start-buttons { ... }
-            */
 
             .site-header, .site-credit-footer { padding: 10px 20px; }
             #start-page h1 { font-size: 2.5em; }
@@ -879,9 +872,7 @@
                 min-height: calc(100vh - 80px); /* Ensure wrapper takes full viewport minus fixed elements */
             }
             .input-views-container {
-                /* 柔軟に伸びる設定をやめ、高さを直接指定できるように変更 */
                 flex-grow: 0;
-                /* min-heightからheightに変更し、高さを固定。ユーザー指定の43vhに調整 */
                 height: 43vh;
             }
             .input-views-container .map-container {
@@ -898,8 +889,7 @@
                 left: 0;
             }
             
-            /* === [修正] スマホ表示でもスクロール矢印を表示 === */
-            #result-page #scroll-indicator {
+            #result-page .scroll-indicator {
                 display: flex;
             }
         }
@@ -945,8 +935,7 @@
                 padding: 10px;
             }
 
-            /* === [修正] スマホ表示(幅480px以下)でもスクロール矢印を表示 === */
-            #result-page #scroll-indicator {
+            #result-page .scroll-indicator {
                 display: flex;
             }
         }
@@ -989,7 +978,7 @@
                 margin-top: 10px;
             }
             
-            #result-page #scroll-indicator {
+            #result-page .scroll-indicator {
                 display: flex;
             }
         }
@@ -997,7 +986,7 @@
 </head>
 <body>
     <header class="site-header backdrop-blur">
-        <h1>鶴観配置調整ツール (マルチ対応版)</h1>
+        <h1>鶴観調整ツール</h1>
     </header>
 
     <div id="info-banner" class="info-banner">
@@ -1012,8 +1001,8 @@
             <div id="start-page" class="page active">
                 <div class="page-content-wrapper">
                     <div class="start-header">
-                        <h1>鶴観配置調整ツール</h1>
-                        <p class="subtitle">※PCでの使用をおすすめします<br>現在と理想の配置を入力すると、最短の調整スケジュールを計算します。</p>
+                        <h1>鶴観調整ツール</h1>
+                        <p class="subtitle">※PCでの使用をおすすめします<br>現在と理想の配置を入力すると、最短調整スケジュールを計算します</p>
                     </div>
                     
                     <div class="steps-container">
@@ -1148,38 +1137,33 @@
                         <div class="header-placeholder"></div>
                     </div>
 
-                    <div class="result-layout-container">
-                        <div class="result-map-container">
-                            <img src="https://github.com/Anotokinotori/test/blob/main/result.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
+                    <div class="result-grid">
+                        <div class="result-layout-container">
+                            <div class="result-map-container">
+                                <img src="https://github.com/Anotokinotori/test/blob/main/result.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
+                            </div>
+                            <div class="result-actions-container">
+                                <button id="recalculate-alternate-mode-btn" class="btn"></button>
+                                <button id="reset-btn" class="btn btn-secondary">最初からやり直す</button>
+                            </div>
                         </div>
-                        <div class="result-actions-container">
-                            <button id="recalculate-alternate-mode-btn" class="btn"></button>
-                            <button id="reset-btn" class="btn btn-secondary">最初からやり直す</button>
-                        </div>
-                    </div>
 
-                    <div id="result-details" class="result-details-container">
-                         <h2 id="result-title">計算結果</h2>
-                         <div id="solo-mode-note">
-                            <p>周期ホールドを使わない方法です。使用したら期間を短縮できるかもしれません。<br>
-                            <a href="https://youtu.be/2xqllaCTP5c?si=-jzSEDAzIkSjZ87P&t=1194" target="_blank" rel="noopener noreferrer">詳しくは動画で</a></p>
-                         </div>
-                         <div id="result-summary"></div>
-                         <div class="result-table-container">
-                            <table class="result-table">
-                                <thead>
-                                    <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
-                                </thead>
-                                <tbody id="result-tbody"></tbody>
-                            </table>
-                         </div>
+                        <div id="result-details" class="result-details-container">
+                             <div id="result-summary"></div>
+                             <div class="result-table-container">
+                                <table class="result-table">
+                                    <thead>
+                                        <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
+                                    </thead>
+                                    <tbody id="result-tbody"></tbody>
+                                </table>
+                             </div>
+                        </div>
                     </div>
                 </div>
-                <!-- ★★★ ここからが変更箇所です ★★★ -->
-                <a href="#result-details" id="scroll-indicator" class="scroll-indicator">
+                <a href="#result-details" id="scroll-indicator" class="scroll-indicator hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </a>
-                <!-- ★★★ ここまでが変更箇所です ★★★ -->
             </div>
         </div>
     </main>
@@ -1328,7 +1312,7 @@ const actionDetails = {
     5:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202329.png?raw=true'], videoUrl: null, note: null },
     6:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202336.png?raw=true'], videoUrl: null, note: null },
     7:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202343.png?raw=true'], videoUrl: null, note: null },
-    8:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202349.png?raw=true'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    8:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202349.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動し、ロードが完了したらすぐ他の場所に移動します。影響範囲を広げないよう、ロード後の移動は不要です。' },
     9:  { images: ['https://assets.st-note.com/img/1740718483-AhlXqnUk7BWjzOoeZcR6D9Y4.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
     10: { images: ['https://assets.st-note.com/img/1740972735-fGwYadHbXy3MxPjqiACBrN0h.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
     11: { images: ['https://assets.st-note.com/img/1741059429-fjJvq8DHOs5kcYNUmzW2dKrn.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
@@ -1449,23 +1433,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ideal-map-tab').addEventListener('click', () => switchInputView('ideal', 'map'));
     document.getElementById('ideal-list-tab').addEventListener('click', () => switchInputView('ideal', 'list'));
 
-    // ★★★ ここからが変更箇所です ★★★
-    const resultPage = document.getElementById('result-page');
-    const scrollIndicator = document.getElementById('scroll-indicator');
-
-    resultPage.addEventListener('scroll', () => {
-        if (resultPage.scrollTop > 50) {
-            scrollIndicator.classList.add('hidden');
-        } else {
-            scrollIndicator.classList.remove('hidden');
-        }
-    });
-
-    scrollIndicator.addEventListener('click', function(e) {
+    // スクロールインジケーターのクリックイベント
+    document.getElementById('scroll-indicator').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('result-details').scrollIntoView({ behavior: 'smooth' });
     });
-    // ★★★ ここまでが変更箇所です ★★★
+
+    // スクロールとリサイズを監視して、インジケーターの表示を制御
+    const resultPage = document.getElementById('result-page');
+    resultPage.addEventListener('scroll', updateScrollIndicator);
+    window.addEventListener('resize', updateScrollIndicator);
 
     document.getElementById('result-tbody').addEventListener('click', (e) => {
         if (e.target && e.target.classList.contains('btn-details')) {
@@ -1504,8 +1481,6 @@ function showPage(pageId) {
     
     document.querySelectorAll(`.step[data-step="${activeStepNumber}"]`).forEach(stepEl => stepEl.classList.add('active-step'));
 
-    // ★★★ アイコンの重なり問題を修正するため、以下の処理を追加 ★★★
-    // ページが表示された直後にマップのレイアウトを更新し、アイコンを正しい位置に再配置します。
     if (pageId === 'current-config-page') {
         setTimeout(() => updateMapLayout('current-map-container'), 50);
     } else if (pageId === 'ideal-config-page') {
@@ -1517,7 +1492,6 @@ function showModal(modalId) {
     document.getElementById(modalId).classList.add('active'); 
 }
 
-// ★★★ 誤ったコメントを修正 ★★★
 function closeModal(modalId) { 
     if (modalId === 'loading-modal' && calculationTask) {
         clearTimeout(calculationTask);
@@ -1849,24 +1823,19 @@ function calculatePlan(isMultiplayer) {
 
 
 // --- RESULT DISPLAY ---
-// ★★★ ここからが変更箇所です ★★★
 function displayResults(plan, isMultiplayer) {
     lastCalculatedPlan = plan; 
     const tbody = document.getElementById('result-tbody');
     tbody.innerHTML = '';
     
-    document.getElementById('result-title').textContent = isMultiplayer ? "計算結果 (周期ホールドON)" : "計算結果 (周期ホールドOFF)";
     const summaryEl = document.getElementById('result-summary');
-    const soloNoteEl = document.getElementById('solo-mode-note');
     
     const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
     if (isMultiplayer) {
-        soloNoteEl.style.display = 'none';
         alternateCalcBtn.textContent = '周期ホールドOFFで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(false);
         alternateCalcBtn.className = 'btn btn-primary';
     } else {
-        soloNoteEl.style.display = 'block';
         alternateCalcBtn.textContent = '周期ホールドONで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(true);
         alternateCalcBtn.className = 'btn btn-multi';
@@ -1895,22 +1864,13 @@ function displayResults(plan, isMultiplayer) {
         });
     }
 
-    // Scroll indicator logic
-    const resultPage = document.getElementById('result-page');
-    resultPage.scrollTop = 0; // Reset scroll position
-    const scrollIndicator = document.getElementById('scroll-indicator');
-    if (scrollIndicator) {
-        // Show indicator initially if content is scrollable
-        setTimeout(() => {
-            if (resultPage.scrollHeight > resultPage.clientHeight) {
-                 scrollIndicator.classList.remove('hidden');
-            } else {
-                 scrollIndicator.classList.add('hidden');
-            }
-        }, 100);
-    }
-
     showPage('result-page');
+    
+    const resultPage = document.getElementById('result-page');
+    resultPage.scrollTop = 0; // ページ表示時にスクロール位置を一番上に戻す
+
+    // ページ描画が完了するのを少し待ってから、インジケーターの表示を更新する
+    setTimeout(updateScrollIndicator, 150); 
 }
 
 function showDayDetail(dayData, dayNumber) {
@@ -1920,7 +1880,7 @@ function showDayDetail(dayData, dayNumber) {
     titleEl.textContent = `${dayNumber}日目の手順詳細`;
     
     // 注意書きを一番最初に追加
-    let contentHTML = '<p style="color: red; font-weight: bold; text-align:center;">注意: 移動時には閑雲(かんうん)のような空中移動キャラクターは、ロード範囲がズレる可能性があるため使用しないでください。</p>';
+    let contentHTML = '<p style="color: red; font-weight: bold; text-align:center;">注意: 移動時には閑雲のような空中移動キャラクターは、ロード範囲がズレる可能性があるため使用しないでください。</p>';
 
     if (dayData.mode === 'ソロ') {
         contentHTML += `<h3>ソロモードでの行動</h3>`;
@@ -2027,7 +1987,26 @@ function generateActionDetailsHTML(actionData, playerRole) {
     html += '</ul>';
     return html;
 }
-// ★★★ ここまでが変更箇所です ★★★
+
+/**
+ * スクロールインジケーターの表示/非表示を制御する関数
+ */
+function updateScrollIndicator() {
+    const resultPage = document.getElementById('result-page');
+    const scrollIndicator = document.getElementById('scroll-indicator');
+    if (!resultPage || !scrollIndicator) return;
+
+    // ページがスクロール可能か、かつユーザーがページ上部にいるかを確認
+    const isScrollable = resultPage.scrollHeight > resultPage.clientHeight;
+    const isAtTop = resultPage.scrollTop < 50;
+
+    // スクロール可能で、かつページ上部にいる場合のみ矢印を表示
+    if (isScrollable && isAtTop) {
+        scrollIndicator.classList.remove('hidden');
+    } else {
+        scrollIndicator.classList.add('hidden');
+    }
+}
 
 </script>
 </body>
