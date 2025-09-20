@@ -35,6 +35,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Prevent body scroll on desktop */
         }
 
         .backdrop-blur {
@@ -382,7 +383,6 @@
              position: relative; /* For validation message */
         }
         
-        /* ★★★ ここからが変更箇所です ★★★ */
         .validation-message {
             color: #ef4444; /* red-500 */
             font-weight: bold;
@@ -413,7 +413,6 @@
         .shake {
             animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
         }
-        /* ★★★ ここまでが変更箇所です ★★★ */
 
 
         /* Tab UI for Input Pages */
@@ -769,33 +768,38 @@
             }
         }
         
+        /* ★★★ ここからが変更箇所です (スマホ/タブレット向け) ★★★ */
         @media (max-width: 768px) {
             body {
-                overflow: auto; /* Allow body scroll */
+                overflow: auto;
                 height: auto;
+                min-height: 100%;
             }
             main {
                  padding: 0;
                  height: auto;
+                 flex-grow: 1;
             }
             .container { 
                 width: 100%; 
                 height: auto;
-                min-height: calc(100vh - 58px - 40px); /* Adjust for header and footer */
+                min-height: 0;
                 max-height: none; 
                 border-radius: 0; 
-                overflow: visible;
+                overflow: visible; /* Let content determine height */
             }
-            
+            body {
+                 padding-bottom: 50px; /* Space for the footer */
+            }
             .page { 
                 padding: 20px; 
-                height: auto; 
+                height: auto;
                 position: relative;
                 opacity: 1;
                 visibility: visible;
                 transform: none;
                 display: none; 
-                justify-content: flex-start; 
+                justify-content: flex-start;
             }
             .page.active {
                 display: flex;
@@ -814,28 +818,29 @@
             .config-list { grid-template-columns: 1fr; }
             .modal-content { width: 90%; padding: 20px; }
             .result-table th, .result-table td { padding: 10px; font-size: 0.9em;}
-            .site-credit-footer {
-                position: relative; /* Changed from fixed */
-            }
             
             .page-content-wrapper {
                 height: auto; 
             }
             .input-views-container {
-                flex-grow: 0; 
-                min-height: auto; 
+                flex-grow: 1;
+                min-height: 250px;
             }
             .input-views-container .map-container {
-                height: auto;
-                aspect-ratio: 1.6; 
-                min-height: 200px; 
+                height: 100%;
+                aspect-ratio: unset;
             }
             .config-list {
-                height: auto; 
-                max-height: 300px;
-                overflow-y: auto;
+                height: 100%; 
+                max-height: none;
+            }
+            .site-credit-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
             }
         }
+        /* ★★★ ここまでが変更箇所です ★★★ */
 
         @media (max-width: 480px) {
             #start-page h1 { font-size: 2em; }
@@ -1243,7 +1248,7 @@ const actionsData = [
 const actionDetails = {
     2:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202210.png?raw=true'], videoUrl: null, note: null },
     3:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202231.png?raw=true'], videoUrl: null, note: null },
-    4:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202321.png?raw=true'], videoUrl: null, note: null },
+    4:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%Bーン%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202321.png?raw=true'], videoUrl: null, note: null },
     5:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202329.png?raw=true'], videoUrl: null, note: null },
     6:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202336.png?raw=true'], videoUrl: null, note: null },
     7:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202343.png?raw=true'], videoUrl: null, note: null },
@@ -1331,7 +1336,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('credit-modal-trigger').addEventListener('click', () => showModal('credit-modal'));
     document.querySelectorAll('.modal-close').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.target)));
     
-    // ★★★ ここからが変更箇所です ★★★
     document.getElementById('go-to-ideal-btn').addEventListener('click', (e) => {
         if (e.currentTarget.disabled) {
             const validationMessage = document.getElementById('validation-message');
@@ -1352,7 +1356,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showPage('ideal-config-page');
         }
     });
-    // ★★★ ここまでが変更箇所です ★★★
 
     document.getElementById('set-recommended-btn').addEventListener('click', setRecommendedConfig);
     document.getElementById('calculate-plan-btn').addEventListener('click', () => {
@@ -1902,6 +1905,8 @@ function generateActionDetailsHTML(actionData, playerRole) {
 </script>
 </body>
 </html>
+
+
 
 
 
