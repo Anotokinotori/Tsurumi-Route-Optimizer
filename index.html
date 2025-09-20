@@ -1243,7 +1243,7 @@
     
     <div id="loading-modal" class="modal">
          <div class="modal-content" style="text-align: center;">
-            <h2>計算中...</h2>
+            <h2 style="font-size: 2.5em; margin-bottom: 10px;">計算中...</h2>
             <p id="loading-text">最適なルートを探索しています。<br>組み合わせが複雑な場合、十数秒かかることがあります。</p>
             <div class="loader"></div>
             <div id="calculation-progress"></div>
@@ -1753,7 +1753,7 @@ function calculatePlan(isMultiplayer) {
     }
     const progressEl = document.getElementById('calculation-progress');
     progressEl.textContent = '調整パターンの検証を開始...';
-    document.getElementById('loading-text').innerHTML = `<span style="display: block; font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">このツールは、<a href="https://youtu.be/2xqllaCTP5c?si=m9yyxXo5GS0rwFG9" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: bold;">ねこしたさんの解説</a>に基づき、プログラムされました！</span><span style="font-size: 0.9em; color: var(--secondary-text-color);">計算には数分かかる場合がありますので、しばらくお待ちください。</span>`;
+    document.getElementById('loading-text').innerHTML = `<span style="display: block; font-size: 1.1em; font-weight: bold; margin-bottom: 15px;">このツールは、<a href="https://youtu.be/2xqllaCTP5c?si=m9yyxXo5GS0rwFG9" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: bold;">ねこしたさんの解説</a>に基づき、プログラムされました！<br>ぜひ解説動画もご覧ください。</span><span style="font-size: 0.9em; color: var(--secondary-text-color);">計算には数分かかる場合がありますので、しばらくお待ちください。</span>`;
     showModal('loading-modal');
     
     if (calculationTask) clearTimeout(calculationTask);
@@ -2047,6 +2047,9 @@ function updateScrollIndicator() {
 </script>
 </body>
 </html>
+
+
+
 
 
 
