@@ -58,6 +58,50 @@
             font-size: clamp(1.2em, 2vw, 1.5em);
             color: white;
         }
+
+        /* --- Info Banner (New) --- */
+        .info-banner {
+            background-color: rgba(229, 231, 235, 0.95); /* Light gray */
+            color: var(--secondary-text-color);
+            text-align: center;
+            padding: 12px 50px; /* Add space for close button */
+            position: relative;
+            font-size: 0.95em;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.4s ease-in-out;
+            overflow: hidden;
+        }
+        .info-banner.hidden {
+            height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            opacity: 0;
+        }
+        .info-banner p {
+            margin: 0;
+        }
+        .info-banner a {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .close-banner-btn {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            line-height: 1;
+            cursor: pointer;
+            color: #a0aec0;
+            padding: 5px;
+        }
+        .close-banner-btn:hover {
+            color: var(--primary-text-color);
+        }
         
         /* --- Main Content Area --- */
         main {
@@ -590,6 +634,23 @@
             margin: 10px auto 0;
             border: 1px solid var(--border-color);
         }
+        #day-detail-content .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+        #day-detail-content .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
         
         /* Site Credit Footer */
         .site-credit-footer {
@@ -731,6 +792,14 @@
     <header class="site-header backdrop-blur">
         <h1>鶴観配置調整ツール (マルチ対応版)</h1>
     </header>
+
+    <!-- ★★★ ここからが変更箇所です ★★★ -->
+    <div id="info-banner" class="info-banner">
+        <p>鶴観の精鋭の仕組みについて詳しく知りたい方は、<a href="https://youtu.be/2xqllaCTP5c?si=m9yyxXo5GS0rwFG9" target="_blank" rel="noopener noreferrer">こちらの解説動画</a>をご覧ください。</p>
+        <button id="close-banner-btn" class="close-banner-btn" title="閉じる">&times;</button>
+    </div>
+    <!-- ★★★ ここまでが変更箇所です ★★★ -->
+
     <main>
         <div class="container backdrop-blur">
 
@@ -1014,7 +1083,6 @@ const eliteGroups = {
 const groupKeys = Object.keys(eliteGroups);
 const totalGroups = groupKeys.length;
 
-// ★★★ ここに削除されていたIDをすべて反映させます ★★★
 const actionsData = [
     {id: 2, name: 'ワープ②', affectedGroups: ['A', 'D']},
     {id: 3, name: 'ワープ③', affectedGroups: ['A', 'B', 'C', 'D', 'E', 'J']},
@@ -1037,6 +1105,32 @@ const actionsData = [
     {id: 20, name: 'ボート⑳', affectedGroups: ['H', 'I']},
     {id: 21, name: 'ボート㉑', affectedGroups: ['I']},
 ];
+
+// --- ★★★ 変更点 ★★★ ---
+// 各アクションの詳細情報をExcelファイルの内容に基づいて更新
+const actionDetails = {
+    2:  { images: [], videoUrl: null, note: null },
+    3:  { images: [], videoUrl: null, note: null },
+    4:  { images: [], videoUrl: null, note: null },
+    5:  { images: [], videoUrl: null, note: null },
+    6:  { images: [], videoUrl: null, note: null },
+    7:  { images: [], videoUrl: null, note: null },
+    8:  { images: [], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    9:  { images: ['https://assets.st-note.com/img/1740718483-AhlXqnUk7BWjzOoeZcR6D9Y4.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    10: { images: ['https://assets.st-note.com/img/1740972735-fGwYadHbXy3MxPjqiACBrN0h.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    11: { images: ['https://assets.st-note.com/img/1741059429-fjJvq8DHOs5kcYNUmzW2dKrn.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    12: { images: ['https://assets.st-note.com/img/1740718519-C5t0WKmVepqoji19Rc2GZduf.jpg?width=1200'], videoUrl: null, note: '鶴観の七天神像の近くのボートポイントから向かってください' },
+    13: { images: ['https://assets.st-note.com/img/1740019544-fjJrv5VwbpUgatR0FLMODEPG.png?width=1200', 'https://assets.st-note.com/img/1740019502-2BkCqL4znrixluRm7FpjvhOQ.png?width=1200'], videoUrl: 'https://youtu.be/2_xN2PYjrO4?si=0K03Yr1tl74NQ0MF', note: 'モシリ炎アビス + モシリ雷アビス + モシリ暴徒 ロード位置' },
+    14: { images: ['https://assets.st-note.com/img/1739947858-im8E9AtCjsr501YZnHWuKxNJ.png?width=1200 ', 'https://assets.st-note.com/img/1739947867-yxzY23VinFgkLKrCtmXqvG0B.png?width=1200'], videoUrl: 'https://youtu.be/fDn-IKfIL-A?si=92PmIUWw-Vgvg34m', note: 'ワープ8にワープした段階でワクカウもロードされます。その後、移動し、モシリ炎アビスとモシリ雷アビスもロードします。目印は杭です。' },
+    15: { images: ['https://assets.st-note.com/img/1738380135-LlcU0487Xtbjduk9KzqT6sDa.png?width=1200', 'https://assets.st-note.com/img/1740114869-zBxEZO2v3dAeQusnTYJ0WkNb.png?width=1200'], videoUrl: 'https://youtu.be/FRZu8bq3SEY?si=Ra81bAbgAKu_DGqb', note: '他の精鋭をロードしないようにボートポイントから向かってください。（ポケワを置くかヤシオリ島から海を渡る）\n目印はミントです。' },
+    16: { images: ['https://assets.st-note.com/img/1743737811-wB7bQ5n9SjWA04tyDLsJROVf.png?width=1200', 'https://assets.st-note.com/img/1743737778-7VAa6i9QBv2HjXslczhdKoTg.png?width=1200'], videoUrl: 'https://youtu.be/2Ev8hvTaVgo?si=nR242nzcypbrcmbF', note: '他の精鋭をロードしないようにボートポイントから向かってください。（ポケワを置くかヤシオリ島から海を渡る）目印はスイートフワラーです。' },
+    17: { images: ['https://assets.st-note.com/img/1738916671-ORDvWIt8zi692QxAJVKb1rlS.png?width=1200', 'https://assets.st-note.com/img/1738916711-VnxAvW1qJdrGXlOzoHe8Mshk.png?width=1200'], videoUrl: 'https://youtu.be/x8Zcoz0VjzY?si=42_j7YWlgBPT_zR3', note: 'ワープ7にワープした段階でモシリ炎アビスとワクカウもロードされます。その後、移動し、アウタケ東もロードします。目標は雷石です。' },
+    18: { images: ['https://assets.st-note.com/img/1738401375-T9NnmahGdqv30Ije4tbpZ6y5.jpg?width=1200', 'https://assets.st-note.com/img/1738374779-0BuAKsWRnoTiSNbltd2qIv4H.png?width=1200'], videoUrl: null, note: '他の精鋭をロードしないようにボートポイントから向かってください。（ポケワを置くかヤシオリ島から海を渡る）目印はミント' },
+    19: { images: ['https://assets.st-note.com/img/1741392581-OlQNcjt2W14iaRJymhSG0VdI.png?width=1200', 'https://assets.st-note.com/img/1741392586-2SUxeY4fBXj7z918Tok0nqHu.png?width=1200'], videoUrl: 'https://youtu.be/XbqcgyuE0vw?si=Xf3wZ57Y_nxWjBW8', note: 'オイナ機兵 + シリコロ暴徒 + オイナ暴徒 + アウタケ西 ロード位置' },
+    20: { images: ['https://assets.st-note.com/img/1740887637-KEB38rW94bPpH2YI6whCcQ7x.jpg?width=1200'], videoUrl: null, note: 'ヤシオリ島からボートで向かいます。' },
+    21: { images: ['https://assets.st-note.com/img/1740464299-tWJOErwCv4B1cnPI57XmoMY3.jpg?width=1200'], videoUrl: null, note: 'ヤシオリ島からボートで向かいます。' },
+};
+
 const recommendedConfig = {
     'A': 'C', 'B': 'B', 'C': 'C', 'D': 'C', 'E': 'C',
     'F': 'B', 'G': 'C', 'H': 'C', 'I': 'C', 'J': 'B'
@@ -1086,6 +1180,22 @@ const PATTERN_MAP = { 'A': 0, 'B': 1, 'C': 2 };
 
 // --- SCRIPT START ---
 document.addEventListener('DOMContentLoaded', () => {
+    // ★★★ ここからが変更箇所です ★★★
+    const infoBanner = document.getElementById('info-banner');
+    const closeBannerBtn = document.getElementById('close-banner-btn');
+    
+    // localStorageをチェックして、バナーが以前に閉じられたか確認
+    if (localStorage.getItem('tsurumiBannerClosed') === 'true') {
+        infoBanner.style.display = 'none'; // 最初から非表示にする
+    }
+
+    closeBannerBtn.addEventListener('click', () => {
+        infoBanner.classList.add('hidden');
+        // localStorageに状態を保存
+        localStorage.setItem('tsurumiBannerClosed', 'true');
+    });
+    // ★★★ ここまでが変更箇所です ★★★
+
     document.getElementById('go-to-current-btn').addEventListener('click', () => showPage('current-config-page'));
     document.getElementById('guide-btn').addEventListener('click', () => showModal('guide-modal'));
     document.getElementById('credit-modal-trigger').addEventListener('click', () => showModal('credit-modal'));
@@ -1522,13 +1632,15 @@ function displayResults(plan, isMultiplayer) {
     showPage('result-page');
 }
 
+// --- ★★★ ここからが変更箇所です ★★★
 function showDayDetail(dayData, dayNumber) {
     const titleEl = document.getElementById('day-detail-title');
     const contentEl = document.getElementById('day-detail-content');
     
     titleEl.textContent = `${dayNumber}日目の手順詳細`;
     
-    let contentHTML = '';
+    // 注意書きを一番最初に追加
+    let contentHTML = '<p style="color: red; font-weight: bold; text-align:center;">注意: 移動時には閑雲(かんうん)のような空中移動キャラクターは、ロード範囲がズレる可能性があるため使用しないでください。</p>';
 
     if (dayData.mode === 'ソロ') {
         contentHTML += `<h3>ソロモードでの行動</h3>`;
@@ -1579,22 +1691,57 @@ function generateActionDetailsHTML(actionData, playerRole) {
         <ul>`;
 
     actions.forEach(actionName => {
-        // 画像は現在プレースホルダーですが、将来的に差し替え可能です
-        const imageUrl = `https://placehold.co/450x280/eef2ff/312e81?text=${encodeURIComponent(actionName.replace(/\//g, ''))}`;
-        html += `
-            <li>
-                <strong>${actionName}</strong>
-                <p>ワープポイントに移動し、ロードが完了したらすぐ他の場所に移動します。影響範囲を広げないよう、ロード後の移動は不要です。</p>
-                <img src="${imageUrl}" alt="${actionName} のルート図" >
-            </li>`;
+        const action = actionsData.find(a => a.name === actionName);
+        if (!action) return;
+
+        const details = actionDetails[action.id] || {};
+        const detailText = details.note || 'ワープポイントに移動し、ロードが完了したらすぐ他の場所に移動します。影響範囲を広げないよう、ロード後の移動は不要です。';
+        
+        html += `<li><strong>${actionName}</strong><p>${detailText}</p>`;
+        
+        // Handle images
+        if (details.images && details.images.length > 0) {
+            details.images.forEach(imgUrl => {
+                html += `<img src="${imgUrl}" alt="${actionName} のルート図" >`;
+            });
+        } else {
+            // Fallback placeholder image
+            html += `<img src="https://placehold.co/450x280/eef2ff/312e81?text=${encodeURIComponent(actionName.replace(/\//g, ''))}" alt="${actionName} のルート図" >`;
+        }
+
+        // Handle YouTube video
+        if (details.videoUrl && details.videoUrl.startsWith('https://')) {
+            try {
+                const url = new URL(details.videoUrl);
+                let videoId = url.searchParams.get('v');
+                if (!videoId && url.hostname === 'youtu.be') {
+                    videoId = url.pathname.slice(1);
+                }
+                
+                if (videoId) {
+                    html += `
+                        <p style="margin-top:15px;"><strong>参考動画:</strong></p>
+                        <div class="video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/${videoId}" 
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>`;
+                }
+            } catch(e) { console.error("Invalid video URL:", details.videoUrl); }
+        }
+
+        html += `</li>`;
     });
     html += '</ul>';
     return html;
 }
+// ★★★ ここまでが変更箇所です ★★★
 
 </script>
 </body>
 </html>
-
-
 
