@@ -761,6 +761,7 @@
                 visibility: visible;
                 transform: none;
                 display: none; /* hide pages by default */
+                justify-content: flex-start; /* Align content to top */
             }
             .page.active {
                 display: flex; /* show active page */
@@ -785,11 +786,13 @@
                 left: 0;
             }
             
-            /* ★★★ ここからが変更箇所です (スマホ/タブレット向け) ★★★ */
             .input-views-container {
-                flex-grow: 0; /* これが余分なスペースをなくし、コンテンツの高さに合わせます */
+                flex-grow: 0; /* Stop container from stretching vertically */
             }
-            /* ★★★ ここまでが変更箇所です ★★★ */
+            .input-views-container .map-container {
+                height: auto;
+                aspect-ratio: 1.6; /* Give it a consistent aspect ratio */
+            }
         }
 
         @media (max-width: 480px) {
