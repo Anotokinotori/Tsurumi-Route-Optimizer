@@ -2279,14 +2279,153 @@ function updateScrollIndicator() {
 }
 
 // --- SAVE/LOAD LOGIC ---
+
+/**
+ * Reads all saved plans from localStorage.
+ * @returns {Array} An array of saved plan objects.
+ */
+function getSavedPlans() {
+    try {
+        const plansJSON = localStorage.getItem('tsurumiSavedPlans');
+        return plansJSON ? JSON.parse(plansJSON) : [];
+    } catch (e) {
+        console.error("Failed to read saved plans:", e);
+        return [];
+    }
+}
+
+/**
+ * Saves the current plan to localStorage.
+ */
+function savePlan() {
+    const planName = prompt("この調整プランの名前を入力してください:", "マイプラン " + new Date().toLocaleDateString());
+    if (!planName || planName.trim() === "") {
+        return; // User cancelled or entered empty name
+    }
+
+    const planData = {
+        id: Date.now().toString(), // Unique ID for the plan
+        name: planName.trim(),
+        currentConfig: currentConfig,
+        idealConfig: idealConfig,
+        plan: lastCalculatedPlan,
+        isMultiplayer: document.getElementById('multiplayer-mode-checkbox').checked,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        const savedPlans = getSavedPlans();
+        savedPlans.push(planData);
+        localStorage.setItem('tsurumiSavedPlans', JSON.stringify(savedPlans));
+        alert(`「${planName}」を保存しました。`);
+    } catch (e) {
+        console.error("Failed to save plan:", e);
+        alert("プランの保存に失敗しました。ブラウザのストレージがいっぱいか、プライベートモードになっている可能性があります。");
+    }
+}
+
+/**
+ * Opens the 'Load Plan' modal and populates it with saved plans.
+ */
 function openLoadModal() {
-    // This function will be expanded later to read from localStorage
+    renderSavedPlans();
     showModal('load-plan-modal');
 }
 
-function savePlan() {
-    // This function will be implemented in the next step
-    alert("この機能は現在開発中です。");
+/**
+ * Renders the list of saved plans in the modal.
+ */
+function renderSavedPlans() {
+    const plans = getSavedPlans();
+    const listEl = document.getElementById('saved-plans-list');
+    const noPlansEl = document.getElementById('no-saved-plans');
+    listEl.innerHTML = '';
+
+    if (plans.length === 0) {
+        noPlansEl.style.display = 'block';
+        listEl.style.display = 'none';
+        return;
+    }
+
+    noPlansEl.style.display = 'none';
+    listEl.style.display = '';
+
+    // Sort by newest first
+    plans.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    plans.forEach(plan => {
+        const li = document.createElement('li');
+        li.className = 'saved-plan-item';
+        li.innerHTML = `
+            <span class="saved-plan-item-name">${plan.name}</span>
+            <div class="saved-plan-item-actions">
+                <button class="btn btn-primary btn-load" data-plan-id="${plan.id}">読込</button>
+                <button class="btn btn-delete" data-plan-id="${plan.id}">削除</button>
+            </div>
+        `;
+        listEl.appendChild(li);
+    });
+
+    // Attach event listeners after creating the buttons
+    listEl.querySelectorAll('.btn-load').forEach(btn => {
+        btn.addEventListener('click', () => loadPlan(btn.dataset.planId));
+    });
+    listEl.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => deletePlan(btn.dataset.planId));
+    });
+}
+
+/**
+ * Loads a selected plan and restores the application state.
+ * @param {string} planId - The ID of the plan to load.
+ */
+function loadPlan(planId) {
+    const plans = getSavedPlans();
+    const planToLoad = plans.find(p => p.id === planId);
+
+    if (!planToLoad) {
+        alert("プランの読み込みに失敗しました。");
+        return;
+    }
+
+    // Restore state from the loaded plan
+    currentConfig = planToLoad.currentConfig;
+    idealConfig = planToLoad.idealConfig;
+    lastCalculatedPlan = planToLoad.plan;
+    document.getElementById('multiplayer-mode-checkbox').checked = planToLoad.isMultiplayer;
+
+    // Update the input pages UI to reflect the loaded configurations
+    for (const groupId in currentConfig) {
+        updateConfig('current', groupId, currentConfig[groupId]);
+    }
+    for (const groupId in idealConfig) {
+        updateConfig('ideal', groupId, idealConfig[groupId]);
+    }
+
+    // Display the results page with the loaded plan
+    displayResults(lastCalculatedPlan, planToLoad.isMultiplayer);
+    closeModal('load-plan-modal');
+}
+
+/**
+ * Deletes a selected plan from localStorage.
+ * @param {string} planId - The ID of the plan to delete.
+ */
+function deletePlan(planId) {
+    if (!confirm("本当にこのプランを削除しますか？")) {
+        return;
+    }
+
+    let plans = getSavedPlans();
+    plans = plans.filter(p => p.id !== planId);
+
+    try {
+        localStorage.setItem('tsurumiSavedPlans', JSON.stringify(plans));
+        renderSavedPlans(); // Re-render the list in the modal
+    } catch (e) {
+        console.error("Failed to delete plan:", e);
+        alert("プランの削除に失敗しました。");
+    }
 }
 
 </script>
