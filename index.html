@@ -394,6 +394,7 @@
              flex: 1 1 0%;
              display: flex;
              justify-content: flex-start;
+             gap: 10px;
         }
         .page-footer .center-action {
              flex: 1 1 0%;
@@ -440,6 +441,9 @@
             animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
         }
 
+        .show-on-desktop {
+            display: none;
+        }
 
         /* Tab UI for Input Pages */
         .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; align-items: center; flex-wrap: wrap; }
@@ -833,6 +837,10 @@
                 height: 50px;
                 font-size: 1.3em;
             }
+
+            .show-on-desktop {
+                display: inline-block;
+            }
         }
         
         @media (max-width: 768px) {
@@ -1171,7 +1179,8 @@
 
                      <div class="page-footer">
                         <div class="left-action">
-                             <button class="btn btn-secondary-link" id="set-recommended-btn">環境配置を自動入力</button>
+                             <button class="btn btn-secondary" id="set-recommended-btn">環境配置</button>
+                             <button class="btn btn-secondary show-on-desktop" id="copy-current-btn">現在の配置をコピー</button>
                         </div>
                         <div class="center-action">
                             <div class="progress-text" id="ideal-progress-text">入力完了: 0 / 10</div>
@@ -1479,6 +1488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('set-recommended-btn').addEventListener('click', setRecommendedConfig);
+    document.getElementById('copy-current-btn').addEventListener('click', copyCurrentConfigToIdeal);
     document.getElementById('calculate-plan-btn').addEventListener('click', () => {
         const isMultiplayer = document.getElementById('multiplayer-mode-checkbox').checked;
         calculatePlan(isMultiplayer);
@@ -1685,6 +1695,15 @@ function updateProgress() {
 
 function setRecommendedConfig() {
     for (const groupId in recommendedConfig) updateConfig('ideal', groupId, recommendedConfig[groupId]);
+}
+
+function copyCurrentConfigToIdeal() {
+    for (const groupId in currentConfig) {
+        if (Object.hasOwnProperty.call(currentConfig, groupId)) {
+            const pattern = currentConfig[groupId];
+            updateConfig('ideal', groupId, pattern);
+        }
+    }
 }
 
 function resetApp() {
@@ -2082,11 +2101,6 @@ function updateScrollIndicator() {
 </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
