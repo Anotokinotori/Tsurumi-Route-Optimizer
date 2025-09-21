@@ -870,6 +870,8 @@
                 justify-content: center;
                 padding-top: 2vh;
                 padding-bottom: 2vh;
+                /* ページ自体が親として高さを確保するようにする */
+                flex-grow: 1; 
             }
 
             #current-config-page, #ideal-config-page {
@@ -891,6 +893,21 @@
                 height: auto;
                 min-height: calc(100vh - 80px); /* Ensure wrapper takes full viewport minus fixed elements */
             }
+
+            /* ===== ここからが修正箇所 ===== */
+            /*
+             * 問題点：上記の .page-content-wrapper の min-height が全ページに適用され、
+             * #start-page の要素が上下に引き伸ばされていました。
+             * * 解決策：#start-page の .page-content-wrapper のみ、min-height をリセットします。
+             * これにより、他のページ（入力・結果ページ）の「フルスクリーン表示」は維持しつつ、
+             * スタートページだけがコンテンツの高さに合わせて中央寄せになります。
+             */
+            #start-page .page-content-wrapper {
+                min-height: 0; /* min-height をリセット */
+                flex-grow: 1; /* 親要素(.page)の高さに合わせて伸縮するように */
+            }
+            /* ===== ここまでが修正箇所 ===== */
+            
             .input-views-container {
                 flex-grow: 0;
                 height: 43vh;
