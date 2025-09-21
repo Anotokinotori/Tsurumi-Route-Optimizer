@@ -651,6 +651,26 @@
             background-image: none !important;
         }
         
+        .solo-notice {
+            font-size: 0.9em;
+            color: var(--secondary-text-color);
+            background-color: var(--btn-secondary-bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-width: 300px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .solo-notice a {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
         /* Loading Modal Spinner */
         .loader {
             border: 8px solid #f3f3f3; /* Light grey */
@@ -839,7 +859,7 @@
             }
 
             .show-on-desktop {
-                display: inline-block;
+                display: block;
             }
         }
         
@@ -1213,6 +1233,9 @@
                                 <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-21%20161308.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
                             </div>
                             <div class="result-actions-container">
+                                <div id="solo-mode-notice" class="solo-notice show-on-desktop">
+周期ホールドを使わない調整方法です。使用すると期間をもっと短縮できるかもしれません。<a href="https://youtu.be/2xqllaCTP5c?si=UyMkRCct-Z1Pp5HI&t=1194" target="_blank" rel="noopener noreferrer">詳しくは動画で</a>
+                                </div>
                                 <button id="recalculate-alternate-mode-btn" class="btn"></button>
                                 <button id="reset-btn" class="btn btn-secondary">最初からやり直す</button>
                             </div>
@@ -1910,16 +1933,19 @@ function displayResults(plan, isMultiplayer) {
     tbody.innerHTML = '';
     
     const summaryEl = document.getElementById('result-summary');
+    const soloNoticeEl = document.getElementById('solo-mode-notice');
     
     const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
     if (isMultiplayer) {
         alternateCalcBtn.textContent = '周期ホールドOFFで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(false);
         alternateCalcBtn.className = 'btn btn-primary';
+        soloNoticeEl.style.display = 'none';
     } else {
         alternateCalcBtn.textContent = '周期ホールドONで再計算';
         alternateCalcBtn.onclick = () => calculatePlan(true);
         alternateCalcBtn.className = 'btn btn-multi';
+        soloNoticeEl.style.display = '';
     }
 
     let summaryText = '';
@@ -2101,9 +2127,6 @@ function updateScrollIndicator() {
 </script>
 </body>
 </html>
-
-
-
 
 
 
