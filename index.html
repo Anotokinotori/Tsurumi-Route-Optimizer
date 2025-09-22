@@ -640,6 +640,25 @@
         .mode-solo { color: var(--accent-color); font-weight: bold; }
         .mode-multi { color: var(--multiplayer-accent-color); font-weight: bold; }
 
+        /* ▼▼▼ ADDED FOR TASK 1 ▼▼▼ */
+        .result-footer-link {
+            text-align: center;
+            margin-top: 25px;
+            padding: 10px;
+            font-size: 1.1em;
+            color: var(--secondary-text-color);
+        }
+        .result-footer-link a {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .result-footer-link a:hover {
+            color: var(--accent-hover-color);
+        }
+        /* ▲▲▲ ADDED FOR TASK 1 ▲▲▲ */
+
         /* Modal Styles */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; padding: 2vh 2vw; box-sizing: border-box; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
@@ -1407,13 +1426,18 @@
                         <div id="result-details" class="result-details-container">
                              <div id="result-summary"></div>
                              <div class="result-table-container">
-                                <table class="result-table">
-                                    <thead>
-                                        <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
-                                    </thead>
-                                    <tbody id="result-tbody"></tbody>
-                                </table>
+                                 <table class="result-table">
+                                     <thead>
+                                         <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
+                                     </thead>
+                                     <tbody id="result-tbody"></tbody>
+                                 </table>
                              </div>
+                             <!-- ▼▼▼ MODIFIED FOR TASK 1 ▼▼▼ -->
+                             <p class="result-footer-link">
+                                鶴観のロード範囲（移動ルート）について詳しく知りたい方は<a href="https://note.com/nekoshita_g/n/n485ff9b3df29" target="_blank" rel="noopener noreferrer">こちら</a>
+                             </p>
+                             <!-- ▲▲▲ MODIFIED FOR TASK 1 ▲▲▲ -->
                         </div>
                     </div>
                 </div>
@@ -1487,9 +1511,9 @@
     
     <div id="day-detail-modal" class="modal backdrop-blur">
          <div class="modal-content">
-               <span class="modal-close" data-target="day-detail-modal">&times;</span>
-               <h2 id="day-detail-title"></h2>
-               <div id="day-detail-content"></div>
+              <span class="modal-close" data-target="day-detail-modal">&times;</span>
+              <h2 id="day-detail-title"></h2>
+              <div id="day-detail-content"></div>
        </div>
     </div>
 
@@ -2353,12 +2377,29 @@ function savePlan() {
         return; // User cancelled or entered empty name
     }
 
+    // ▼▼▼ MODIFIED FOR TASK 2 (BUGFIX) ▼▼▼
+    // Convert Set to Array for JSON compatibility
+    const serializablePlan = lastCalculatedPlan.map(day => {
+        return {
+            ...day,
+            holdAction: {
+                ...day.holdAction,
+                affectedGroups: Array.from(day.holdAction.affectedGroups || [])
+            },
+            advanceAction: {
+                ...day.advanceAction,
+                affectedGroups: Array.from(day.advanceAction.affectedGroups || [])
+            }
+        };
+    });
+    // ▲▲▲ MODIFIED FOR TASK 2 (BUGFIX) ▲▲▲
+
     const planData = {
         id: Date.now().toString(), // Unique ID for the plan
         name: planName.trim(),
         currentConfig: currentConfig,
         idealConfig: idealConfig,
-        plan: lastCalculatedPlan,
+        plan: serializablePlan, // Use the serializable version
         isMultiplayer: document.getElementById('multiplayer-mode-checkbox').checked,
         createdAt: new Date().toISOString()
     };
@@ -2438,10 +2479,27 @@ function loadPlan(planId) {
         return;
     }
 
+    // ▼▼▼ MODIFIED FOR TASK 2 (BUGFIX) ▼▼▼
+    // Convert Array back to Set after loading
+    const deserializedPlan = planToLoad.plan.map(day => {
+        return {
+            ...day,
+            holdAction: {
+                ...day.holdAction,
+                affectedGroups: new Set(day.holdAction.affectedGroups || [])
+            },
+            advanceAction: {
+                ...day.advanceAction,
+                affectedGroups: new Set(day.advanceAction.affectedGroups || [])
+            }
+        };
+    });
+    // ▲▲▲ MODIFIED FOR TASK 2 (BUGFIX) ▲▲▲
+
     // Restore state from the loaded plan
     currentConfig = planToLoad.currentConfig;
     idealConfig = planToLoad.idealConfig;
-    lastCalculatedPlan = planToLoad.plan;
+    lastCalculatedPlan = deserializedPlan; // Use the deserialized version
     document.getElementById('multiplayer-mode-checkbox').checked = planToLoad.isMultiplayer;
 
     // Update the input pages UI to reflect the loaded configurations
@@ -2508,4 +2566,3 @@ function setupImageLoader(imgElement) {
 </script>
 </body>
 </html>
-
