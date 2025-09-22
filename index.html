@@ -1291,7 +1291,7 @@
 
                     <div class="start-footer">
                         <div class="multi-mode-toggle">
-                            <input type="checkbox" id="boat-mode-checkbox" checked>
+                            <input type="checkbox" id="boat-mode-checkbox">
                             <label for="boat-mode-checkbox">ボートでの調整を許可する</label>
                         </div>
                         <div class="multi-mode-toggle">
@@ -2242,7 +2242,7 @@ function showDayDetail(dayData, dayNumber) {
     
     titleEl.textContent = `${dayNumber}日目の手順詳細`;
     
-    let contentHTML = '<p style="color: red; font-weight: bold; text-align:center;">注意: 移動時には閑雲のような空中移動キャラクターは、ロード範囲がズレる可能性があるため使用しないでください。</p>';
+        let contentHTML = '<p style="text-align:center; color: var(--secondary-text-color);"><strong>【重要】</strong>「歩き」や「ボート」での移動は、<strong>ルートを慎重に確認し、閑雲や放浪者のような高速移動キャラは使用しないでください。</strong></p>';
 
     if (dayData.mode === 'ソロ') {
         contentHTML += `<h3>ソロモードでの行動</h3>`;
@@ -2252,20 +2252,24 @@ function showDayDetail(dayData, dayNumber) {
 
         contentHTML += `<h3>マルチモード（周期ホールド）での行動</h3>`;
         
-        contentHTML += `<h4>Step 1: 2P (ゲスト) の行動</h4>`;
+        contentHTML += `<h4>Step 1: 準備</h4>
+                        <p>ホスト(1P)は鶴観以外の安全な場所に移動し、ゲスト(2P)を世界に招き入れます。</p>`;
+        
+        contentHTML += `<h4>Step 2: 周期のホールド (ゲストの操作)</h4>`;
         if (dayData.holdAction.name === '何もしない' || dayData.holdAction.name === '---') {
-             contentHTML += `<p><strong>行動:</strong> なし</p><p>ゲストは何もしません。ホストの世界に入ったら、鶴見以外の場所（例えば塵歌壺など）で待機してください。</p>`;
+             contentHTML += `<p><strong>行動:</strong> なし</p><p>この日はゲスト(2P)の操作は不要です。</p>`;
         } else {
-            contentHTML += `<p><strong>目的:</strong> 下記グループの周期を<strong>ホールド(固定)</strong>します。</p>`;
+            contentHTML += `<p><strong>[重要]</strong> まずホスト(1P)が層岩巨淵・地下鉱区など、<strong>テイワット以外のマップに移動</strong>するのを待ちます。</p>`;
+            contentHTML += `<p>ホストの移動後、ゲスト(2P)は以下の行動で指定されたグループの周期を<strong>ホールド(固定)</strong>します。</p>`;
             contentHTML += generateActionDetailsHTML(dayData.holdAction, "2P (ゲスト)");
-            contentHTML += `<p><strong>[重要]</strong> ゲストは上記行動を終えたら、ホストが次の行動を完了するまで、<strong>鶴見以外の場所（塵歌壺など）</strong>に移動して待機してください。</p>`;
+            contentHTML += `<p><strong>[重要]</strong> ゲストは上記行動を終えたら、速やかにホストの世界から退出してください。</p>`;
         }
         
-        contentHTML += `<h4 style="margin-top: 25px;">Step 2: 1P (ホスト) の行動</h4>`;
+        contentHTML += `<h4 style="margin-top: 25px;">Step 3: 周期の進行 (ホストの操作)</h4>`;
         if (dayData.advanceAction.name === '何もしない' || dayData.advanceAction.name === '---' || effectiveAdvanceGroups.size === 0) {
             contentHTML += `<p><strong>行動:</strong> なし</p><p>ホストの特別な行動は不要です。日付が変わるのを待ってください。</p>`;
         } else {
-            contentHTML += `<p><strong>目的:</strong> ゲストがホールドしなかった、下記グループの周期を1つ<strong>進めます</strong>。</p>`;
+            contentHTML += `<p>ゲストが退出してソロ状態に戻った後、ホスト(1P)は以下の行動で、ゲストが<strong>ホールドしなかった</strong>グループの周期を1つ<strong>進めます</strong>。</p>`;
             const effectiveAdvanceAction = {
                 name: dayData.advanceAction.name,
                 affectedGroups: effectiveAdvanceGroups
@@ -2588,4 +2592,6 @@ function setupImageLoader(imgElement) {
 </script>
 </body>
 </html>
+
+
 
