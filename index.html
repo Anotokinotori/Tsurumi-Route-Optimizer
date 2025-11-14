@@ -3,1242 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鶴観調整プラン計算ツール（周期ホールド対応）</title>
-    <style>
-        /* General Styles */
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
-
-        :root {
-            --bg-color: #f0f2f5;
-            --panel-bg-color: rgba(255, 255, 255, 0.85);
-            --header-bg-color: rgba(26, 32, 44, 0.85);
-            --primary-text-color: #333;
-            --secondary-text-color: #555;
-            --accent-color: #3B82F6; /* Blue accent */
-            --accent-hover-color: #2563EB;
-            --multiplayer-accent-color: #EC4899; /* Pink for multi */
-            --multiplayer-accent-hover-color: #DB2777;
-            --border-color: #e0e0e0;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --btn-secondary-bg: #f3f4f6;
-            --btn-secondary-bg-hover: #e5e7eb;
-            --danger-color: #ef4444;
-            --danger-hover-color: #dc2626;
-        }
-
-        body {
-            font-family: 'Noto Sans JP', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('https://api.mg-dev.net/api/v1/genshin/backgrounds/Tsurumi%20Island');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* Prevent body scroll on desktop */
-        }
-
-        .backdrop-blur {
-            -webkit-backdrop-filter: blur(8px);
-            backdrop-filter: blur(8px);
-        }
-        
-        /* --- Site Header --- */
-        .site-header {
-            width: 100%;
-            padding: 10px 40px;
-            background-color: var(--header-bg-color);
-            color: white;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .site-header h1 {
-            margin: 0;
-            font-size: clamp(1.2em, 2vw, 1.5em);
-            color: white;
-        }
-
-        .header-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: clamp(0.8em, 1.5vw, 0.9em);
-            color: #ccc;
-        }
-        .header-info a {
-            color: #fff;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-        .header-info a:hover {
-            color: #ccc;
-        }
-
-        /* --- Info Banner --- */
-        .info-banner {
-            background-color: rgba(229, 231, 235, 0.95); /* Light gray */
-            color: var(--secondary-text-color);
-            text-align: center;
-            padding: 12px 50px; /* Add space for close button */
-            position: relative;
-            font-size: 0.95em;
-            border-bottom: 1px solid var(--border-color);
-            transition: all 0.4s ease-in-out;
-            overflow: hidden;
-        }
-        .info-banner.hidden {
-            height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-            opacity: 0;
-        }
-        .info-banner p {
-            margin: 0;
-        }
-        .info-banner a {
-            color: var(--accent-color);
-            font-weight: bold;
-            text-decoration: underline;
-        }
-        .close-banner-btn {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 1.8em;
-            line-height: 1;
-            cursor: pointer;
-            color: #a0aec0;
-            padding: 5px;
-        }
-        .close-banner-btn:hover {
-            color: var(--primary-text-color);
-        }
-        
-        /* --- Main Content Area --- */
-        main {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            overflow: hidden; 
-            padding: 2vh 2vw;
-            box-sizing: border-box;
-        }
-
-        .container {
-            width: 100%;
-            height: 100%; 
-            max-width: 1600px;
-            max-height: 900px;
-            background-color: var(--panel-bg-color);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px var(--shadow-color);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* Page Transitions */
-        .page {
-            padding: 2vw 4vw;
-            box-sizing: border-box;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.35s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            pointer-events: none;
-        }
-        #result-page {
-            overflow-y: auto;
-            justify-content: flex-start;
-        }
-
-        .page.active {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        h1, h2, h3 {
-            color: var(--primary-text-color);
-        }
-
-        /* --- Start Page --- */
-        #start-page .page-content-wrapper {
-             height: auto;
-             justify-content: center;
-             display: flex;
-             flex-direction: column;
-             gap: 2vh;
-        }
-        #start-page h1 {
-            font-size: clamp(2.5em, 5vw, 4.5em);
-            font-weight: 700;
-            color: #1E3A8A;
-            margin-bottom: 10px;
-        }
-        #start-page .subtitle {
-            font-size: clamp(1em, 1.5vw, 1.2em);
-            color: var(--secondary-text-color);
-            max-width: 600px;
-            margin: 0 auto 40px;
-        }
-        
-        /* --- Step Indicator --- */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 15px;
-            flex-shrink: 0;
-        }
-        .btn-back {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            background-image: url('https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/chevron_backward_41dp_1F1F1F_FILL0_wght400_GRAD0_opsz40.png?raw=true');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        .btn-back:hover {
-            opacity: 1;
-        }
-        .header-placeholder {
-            width: 40px;
-            flex-shrink: 0;
-        }
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            flex-grow: 1;
-        }
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .step-icon {
-            width: 60px;
-            height: 60px;
-            background-color: #fff;
-            border: 3px solid var(--border-color);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--secondary-text-color);
-            box-shadow: 0 4px 10px var(--shadow-color);
-            transition: all 0.3s ease;
-        }
-        .step-label {
-            margin-top: 15px;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: var(--secondary-text-color);
-             transition: all 0.3s ease;
-        }
-        .step-arrow {
-            font-size: 2.5em;
-            color: var(--border-color);
-        }
-        .step.active-step .step-icon {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            animation: glowing-step 2s infinite ease-in-out;
-        }
-        .step.active-step .step-label {
-            color: var(--primary-text-color);
-        }
-        @keyframes glowing-step {
-            0% { box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color); transform: scale(1); }
-            50% { box-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-color); transform: scale(1.05); }
-            100% { box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color); transform: scale(1); }
-        }
-        #start-page .step.active-step .step-icon {
-            animation: none;
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-        #start-page .step.active-step .step-label {
-            color: var(--primary-text-color);
-        }
-
-        .title-short {
-            display: none;
-        }
-
-        .start-buttons {
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-        .start-buttons .btn {
-            width: 100%;
-            max-width: 450px;
-            box-sizing: border-box;
-        }
-
-        .start-footer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .multi-mode-toggle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            color: var(--secondary-text-color);
-        }
-        .multi-mode-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .multi-mode-toggle label {
-            font-size: 1em;
-            cursor: pointer;
-        }
-        .help-icon {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: #ccc;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 0.9em;
-            margin-left: 5px;
-            transition: background-color 0.2s;
-        }
-        .help-icon:hover {
-            background-color: #999;
-        }
-
-        /* General Button Styles */
-        .btn { border: none; padding: 14px 28px; border-radius: 50px; font-size: clamp(1em, 1.5vw, 1.2em); cursor: pointer; transition: all 0.3s ease; font-weight: bold; text-decoration: none; display: inline-block; }
-        .btn-primary { background-color: var(--accent-color); color: white; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
-        .btn-primary:hover { background-color: var(--accent-hover-color); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5); }
-        .btn-secondary {
-            background: var(--btn-secondary-bg);
-            color: var(--secondary-text-color);
-            box-shadow: none;
-            text-decoration: none;
-        }
-        .btn-secondary:hover {
-            background: var(--btn-secondary-bg-hover);
-            transform: translateY(-2px);
-            color: var(--primary-text-color);
-        }
-        .btn-secondary-link {
-            background: none; color: var(--secondary-text-color); font-size: 1em; text-decoration: underline; padding: 10px 20px; box-shadow: none;
-        }
-        .btn-secondary-link:hover {
-            background: none; transform: none; box-shadow: none; color: var(--primary-text-color);
-        }
-
-        #go-to-current-btn {
-            padding: 21px 42px;
-            font-size: clamp(1.5em, 2.25vw, 1.8em);
-        }
-        .btn-multi { background-color: var(--multiplayer-accent-color); color: white; box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4); }
-        .btn-multi:hover { background-color: var(--multiplayer-accent-hover-color); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(236, 72, 153, 0.5); }
-        .btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-details { background-color: #6b7280; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9em; }
-        .btn-details:hover { background-color: #4b5563; }
-        .btn-small {
-            padding: 5px 15px;
-            font-size: 0.9em;
-            border-radius: 20px;
-        }
-
-        /* --- Input Pages (Current & Ideal) --- */
-        .page-content-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; }
-        
-        .page-footer {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-        .page-footer .progress-text {
-            text-align: center;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: var(--secondary-text-color);
-        }
-        .page-footer .left-action {
-             flex: 1 1 0%;
-             display: flex;
-             justify-content: flex-start;
-             gap: 10px;
-        }
-        .page-footer .center-action {
-             flex: 1 1 0%;
-             display: flex;
-             justify-content: center;
-             gap: 15px;
-        }
-         .page-footer .right-action {
-             flex: 1 1 0%;
-             display: flex;
-             justify-content: flex-end;
-             gap: 15px;
-             position: relative; /* For validation message */
-        }
-        
-        .validation-message {
-            color: #ef4444; /* red-500 */
-            font-weight: bold;
-            font-size: 0.9em;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid #ef4444;
-            position: absolute;
-            bottom: 110%; /* Position above the button */
-            right: 0;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: translateY(10px);
-            pointer-events: none;
-            z-index: 10;
-        }
-        .validation-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        @keyframes shake {
-         10%, 90% { transform: translateX(-1px); }
-         20%, 80% { transform: translateX(2px); }
-         30%, 50%, 70% { transform: translateX(-3px); }
-         40%, 60% { transform: translateX(3px); }
-        }
-        .shake {
-            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        .show-on-desktop {
-            display: none;
-        }
-        .show-flex-on-desktop {
-            display: none;
-        }
-
-        .quick-fill-buttons {
-            align-items: center;
-            gap: 5px;
-        }
-        .quick-fill-label {
-            font-size: 0.9em;
-            color: var(--secondary-text-color);
-            margin-right: 5px;
-            font-weight: bold;
-        }
-
-        /* Tab UI for Input Pages */
-        .view-switcher { margin-bottom: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; align-items: center; flex-wrap: wrap; }
-        .view-tab { padding: 10px 20px; font-size: 1em; font-weight: bold; color: var(--secondary-text-color); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all 0.3s; }
-        .view-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
-        .input-views-container { flex-grow: 1; position: relative; width: 100%; min-height: 200px; }
-        .input-view { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .input-view.active { opacity: 1; visibility: visible; }
-        
-        /* Map View Styles */
-        .map-container { 
-            position: relative; 
-            width: 100%; 
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .map-guide-text {
-            position: absolute;
-            top: 5%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 1em;
-            font-weight: bold;
-            pointer-events: none; /* So it doesn't block clicks */
-            z-index: 5;
-            opacity: 0.8;
-            transition: opacity 0.5s ease-in-out;
-            animation: pulsing-text 2.5s infinite ease-in-out;
-        }
-        @keyframes pulsing-text {
-            0% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-            50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
-            100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-        }
-        .map-guide-text.hidden {
-            opacity: 0;
-            animation: none;
-        }
-        .map-container img.map-bg {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain; 
-            border-radius: 10px; 
-        }
-        .map-marker { 
-            position: absolute; 
-            width: clamp(28px, 5vw, 40px);
-            height: clamp(28px, 5vw, 40px);
-            background-color: rgba(59, 130, 246, 0.7); 
-            background-size: cover;
-            background-position: center;
-            border-radius: 50%; border: 3px solid var(--accent-color); 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-weight: bold; 
-            color: white; 
-            font-size: 1.1em; 
-            transition: all 0.3s ease; 
-        }
-        .map-marker.glowing { animation: glowing 2s infinite; }
-        .map-marker.completed { 
-            background-color: #10B981; 
-            border-color: white; 
-            animation: none; 
-            background-image: none !important;
-        }
-        @keyframes glowing { 0% { box-shadow: 0 0 8px var(--accent-color); } 50% { box-shadow: 0 0 55px var(--accent-color); } 100% { box-shadow: 0 0 8px var(--accent-color); } }
-        
-        /* List View Styles */
-        .config-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; overflow-y: auto; padding: 15px; height: 100%;}
-        .config-item { background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); text-align: left;}
-        .config-item-label { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; display: block; }
-        .pattern-buttons button { background: #fff; color: var(--secondary-text-color); border: 2px solid var(--border-color); padding: 10px; margin: 2px; border-radius: 5px; cursor: pointer; width: 50px; font-size: 1em; transition: all 0.2s; }
-        .pattern-buttons button:hover { border-color: var(--accent-hover-color); }
-        .pattern-buttons button.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-        
-        /* --- Result Page Styles --- */
-        #result-page .page-content-wrapper {
-            display: block; /* Use block to allow children to layout normally */
-        }
-        
-        /* === [NEW] Grid container for 2-column layout on desktop === */
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobile first */
-            gap: 20px;
-            align-items: flex-start; /* Align items to the top of their grid area */
-            width: 100%;
-        }
-
-        .result-layout-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .result-map-container {
-            width: 100%;
-            height: auto;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-        .result-map-container img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
-        .result-actions-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-        .result-actions-container .btn {
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .result-actions-row {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            max-width: 300px;
-        }
-        .result-actions-row .btn {
-            flex: 1;
-        }
-
-        .result-details-container {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        #result-summary { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; padding: 15px; background-color: #eef2ff; border-radius: 10px; color: #312e81; flex-shrink: 0;}
-        
-        .result-table-container { 
-            width: 100%;
-        }
-        .result-table { width: 100%; border-collapse: collapse; }
-        .result-table th, .result-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .result-table th { background-color: #f9f9f9; position: sticky; top: 0; z-index: 1; }
-        .mode-solo { color: var(--accent-color); font-weight: bold; }
-        .mode-multi { color: var(--multiplayer-accent-color); font-weight: bold; }
-
-        .result-footer-link {
-            text-align: center;
-            margin-top: 25px;
-            padding: 10px;
-            font-size: 1.1em;
-            color: var(--secondary-text-color);
-        }
-        .result-footer-link a {
-            color: var(--accent-color);
-            font-weight: bold;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-        .result-footer-link a:hover {
-            color: var(--accent-hover-color);
-        }
-
-        /* Modal Styles */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: none; justify-content: center; align-items: center; padding: 2vh 2vw; box-sizing: border-box; }
-        .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal-content { background-color: #fff; padding: 30px; border-radius: 15px; position: relative; width: 100%; max-width: 900px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 95vh; overflow-y: auto;}
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2.5em; line-height: 1; cursor: pointer; color: #aaa; transition: color 0.2s; }
-        .modal-close:hover { color: #333; }
-        
-        #guide-modal .modal-content h2 {
-            font-size: 2.2em;
-            margin-bottom: 15px;
-        }
-
-        #guide-modal .modal-content h3 {
-            font-size: 1.6em;
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-
-        #guide-modal .modal-content hr {
-            border: none;
-            height: 4px;
-            background-color: #adb5bd;
-            border-radius: 2px;
-            margin: 30px 0;
-        }
-        
-        #zoom-view .modal-content {
-            overflow: hidden;
-        }
-        #zoom-map-container {
-            position: relative;
-            width: 100%;
-            margin: 20px auto 0;
-            aspect-ratio: 16 / 9;
-            flex-shrink: 1;
-            min-height: 0;
-        }
-        #zoom-map-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        .pattern-marker { 
-            position: absolute; 
-            width: clamp(25px, 4vw, 35px); 
-            height: clamp(25px, 4vw, 35px);
-            background-color: rgba(59, 130, 246, 0.8); 
-            border: 2px solid var(--accent-color); 
-            animation: glowing 2s infinite; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-size: 1.1em; 
-            color: white; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            background-size: cover;
-            background-position: center;
-        }
-        .pattern-marker .pattern-label {
-            background-color: rgba(0,0,0,0.5);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
-        .pattern-marker.completed {
-            background-color: #10B981;
-            border-color: white;
-            animation: none;
-            background-image: none !important;
-        }
-        
-        .solo-notice {
-            font-size: 0.9em;
-            color: var(--secondary-text-color);
-            background-color: var(--btn-secondary-bg);
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            max-width: 300px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-            line-height: 1.6;
-        }
-
-        .solo-notice a {
-            color: var(--accent-color);
-            font-weight: bold;
-            text-decoration: underline;
-        }
-        
-        /* Loading Modal Spinner */
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid var(--accent-color);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1.5s linear infinite;
-            margin: 20px auto;
-        }
-        #calculation-progress {
-            margin-top: 15px;
-            color: var(--secondary-text-color);
-            font-weight: bold;
-            height: 2em;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Day Detail Modal Styles */
-        #day-detail-content ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 15px;
-            text-align: left;
-        }
-        #day-detail-content li {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 5px solid var(--accent-color);
-        }
-        #day-detail-content h3 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #day-detail-content h4 {
-            margin-top: 25px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 5px;
-            text-align: left;
-        }
-        
-        #day-detail-content .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
-        #day-detail-content .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Site Credit Footer */
-        .site-credit-footer {
-            width: 100%;
-            padding: 8px 40px;
-            background-color: var(--header-bg-color);
-            color: #ccc;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            z-index: 10;
-            text-align: center;
-            font-size: 0.9em;
-        }
-        .site-credit-footer p {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        #credit-modal-trigger {
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        #credit-modal-trigger:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-        .credit-separator {
-            margin: 0 10px;
-        }
-        .site-credit-footer a {
-            color: #fff;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-        .site-credit-footer a:hover {
-            color: #ccc;
-            text-decoration: none;
-        }
-
-        /* Credit Modal */
-        #credit-modal .modal-content p {
-            text-align: left;
-            line-height: 1.8;
-        }
-        #credit-modal .modal-content h4 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        /* Scroll Down Indicator */
-        .scroll-indicator {
-            display: none;
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.4);
-            border-radius: 50%;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .scroll-indicator.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        .scroll-indicator svg {
-            width: 30px;
-            height: 30px;
-            animation: bounce 2s infinite ease-in-out;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        /* Saved Plans Modal Styles */
-        #saved-plans-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .saved-plan-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: var(--btn-secondary-bg);
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-        }
-        .saved-plan-item-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            color: var(--primary-text-color);
-        }
-        .saved-plan-item-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-delete {
-            background-color: var(--danger-color);
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-        .btn-delete:hover {
-            background-color: var(--danger-hover-color);
-        }
-        .btn-load {
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-        #no-saved-plans {
-            text-align: center;
-            color: var(--secondary-text-color);
-            margin-top: 30px;
-            font-size: 1.1em;
-        }
-        
-        /* Image Loader Styles */
-        .image-container {
-            position: relative;
-            width: 100%;
-            min-height: 150px;
-            background-color: var(--btn-secondary-bg);
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-        .image-loader {
-            color: var(--secondary-text-color);
-            font-weight: bold;
-        }
-        .image-container img {
-            display: none;
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .image-container.loaded .image-loader {
-            display: none;
-        }
-        .image-container.loaded img {
-            display: block;
-        }
-        #zoom-map-container {
-            aspect-ratio: 16 / 9;
-            min-height: 0;
-        }
-        #screenshot-popup .image-container {
-            aspect-ratio: 500 / 300;
-            min-height: 0;
-        }
-        #day-detail-content .image-container {
-            max-width: 450px;
-            margin: 10px auto 0;
-            border: 1px solid var(--border-color);
-        }
-
-
-        /* --- RESPONSIVE STYLES --- */
-        @media (min-width: 992px) {
-            .result-grid {
-                grid-template-columns: minmax(350px, 4fr) 6fr;
-                gap: 40px;
-                align-items: flex-start;
-            }
-
-            .result-layout-container {
-                position: sticky;
-                top: 20px;
-            }
-
-            .pattern-marker {
-                width: 50px;
-                height: 50px;
-                font-size: 1.3em;
-            }
-
-            .show-on-desktop {
-                display: block;
-            }
-            .show-flex-on-desktop {
-                display: flex;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                overflow: auto;
-                height: auto;
-                min-height: 100vh;
-            }
-            main {
-                 padding: 0;
-                 height: auto;
-                 flex-grow: 1;
-            }
-            .container { 
-                width: 100%; 
-                height: auto;
-                min-height: 0;
-                max-height: none; 
-                border-radius: 0; 
-                overflow: visible;
-            }
-            body {
-                 padding-bottom: 50px;
-            }
-            .page { 
-                padding: 20px; 
-                height: auto;
-                position: relative;
-                opacity: 1;
-                visibility: visible;
-                transform: none;
-                display: none; 
-                justify-content: flex-start;
-            }
-            .page.active {
-                display: flex;
-            }
-            #start-page {
-                justify-content: center;
-                padding-top: 2vh;
-                padding-bottom: 2vh;
-                flex-grow: 1; 
-            }
-
-            #current-config-page, #ideal-config-page {
-                min-height: calc(100vh - 80px);
-            }
-
-            .site-header, .site-credit-footer { padding: 10px 20px; }
-
-            .title-long {
-                display: none;
-            }
-            .title-short {
-                display: inline;
-            }
-            .header-version,
-            .header-version + .credit-separator {
-                display: none;
-            }
-
-            #start-page h1 { font-size: 2.5em; }
-            .steps-container { gap: 10px; }
-            .step-icon { width: 50px; height: 50px; font-size: 1.2em;}
-            .step-label { font-size: 0.9em; }
-            .step-arrow { font-size: 2em; }
-            h2 { font-size: 1.5em; }
-            .config-list { grid-template-columns: 1fr; }
-            .modal-content { width: 90%; padding: 20px; }
-            .result-table th, .result-table td { padding: 10px; font-size: 0.9em;}
-            
-            .page-content-wrapper {
-                height: auto;
-                min-height: calc(100vh - 80px);
-            }
-
-            #start-page .page-content-wrapper {
-                min-height: 0; 
-                flex-grow: 1; 
-            }
-            
-            .input-views-container {
-                flex-grow: 0;
-                height: 43vh;
-            }
-            .input-views-container .map-container {
-                height: 100%;
-                aspect-ratio: unset;
-            }
-            .config-list {
-                height: 100%; 
-                max-height: none;
-            }
-            .site-credit-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-            }
-            
-            /* ===== ▼▼▼ ここからがバグ修正箇所 (CSS) ▼▼▼ ===== */
-            #scroll-indicator {
-                position: fixed !important;
-                bottom: 80px !important; /* フッターと重ならないように調整 */
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                z-index: 9999 !important;
-                display: flex !important;
-                pointer-events: auto;
-            }
-            /* ===== ▲▲▲ ここまでがバグ修正箇所 (CSS) ▲▲▲ ===== */
-        }
-
-        @media (max-width: 480px) {
-            #start-page h1 { font-size: 2em; }
-            .steps-container { gap: 5px; margin-top: 15px; margin-bottom: 10px;}
-            .step-icon { width: 40px; height: 40px; font-size: 1em; }
-            .step-label { font-size: 0.7em; margin-top: 8px; }
-            .step-arrow { font-size: 1.5em; }
-            .btn { font-size: 1em; padding: 12px 24px; }
-             #go-to-current-btn {
-                 padding: 18px 36px;
-                 font-size: 1.3em;
-             }
-            .page { padding: 15px; }
-            .config-item-label { font-size: 1em; }
-            .pattern-buttons button { width: 40px; height: 40px; padding: 5px; font-size: 0.9em;}
-            
-            .page-footer { 
-                flex-direction: row; 
-                flex-wrap: wrap;
-                gap: 10px;
-                padding-bottom: 15px;
-            }
-            .page-footer .left-action, .page-footer .right-action {
-                flex-basis: auto;
-                flex-grow: 0;
-            }
-             .page-footer .center-action {
-                flex-basis: 100%;
-                order: 3;
-            }
-            .page-footer .right-action {
-                margin-left: auto;
-            }
-            .page-footer .btn {
-                font-size: 0.9em;
-                padding: 10px 20px;
-            }
-             .page-footer .btn-secondary-link {
-                font-size: 0.9em;
-                padding: 10px;
-            }
-
-        }
-        
-        @media (max-height: 800px) and (min-width: 769px) {
-            .page {
-                padding-top: 1vw;
-                padding-bottom: 1vw;
-            }
-            .page-header {
-                margin-bottom: 8px;
-            }
-            .btn-back, .header-placeholder {
-                width: 32px;
-                height: 32px;
-            }
-            .steps-container {
-                gap: 10px;
-            }
-            .step-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1.1em;
-            }
-            .step-label {
-                margin-top: 5px;
-                font-size: 0.8em;
-            }
-            .step-arrow {
-                font-size: 1.5em;
-            }
-            .view-switcher {
-                margin-bottom: 8px;
-            }
-            .view-tab {
-                padding: 6px 12px;
-                font-size: 0.9em;
-            }
-            .page-footer {
-                margin-top: 10px;
-            }
-            
-            #start-page .start-footer {
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-        }
-    </style>
+    <title>鶴観調整プランナー（周期ホールド対応）</title>
+    <!-- CSSファイルを外部から読み込み -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header class="site-header backdrop-blur">
-        <h1>
-            <span class="title-long">鶴観調整ツール（周期ホールド対応）</span>
-            <span class="title-short">鶴観調整ツール</span>
-        </h1>
+        <div class="header-title-container">
+            <h1>
+                <span class="title-long">鶴観調整プランナー（周期ホールド対応）</span>
+                <span class="title-short">鶴観調整プランナー</span>
+            </h1>
+        </div>
         <div class="header-info">
-            <span class="header-version">Ver. 1.1.0</span>
+            <button
+                id="version-modal-trigger"
+                class="header-link-btn header-version"
+                type="button"
+                title="このツールの更新内容を表示"
+            >
+                Ver. 1.4.0
+            </button>
             <span class="credit-separator">|</span>
-            <span>製作者: <a href="https://x.com/PIpXlMz1tB5ASjF" target="_blank" rel="noopener noreferrer">あの時の鳥です</a></span>
+            <!-- 製作者リンクをボタンに変更 -->
+            <button id="logic-modal-trigger" class="header-link-btn">製作者: あの時の鳥です</button>
         </div>
     </header>
 
@@ -1254,8 +42,11 @@
             <div id="start-page" class="page active">
                 <div class="page-content-wrapper">
                     <div class="start-header">
-                        <h1>鶴観調整ツール</h1>
-                        <p class="subtitle">※PCでの使用をおすすめします<br>現在と理想の配置を入力すると、最短調整スケジュールを計算します</p>
+                        <div class="start-title-container">
+                             <h1>鶴観調整プランナー</h1>
+                             <button id="tsurumi-info-btn" class="info-btn" title="鶴観調整とは？">？</button>
+                        </div>
+                        <p class="subtitle">現在と理想の配置を入力すると、最短調整スケジュールを計算します<br>※PCでの使用をおすすめします。</p>
                     </div>
                     
                     <div class="steps-container">
@@ -1274,14 +65,18 @@
                     <div class="start-footer">
                         <div class="multi-mode-toggle">
                             <input type="checkbox" id="boat-mode-checkbox">
-                            <label for="boat-mode-checkbox">ボートでの調整を許可する</label>
+                            <label for="boat-mode-checkbox">ボートでの配置調整を許可</label>
                         </div>
                         <div class="multi-mode-toggle">
                             <input type="checkbox" id="multiplayer-mode-checkbox">
-                            <label for="multiplayer-mode-checkbox">周期ホールドを有効にする</label>
-                            <a href="https://youtu.be/2xqllaCTP5c?si=_P-LgtUukOdhN57k&t=1194" class="help-icon" target="_blank" rel="noopener noreferrer" title="周期ホールドの解説動画">?</a>
+                            <label for="multiplayer-mode-checkbox">周期ホールドを有効化</label>
+                            <button id="cycle-hold-info-btn" class="help-icon" title="周期ホールドとは？">?</button>
                         </div>
-                         <button id="guide-btn" class="btn btn-secondary-link">使い方ガイド</button>
+                         <div class="footer-links">
+                             <button id="guide-btn" class="btn btn-secondary-link">使い方ガイド</button>
+                             <span class="link-separator">|</span>
+                             <button id="disclaimer-link" class="btn btn-secondary-link">注意事項</button>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -1381,7 +176,7 @@
                             <div class="progress-text" id="ideal-progress-text">入力完了: 0 / 10</div>
                         </div>
                         <div class="right-action">
-                            <button id="calculate-plan-btn" class="btn btn-primary">調整プランを計算</button>
+                            <button id="calculate-plan-btn" class="btn btn-primary" disabled>調整プランを計算</button>
                         </div>
                    </div>
                 </div>
@@ -1405,26 +200,58 @@
                     <div class="result-grid">
                         <div class="result-layout-container">
                             <div class="result-map-container">
-                                <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-21%20161308.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
+                                <img src="https://github.com/Anotokinotori/test/blob/main/result_ver2.png?raw=true" alt="鶴観マップ 結果表示" class="map-bg">
                             </div>
                             <div class="result-actions-container">
                                 <div id="solo-mode-notice" class="solo-notice show-on-desktop">
 周期ホールドを使わない調整方法です。使用すると期間をもっと短縮できるかもしれません。<a href="https://youtu.be/2xqllaCTP5c?si=UyMkRCct-Z1Pp5HI&t=1194" target="_blank" rel="noopener noreferrer">詳しくは動画で</a>
                                 </div>
-                                <button id="recalculate-alternate-mode-btn" class="btn"></button>
-                                <div class="result-actions-row">
-                                    <button id="save-plan-btn" class="btn btn-secondary">結果を保存</button>
-                                    <button id="reset-btn" class="btn btn-secondary">リセット</button>
+                                <button id="recalculate-alternate-mode-btn" class="btn">
+                                    <span class="btn-icon icon-recalc"></span>
+                                    <span id="recalculate-btn-text"></span>
+                                </button>
+                                <button id="save-plan-btn" class="btn btn-secondary">
+                                    <span class="btn-icon icon-save"></span>
+                                    <span>結果を保存</span>
+                                </button>
+                                <button id="reset-btn" class="btn btn-secondary">
+                                    <span class="btn-icon icon-reset"></span>
+                                    <span>リセット</span>
+                                </button>
+                                <div id="url-copy-message" class="copy-message"></div>
+                                <div class="footer-links hide-on-desktop">
+                                    <button id="disclaimer-link-result-mobile" class="btn btn-secondary-link">注意事項</button>
+                                    <span class="link-separator">|</span>
+                                    <button id="request-form-result-mobile-btn" class="btn btn-secondary-link">リクエストフォーム</button>
                                 </div>
                             </div>
                         </div>
 
                         <div id="result-details" class="result-details-container">
-                             <div id="result-summary"></div>
+                             <div id="result-summary">
+                                 <button id="save-plan-icon-btn" class="save-icon-btn" title="結果を保存"></button>
+                                 <span id="result-summary-text"></span>
+                             </div>
+            <!-- ▼ プラン実行後の配置（上級者向けプレビュー） -->
+            <div id="advanced-preview-box" class="container backdrop-blur" style="margin: 12px 0; padding: 10px 12px; border-radius: 8px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <strong>プラン実行後の配置</strong>
+                    <button id="show-final-config-btn" class="btn btn-secondary btn-small" type="button" title="このプランを順に実行した後の最終配置を表示">プレビューを開く</button>
+                </div>
+            </div>
+            <!-- ▲ プラン実行後の配置（上級者向けプレビュー） -->
+
                              <div class="result-table-container">
                                  <table class="result-table">
                                      <thead>
-                                         <tr> <th>日付</th> <th>モード</th> <th>2P(ホールド役)の行動</th> <th>1P(ホスト)の行動</th> <th>詳細</th> </tr>
+                                         <tr>
+                                             <th class="progress-col">完了</th>
+                                             <th>日付</th>
+                                             <th>モード</th>
+                                             <th>2P(ホールド役)の行動</th>
+                                             <th>1P(ホスト)の行動</th>
+                                             <th>詳細</th>
+                                         </tr>
                                      </thead>
                                      <tbody id="result-tbody"></tbody>
                                  </table>
@@ -1432,12 +259,14 @@
                              <p class="result-footer-link">
                                 鶴観のロード範囲（移動ルート）について詳しく知りたい方は<a href="https://note.com/nekoshita_g/n/n485ff9b3df29" target="_blank" rel="noopener noreferrer">こちら</a>
                              </p>
+                             <div class="result-disclaimer-desktop footer-links">
+                                <button id="disclaimer-link-result-pc" class="btn btn-secondary-link">注意事項</button>
+                                <span class="link-separator">|</span>
+                                <button id="request-form-result-pc-btn" class="btn btn-secondary-link">リクエストフォーム</button>
+                             </div>
                         </div>
                     </div>
                 </div>
-                <a href="#result-details" id="scroll-indicator" class="scroll-indicator hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-                </a>
             </div>
         </div>
     </main>
@@ -1446,28 +275,128 @@
         <div class="modal-content">
             <span class="modal-close" data-target="guide-modal">&times;</span>
             <h2>使い方ガイド</h2>
-            <p>このツールは、鶴観の精鋭エネミーの配置を、最短日数で理想の配置に調整するためのスケジュールを計算します。</p>
+            <p>このプランナーは、鶴観の精鋭エネミーの配置を、最短日数で理想の配置に調整するためのスケジュールを計算します。</p>
             
             <hr>
 
-            <h3>Step 1: 現在の配置を入力</h3>
-            <p>まず、あなたの世界の現在のエネミー配置を10ヶ所すべて入力します。「マップ表示」または「リスト表示」で入力できます。</p>
+            <h3>Step 1: 現在の配置を正確に入力する</h3>
+            <p>まず、あなたのゲーム世界での、現在のエネミー配置を10ヶ所すべて入力します。<br>マップ上のアイコンをタップすると、より詳細なマップが表示されます。<strong>表示されたA/B/Cの各パターンを、ゲーム内のスクリーンショット画像と比較しながら、あなたの世界と完全に一致するものを選択してください。</strong> これが最も重要なステップです！</p>
             <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E4%BD%BF%E3%81%84%E6%96%B9%E3%82%AC%E3%82%A4%E3%83%89GIF/%E7%8F%BE%E5%9C%A8.gif?raw=true" alt="マップ入力画面" style="width:100%; border-radius: 8px; margin-top: 10px;">
-            <p style="margin-top: 10px;">マップ上のアイコンをタップすると、詳細なマップが表示され、A/B/Cのパターンを選択できます。選択に迷ったら、スクリーンショットで実際のゲーム画面を確認できます。</p>
             
             <hr>
 
-            <h3>Step 2: 理想の配置を入力</h3>
-            <p>次に、目標とする理想の配置を入力します。すべて入力する必要はなく、変更したい場所だけ入力すればOKです。</p>
-            <p>便利な「環境配置を自動入力」ボタンも活用してください。</p>
+            <h3>Step 2: 理想の配置を設定する</h3>
+            <p>次に、あなたが目標とする理想の配置を10ヶ所すべて入力します。<br>どの配置にすれば良いか分からない場合は、<strong>「環境配置」ボタンを押すのがおすすめです。</strong> これは、多くの熟練者が推奨する、狩り効率の良い配置パターンをワンボタンで入力できる機能です。<br>また、「現在配置をコピー」ボタンを使えば、現在の配置をベースに少しだけ変更したい場合に便利です。</p>
             <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E4%BD%BF%E3%81%84%E6%96%B9%E3%82%AC%E3%82%A4%E3%83%89GIF/%E7%90%86%E6%83%B3.gif?raw=true" alt="理想配置の入力" style="width:100%; border-radius: 8px; margin-top: 10px;">
             
             <hr>
             
-            <h3>Step 3: スケジュールを計算・確認</h3>
-            <p>入力が終わったら、「調整プランを計算」ボタンを押します。</p>
-            <p>スタートページで「周期ホールドを有効にする」にチェックを入れていると、マルチプレイを前提とした最短ルートを計算します。</p>
-            <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E4%BD%BF%E3%81%84%E6%96%B9%E3%82%AC%E3%82%A4%E3%83%89GIF/%E7%B5%90%E6%9E%9C.gif?raw=true" alt="結果表示画面" style="width:100%; border-radius: 8px; margin-top: 10px;">
+            <h3>Step 3: 調整プランを確認・実行する</h3>
+            <p>入力が終わったら、「調整プランを計算」ボタンを押します。（スタートページで「周期ホールドを有効化」にチェックを入れていると、マルチプレイを前提とした最短ルートを計算します。）<br>計算が完了すると、最短の調整スケジュールが日数ごとに表示されます。<br><strong>各日の「手順を確認」ボタンを押すと、その日にどのワープポイントを使い、どう移動すればいいかといった具体的な手順を、画像や動画付きの詳細ガイドで確認できます。</strong></p>
+            <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E4%BD%BF%E3%81%84%E6%96%B9%E3%82%AC%E3%82%A4%E3%83%89GIF/%E7%B5%B0%E6%9E%9C.gif?raw=true" alt="結果表示画面" style="width:100%; border-radius: 8px; margin-top: 10px;">
+
+            <hr>
+
+            <h3>プランの保存と読み込み</h3>
+            <p>計算結果は、名前を付けて保存することができます。後日、スタートページの「保存したプランを読み込む」ボタンからいつでも呼び出して、調整の続きから再開できます。</p>
+
+            <hr>
+
+            <h3>ご注意</h3>
+            <p style="text-align: left; line-height: 1.7; font-size: 0.9em;">
+                このサイトは、私が個人的に制作した非公式のファンツールです。計算結果の正確性には万全を期していますが、ゲームのアップデートなどにより、情報が古くなったり、予期せぬ不具合が発生したりする可能性もございます。<br>
+                本サイトの利用によって生じたいかなる損害についても、制作者は一切の責任を負いかねますので、あらかじめご了承ください。ご利用は自己責任でお願いいたします。
+            </p>
+        </div>
+    </div>
+    
+    <div id="tsurumi-info-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="tsurumi-info-modal">&times;</span>
+            <h2>鶴観調整とは？</h2>
+            <p>鶴観調整とは、鶴観マップの一部の精鋭エネミーの「出現パターン」を、プレイヤーが意図的にコントロールするテクニックのことです。</p>
+            <p>その調整の中でも特に複雑で時間のかかる<strong>「何日にどこをロードすれば良いか」というスケジュールの計画を自動で行い、最短ルートを提案するのがこの『鶴観調整プランナー』です。</strong></p>
+            
+            <hr style="margin: 15px 0;">
+        
+            <h3>調整の基本的な仕組み</h3>
+            <ul style="text-align: left; list-style: none; padding-left: 0;">
+                <li style="margin-bottom: 10px;"><strong>3つの配置パターン:</strong> 調整対象のエネミーには「A」「B」「C」の3つの出現パターンがあり、それぞれ数や位置が異なります。このパターンは10箇所のエネミーグループごとに独立しています。</li>
+                <li style="margin-bottom: 10px;"><strong>「ロード」による周期の進行:</strong> エネミーのパターンは、ワープや移動でそのエネミーに近づき、<strong>ゲーム内に「ロード」された時にだけ</strong>次のパターンへ1つ進みます。逆を言えば、ロードしなければパターンは変わりません。</li>
+                <li style="margin-bottom: 10px;"><strong>選択的なロード:</strong> 特定の場所へワープしたり、決まったルートを移動したりすることで、一部のエネミーだけを狙ってロードし、周期を進めることができます。これが「調整」の基本となります。</li>
+            </ul>
+        
+            <h4><strong>【重要】調整作業における注意点</strong></h4>
+            <p style="text-align: left;">鶴観調整は、配置の確認から計画の実行まで、<strong>すべての工程で精密な計画と慎重な操作が求められます。</strong><br>特に、意図しないエネミーをロードしてしまうと計画が大きく崩れる可能性があります。当プランナーを利用する際も、ご自身の現在の配置を正確に入力し、算出されたスケジュールを慎重に実行してください。</p>
+        
+            <hr style="margin: 15px 0;">
+        
+            <p style="text-align: center;">鶴観の精鋭の仕組みについて、より深く、正確に知りたい方は、<br>ぜひ、ねこしたさんのこちらの解説動画をご覧ください。<br>
+                <a href="https://youtu.be/2xqllaCTP5c?si=Pp_a3tTTLpFmB54B" target="_blank" rel="noopener noreferrer"><strong>【原神】鶴観の精鋭の仕組みと調整方法</strong></a>
+            </p>
+        </div>
+    </div>
+
+    <div id="cycle-hold-info-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="cycle-hold-info-modal">&times;</span>
+            <h2>周期ホールドとは？</h2>
+            <p>周期ホールドとは、<strong>マルチプレイを利用して</strong>鶴観調整をより効率的に行うための<strong>高度なテクニック</strong>です。</p>
+            <p><strong>このプランナーで「周期ホールドを有効化」すると、この高度なテクニックを前提とした最短の調整スケジュールを自動で算出します。</strong>ソロでの調整よりも手順は複雑になりますが、調整にかかる日数を大幅に短縮できる可能性があります。</p>
+            
+            <hr style="margin: 15px 0;">
+        
+            <h3>周期ホールドの仕組み</h3>
+            <p>通常、エネミーをロードすると周期は1つ進みますが、周期ホールドを使うと<strong>「ロードしたにもかかわらず、周期を進めない」</strong>という特殊な状況を作り出せます。</p>
+            <p>これにより、調整したくないエネミーの周期を「ホールド（維持）」したまま、目的のエネミーの周期だけを進める、という精密な操作が可能になります。</p>
+        
+            <h4>🎨 たとえ話：2人での壁塗り</h4>
+            <p>このテクニックは、2人で行う壁塗りのようなものです。</p>
+            <ul style="text-align: left; list-style: none; padding-left: 0;">
+                <li style="margin-bottom: 5px;"><strong>壁:</strong> 鶴観の10ヶ所の精鋭グループ</li>
+                <li style="margin-bottom: 5px;"><strong>1P (ホスト):</strong> 壁を青く塗る<strong>「ペイント役」</strong>。周期を進めたい人です。</li>
+                <li style="margin-bottom: 5px;"><strong>2P (ゲスト/ホールド役):</strong> 壁が塗られないよう保護する<strong>「マスキングテープ役」</strong>。周期を進めたくない人です。</li>
+            </ul>
+            <p style="text-align: left;">ソロ調整は、ペイント役が1人で作業するのと同じです。塗ろうとした場所はすべて青くなります（周期が進みます）。<br>一方、周期ホールド（マルチ調整）では、まず2Pがマスキングテープで壁を保護します。その後、1Pが塗装をすると、最終的に青く塗られるのは<strong>「1Pが塗ろうとした範囲」から「2Pがマスキングテープで保護した範囲」を<u>除いた部分</u></strong>だけになります。</p>
+            <p style="text-align: left;">このように、周期ホールドは不要な部分の周期進行を防ぐ「マスキングテープ」の役割を果たし、より正確で素早い調整を実現します。</p>
+            <p style="text-align: left; margin-top: 10px;">理論上は複雑に聞こえるかもしれませんが、<strong>当プランナーで計算した後の結果画面では、各日の「手順を確認」ボタンから、ホスト役（1P）とホールド役（2P）がそれぞれ具体的にどの行動をすべきかが示されます。</strong></p>
+        
+            <hr style="margin: 15px 0;">
+        
+            <p style="text-align: center;">周期ホールドの具体的な手順や詳細な解説については、<br>ぜひ、ねこしたさんの動画をご覧ください。（該当の解説箇所から再生されます）<br>
+                <a href="https://www.youtube.com/watch?v=2xqllaCTP5c&t=1194s" target="_blank" rel="noopener noreferrer"><strong>周期ホールドの解説はこちら</strong></a>
+            </p>
+        </div>
+    </div>
+
+
+    <div id="disclaimer-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="disclaimer-modal">&times;</span>
+            <h2>注意事項</h2>
+            
+            <hr style="margin: 10px 0;">
+
+            <h4>正確性とリスクについて</h4>
+            <p style="text-align: left; line-height: 1.7; font-size: 0.9em;">
+                このサイトは、私が個人的に制作した非公式のファンツールです。<br>
+                計算結果の正確性には万全を期しておりますが、ゲームのアップデート等により情報が古くなる可能性や、予期せぬ不具合が発生する可能性もございます。<br><br>
+                <strong>本ツールの計算結果は、入力された「現在の配置」が100%正確であることを前提としています。配置を誤って入力した場合、正しくない調整スケジュールが出力されますので、入力内容が正しいか、十分にご確認ください。</strong>
+            </p>
+
+            <h4 style="margin-top: 20px;">免責事項</h4>
+            <p style="text-align: left; line-height: 1.7; font-size: 0.9em;">
+                本サイトを利用したことで生じたいかなる損害についても、制作者は一切の責任を負いかねます。<br>
+                <strong>ゲーム内での操作ミス（意図しないロード等）によってプラン通りに調整が進まなかった場合も含め、すべての操作は、自己責任の上で慎重に行っていただきますよう、お願いいたします。</strong>
+            </p>
+
+            <p style="text-align: left; line-height: 1.7; font-size: 0.9em; margin-top: 20px;">
+                計算結果がおかしい、バグかもしれないと思われた場合は、ヘッダーの「製作者: あの時の鳥です」から開けるモーダル内のご要望フォームよりご連絡いただけると幸いです。
+            </p>
+
+            <p style="text-align: right; font-size: 0.8em; color: var(--secondary-text-color); margin-top: 20px;">
+                最終更新日：2025/10/02
+            </p>
         </div>
     </div>
     
@@ -1485,10 +414,15 @@
     <div id="screenshot-popup" class="modal backdrop-blur">
         <div class="modal-content">
              <span class="modal-close" data-target="screenshot-popup">&times;</span>
-             <h3 id="screenshot-title"></h3>
+             <div style="text-align: center; margin-bottom: 15px;">
+                <p style="color: var(--danger-color); font-weight: bold; margin: 0;">この画像と実際のプレイ画面を慎重に比較してください</p>
+                <h3 id="screenshot-title" style="margin: 5px 0 0 0;"></h3>
+             </div>
              <div class="image-container">
+                <button id="screenshot-prev-btn" class="zoom-nav-btn prev" aria-label="前のパターン"></button>
                 <div class="image-loader">読み込み中...</div>
                 <img id="screenshot-img" src="https://placehold.co/500x300/eef2ff/312e81?text=In-Game+Screenshot" alt="ゲーム内スクリーンショット">
+                <button id="screenshot-next-btn" class="zoom-nav-btn next" aria-label="次のパターン"></button>
              </div>
              <button id="confirm-pattern-btn" class="btn btn-primary" style="margin-top: 15px;">確定</button>
         </div>
@@ -1546,6 +480,136 @@
         </div>
     </div>
 
+    <!-- Logic & Author Modal -->
+    <div id="logic-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="logic-modal">&times;</span>
+            <h2>製作者と計算の仕組みについて</h2>
+
+            <h3>製作者について</h3>
+            <p>はじめまして、「あの時の鳥です」と申します。この「鶴観調整プランナー」を制作・運営しています。</p>
+            <p>精鋭狩りRTAに挑戦する中で、多くの人が直面する「鶴観調整」という高い壁を少しでも低くしたい。そして、この界隈に挑戦する仲間が一人でも増えてくれたら嬉しい。そんな想いで、このツールを丹精込めて制作しました。</p>
+            <p>
+                <a href="https://x.com/PIpXlMz1tB5ASjF" target="_blank" rel="noopener noreferrer"><strong>X (旧Twitter) アカウント: @PIpXlMz1tB5ASjF</strong></a>
+            </p>
+            
+            <hr style="margin: 20px 0;">
+            
+            <button id="open-request-form-from-logic-btn" class="btn btn-secondary" style="width: 100%; margin-bottom: 25px;">改善案・ご要望はこちら</button>
+
+            <h3>計算ロジックの正しさと「最短」であることの証明</h3>
+            <p>このプランナーが提示するスケジュールは、なぜ<strong>正しく</strong>、かつ<strong>「最短」</strong>であると保証できるのでしょうか？<br>
+            それは、当てずっぽうや魔法のような方法ではなく、<strong>ゲーム内の確定的なルール</strong>を土台とし、それを<strong>正確な数式モデル</strong>へ変換、その上で<strong>数学的に証明されたアルゴリズム</strong>を用いて解を探索しているからです。</p>
+
+            <h4 style="margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Step 1: 前提となる「ゲームのルール」</h4>
+            <p style="text-align: left;">まず、大前提として、プランナーは以下の<strong>ゲーム内の確定的な法則</strong>に基づいて計算を行っています。</p>
+            <ul style="text-align: left; list-style: none; padding-left: 1em;">
+                <li style="margin-bottom: 10px; padding-left: 1.5em; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-color);">✓</span><strong>ルール1：</strong>調整対象の精鋭は10グループあり、各グループは必ず「A, B, C」の3パターンのいずれかの状態になります。</li>
+                <li style="margin-bottom: 10px; padding-left: 1.5em; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-color);">✓</span><strong>ルール2：</strong>パターンは、プレイヤーがその場に近づき「ロード」するという行為によってのみ、A→B→C→A と1つずつ進みます。</li>
+                <li style="margin-bottom: 10px; padding-left: 1.5em; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-color);">✓</span><strong>ルール3：</strong>どの行動（ワープや移動）が、どのグループをロードするかは、先人たちの膨大な検証によってデータ化されています。（当サイトもそのデータを基にしています）</li>
+            </ul>
+            <p style="text-align: left;">プランナーは、これらの不変のルールとデータをパズルのピースとして利用します。</p>
+
+            <h4 style="margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Step 2: ルールを「数式モデル」に変換する (正しさの証明)</h4>
+            <p style="text-align: left;">次に、このルールをコンピュータが計算できる「数式モデル」に置き換えます。</p>
+            <ul style="text-align: left; list-style: none; padding-left: 1em;">
+                <li style="margin-bottom: 10px; padding-left: 1.5em; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-color);">✓</span><strong>ルールの数値化:</strong> 鶴観の10個の精鋭グループがそれぞれ3パターンの状態を持つということは、3の10乗、すなわち<strong>59,049通り</strong>もの膨大な配置パターンが存在することを意味します。プランナーは、この59,049通りの全パターンを、それぞれ重複しないユニークな番号（状態番号）に変換します。</li>
+                <li style="margin-bottom: 10px; padding-left: 1.5em; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-color);">✓</span>「ワープ②」や「歩き⑬」といった各調整アクションは、「<strong>ある状態番号</strong>を受け取ったら、ルール（`data.js`）に従って影響範囲のパターンを1つ進め、<strong>別の状態番号</strong>を返す関数」としてモデル化されます。</li>
+            </ul>
+            <p style="text-align: left;"><strong>結論:</strong> ゲーム内で起こりうる<strong>全ての配置パターン</strong>と、プレイヤーが取りうる<strong>全ての調整アクション</strong>を、このように漏れなく数値と数式の関係に変換することで、プランナーはゲーム内の鶴観調整をPC上で<strong>完全にシミュレート</strong>することが可能になります。これにより、計算ロジックが<strong>ゲームのルール通りに正しく機能する</strong>ことが保証されます。</p>
+
+            <h4 style="margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Step 3: どうやって最短ルートを探しているのか？</h4>
+            <p style="text-align: left;">ルール通りに動くシミュレーターが完成したら、次はその中から最短ルートを探します。この探し方は、駅の「最短乗り換え案内」のロジックと非常によく似ています。</p>
+            <div style="background-color: #f3f4f6; border-left: 4px solid #d1d5db; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <p><strong>たとえ話：最短乗り換え案内</strong></p>
+                <ul style="padding-left: 2em; list-style: disc;">
+                    <li><strong>あなたの現在地:</strong> 現在の配置の「状態番号」</li>
+                    <li><strong>目的地:</strong> あなたが設定した理想の配置の「状態番号」</li>
+                    <li><strong>電車での1回の移動:</strong> 1日分の調整作業（状態番号の変化）</li>
+                </ul>
+            </div>
+            <p style="text-align: left;">目的地までの最短ルートを探すため、プランナーは以下のような手順で、可能性のあるルートを<strong>しらみつぶしに</strong>探索します。</p>
+            <ol style="text-align: left; padding-left: 2em;">
+                <li style="margin-bottom: 5px;">まず、「現在地」から<strong>1回の移動（1日）</strong>で行ける全ての「次の駅（次の日の状態番号）」をリストアップします。</li>
+                <li style="margin-bottom: 5px;">次に、リストアップした全ての駅から、さらに<strong>1回の移動（合計2日）</strong>で行ける全ての駅をリストアップします。</li>
+                <li style="margin-bottom: 5px;">これを、「目的地」の状態番号に到着するまで繰り返します。</li>
+            </ol>
+            <img src="https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/logic-bfs.png?raw=true" alt="ルート探索のイメージ図" style="width:100%; max-width: 500px; border-radius: 8px; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;">
+
+            <h4 style="margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Step 4: なぜそれが「最短」だと証明できるのか</h4>
+            <p style="text-align: left;">この「しらみつぶし」の探し方には、重要な特徴があります。</p>
+            <p style="text-align: left;">それは、<strong>1日で行けるルートを全て探し尽くしてから、初めて2日で行けるルートを探し始める</strong>、という点です。</p>
+            <p style="text-align: left;">このため、「目的地」に<strong>最初に到着した時点で、それが最も日数が少ない（乗り換えが少ない）ルートである</strong>ことが論理的に保証されます。もし3日で着くルートが見つかった後に、実は2日で着く隠れたルートが見つかる、ということは絶対に起こりません。</p>
+            <p style="text-align: left;">この方法は、コンピュータ科学の世界では「<strong>幅優先探索（BFS）</strong>」と呼ばれるアルゴリズムで、最短経路問題の解法として数学的に確立された、非常にポピュラーなものです。当プランナーは、この信頼性の高いアルゴリズムを採用することで、常に最適な解を導き出しています。</p>
+
+        </div>
+    </div>
+
+    <!-- New Request Form Modal -->
+    <div id="request-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="request-modal">&times;</span>
+             <h3>改善案・ご要望フォーム</h3>
+                <p>本サイトの改善案や追加機能のご要望などありましたら、お気軽に相談していただけると幸いです。<br>
+                <small>※このフォームは匿名で送信され、個人情報は一切記録されません。</small>
+                </p>
+                <form id="g-form" 
+                      action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScnbmGsRUGtgFTgBg05rmhRFwvIQ4XJnCKt2PxNJM0fS3JUPw/formResponse"
+                      target="hidden_iframe" 
+                      method="POST"
+                      onsubmit="this.submitted=true;">
+                    <div class="form-group">
+                        <label for="form-category">お問い合わせの種類</label>
+                        <select id="form-category" name="entry.1439214119" required>
+                            <option value="改善案">改善案</option>
+                            <option value="機能要望">機能要望</option>
+                            <option value="不具合報告">不具合報告</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-details">詳細</label>
+                        <textarea id="form-details" name="entry.1299178169" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" id="submit-form-btn" class="btn btn-primary">送信する</button>
+                    <p id="form-status-message" style="margin-top: 10px;"></p>
+                </form>
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(this.submitted) { TsurumiApp.ui.handleFormSuccess(); }"></iframe>
+        </div>
+    </div>
+    <!-- ▼ Final Config Modal -->
+    <div id="final-config-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="final-config-modal">&times;</span>
+            <h2>このプラン実行後の最終配置</h2>
+            <div id="final-config-table-container"></div>
+            <p style="font-size: 12px; color: var(--secondary-text-color); margin-top: 8px;">
+                ※「マルチ」日は、2Pのホールド対象を <strong>除いた</strong>範囲が1Pのロードとして加算される前提で計算しています。
+            </p>
+        </div>
+    </div>
+    <!-- ▲ Final Config Modal -->
+
+
+
+    <div id="version-modal" class="modal backdrop-blur">
+        <div class="modal-content">
+            <span class="modal-close" data-target="version-modal">&times;</span>
+            <h2>バージョン1.4.0での主なアップデート</h2>
+            <p class="changelog-intro">
+                変更点まとめ
+            </p>
+            <ul class="changelog-list">
+                <li>調整スケジュール画面のマップ画像に、注意書きを追加しました。</li>
+                <li>プラン実行後の配置プレビューの確認機能を追加しました。</li>
+                <li>ヘッダーのバージョン情報から更新内容を確認できる導線を追加しました。（これ）</li>
+                <li>調整プランの並び順を、初日に一番難しい調整が表示されるように変更しました。これにより、最終日に鶴観が崩れるという悲惨な事故を防ぎます。</li>
+            </ul>
+        </div>
+    </div>
+
+        </div>
+    </div>
 
     <footer class="site-credit-footer backdrop-blur">
         <p>
@@ -1555,1005 +619,9 @@
         </p>
     </footer>
 
-<script>
-// --- DATA DEFINITION ---
-const eliteGroups = {
-    'A': { name: 'モシリ炎アビス', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Pyro%2520Abyss%2520Mage_icon.png', zoomMapUrl: 'https://assets.st-note.com/img/1738372090-i0Dg36tAbTaRjEHlpQhPr5NY.jpg?width=1200' },
-    'B': { name: 'モシリ雷アビス', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Electro%2520Abyss%2520Mage_icon.png', zoomMapUrl: 'https://assets.st-note.com/img/1738419313-vIRa5KkjYBwznp1OSoUMZCLG.jpg?width=1200' },
-    'C': { name: 'モシリ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png', zoomMapUrl: 'https://assets.st-note.com/img/1738419512-Zn6ERGTQCwgakSrmVHjWztFY.jpg?width=1200' },
-    'D': { name: 'チライ機兵', iconUrl: 'https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/Ruin_Cruiser_Icon.webp?raw=true', zoomMapUrl: 'https://assets.st-note.com/img/1738419554-5Vfy0paPscJjSACn4DTvY3Mr.jpg?width=1200' },
-    'E': { name: 'オイナ機兵', iconUrl: 'https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/Ruin_Cruiser_Icon.webp?raw=true', zoomMapUrl: 'https://assets.st-note.com/img/1738419603-5ULFDgf1RN86dZQHnMJoSX3e.jpg?width=1200' },
-    'F': { name: 'オイナ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png', zoomMapUrl: 'https://assets.st-note.com/img/1738419733-GNO1jErQmFh9p5yP423WgLaH.jpg?width=1200' },
-    'G': { name: 'シリコロ暴徒', iconUrl: 'https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/enemy/Rock%2520Shieldwall%2520Mitachurl_icon.png', zoomMapUrl: 'https://assets.st-note.com/img/1738419775-yxGHB6uJZpdh7VDzT2n85osX.jpg?width=1200' },
-    'H': { name: 'アウタケ東', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/f98aad8ddb6a41ae54eb9b81c63f58da_8280051482592802504.png', zoomMapUrl: 'https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%82%A2%E3%82%A6%E3%82%BF%E3%82%B1%E6%9D%B1.png?raw=true' },
-    'I': { name: 'アウタケ西', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/f98aad8ddb6a41ae54eb9b81c63f58da_8280051482592802504.png', zoomMapUrl: 'https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%82%A2%E3%82%A6%E3%82%BF%E3%82%B1%E8%A5%BF.png?raw=true' },
-    'J': { name: 'ワクカウ', iconUrl: 'https://upload-static.hoyoverse.com/hoyolab-wiki/2023/04/21/132746206/c0b9fccb976922890793a88cefa44525_4478418637550120506.png', zoomMapUrl: 'https://assets.st-note.com/img/1738419878-oLvIuKdDGVEc3RsO6UWrZFH4.jpg?width=1200' },
-};
-const groupKeys = Object.keys(eliteGroups);
-const totalGroups = groupKeys.length;
-
-const actionsData = [
-    {id: 2, name: 'ワープ②', affectedGroups: ['A', 'D']},
-    {id: 3, name: 'ワープ③', affectedGroups: ['A', 'B', 'C', 'D', 'E', 'J']},
-    {id: 4, name: 'ワープ④', affectedGroups: ['B', 'C', 'D', 'E', 'F']},
-    {id: 5, name: 'ワープ⑤', affectedGroups: ['B', 'E', 'F', 'G', 'H', 'I']},
-    {id: 6, name: 'ワープ⑥', affectedGroups: ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I']},
-    {id: 7, name: 'ワープ⑦', affectedGroups: ['A', 'J']},
-    {id: 8, name: 'ワープ⑧', affectedGroups: ['J']},
-    {id: 9, name: 'ボート⑨', affectedGroups: ['A']},
-    {id: 10, name: 'ボート⑩', affectedGroups: ['C', 'D']},
-    {id: 11, name: 'ボート⑪', affectedGroups: ['B', 'C', 'D']},
-    {id: 12, name: 'ボート⑫', affectedGroups: ['D']},
-    {id: 13, name: '歩き⑬', affectedGroups: ['A', 'B', 'C', 'J']},
-    {id: 14, name: '歩き⑭', affectedGroups: ['A', 'B', 'J']},
-    {id: 15, name: '歩き⑮', affectedGroups: ['E', 'G']},
-    {id: 16, name: '歩き⑯', affectedGroups: ['E', 'F', 'G']},
-    {id: 17, name: '歩き⑰', affectedGroups: ['A', 'H', 'J']},
-    {id: 18, name: 'ポケワ⑱', affectedGroups: ['E']},
-    {id: 19, name: '歩き⑲', affectedGroups: ['E', 'F', 'G', 'I']},
-    {id: 20, name: 'ボート⑳', affectedGroups: ['H', 'I']},
-    {id: 21, name: 'ボート㉑', affectedGroups: ['I']},
-];
-
-const actionDetails = {
-    2:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202210.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    3:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202231.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    4:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202321.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    5:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202329.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    6:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202336.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    7:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202343.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    8:  { images: ['https://github.com/Anotokinotori/Tsurumi-Route-Optimizer/blob/main/%E3%83%AF%E3%83%BC%E3%83%97/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202025-09-20%20202349.png?raw=true'], videoUrl: null, note: 'ワープポイントに移動するだけの操作です。ロードが完了したら、影響範囲を広げないよう、一切移動はせずに他の場所に移動してください。' },
-    9:  { images: ['https://assets.st-note.com/img/1740718483-AhlXqnUk7BWjzOoeZcR6D9Y4.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\n鶴観の七天神像の近くのボートポイントから向かってください' },
-    10: { images: ['https://assets.st-note.com/img/1740972735-fGwYadHbXy3MxPjqiACBrN0h.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\n鶴観の七天神像の近くのボートポイントから向かってください' },
-    11: { images: ['https://assets.st-note.com/img/1741059429-fjJvq8DHOs5kcYNUmzW2dKrn.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\n鶴観の七天神像の近くのボートポイントから向かってください' },
-    12: { images: ['https://assets.st-note.com/img/1740718519-C5t0WKmVepqoji19Rc2GZduf.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\n鶴観の七天神像の近くのボートポイントから向かってください' },
-    13: { images: ['https://assets.st-note.com/img/1740019544-fjJrv5VwbpUgatR0FLMODEPG.png?width=1200', 'https://assets.st-note.com/img/1740019502-2BkCqL4znrixluRm7FpjvhOQ.png?width=1200'], videoUrl: 'https://youtu.be/2_xN2PYjrO4?si=0K03Yr1tl74NQ0MF', note: 'ワープ8にワープした段階でワクカウもロードされます。\nその後、移動し、モシリ炎アビスとモシリ雷アビスとモシリ暴徒もロードします。\n目印は草です。\n※ワープ7からだと、アウタケ東とモシリ雷アビスのロード境界付近になり誤ロードのリスクが上がるため、8から向かってます\n極力動画と同じように移動してください。' },
-    14: { images: ['https://assets.st-note.com/img/1739947858-im8E9AtCjsr501YZnHWuKxNJ.png?width=1200 ', 'https://assets.st-note.com/img/1739947867-yxzY23VinFgkLKrCtmXqvG0B.png?width=1200'], videoUrl: 'https://youtu.be/fDn-IKfIL-A?si=92PmIUWw-Vgvg34m', note: 'ワープ8にワープした段階でワクカウもロードされます。その後、移動し、モシリ炎アビスとモシリ雷アビスもロードします。目印は杭です。\n極力動画と同じように移動してください。' },
-    15: { images: ['https://assets.st-note.com/img/1738380135-LlcU0487Xtbjduk9KzqT6sDa.png?width=1200', 'https://assets.st-note.com/img/1740114869-zBxEZO2v3dAeQusnTYJ0WkNb.png?width=1200'], videoUrl: 'https://youtu.be/FRZu8bq3SEY?si=Ra81bAbgAKu_DGqb', note: '他の精鋭をロードしないようにボートポイントから向かってください。（ポケワを置くかヤシオリ島から海を渡る）\n目印はミントです。\n極力動画と同じように移動してください。' },
-    16: { images: ['https://assets.st-note.com/img/1743737811-wB7bQ5n9SjWA04tyDLsJROVf.png?width=1200', 'https://assets.st-note.com/img/1743737778-7VAa6i9QBv2HjXslczhdKoTg.png?width=1200'], videoUrl: 'https://youtu.be/2Ev8hvTaVgo?si=nR242nzcypbrcmbF', note: '他の精鋭をロードしないようにボートポイントから向かってください。（ポケワを置くかヤシオリ島から海を渡る）目印はスイートフワラーと崖の隙間です。\n極力動画と同じように移動してください。' },
-    17: { images: ['https://assets.st-note.com/img/1738916671-ORDvWIt8zi692QxAJVKb1rlS.png?width=1200', 'https://assets.st-note.com/img/1738916711-VnxAvW1qJdrGXlOzoHe8Mshk.png?width=1200'], videoUrl: 'https://youtu.be/x8Zcoz0VjzY?si=42_j7YWlgBPT_zR3', note: 'ワープ7にワープした段階でモシリ炎アビスとワクカウもロードされます。その後、移動し、アウタケ東もロードします。目標は雷石です。\n極力動画と同じように移動してください。' },
-    18: { images: ['https://assets.st-note.com/img/1738401375-T9NnmahGdqv30Ije4tbpZ6y5.jpg?width=1200', 'https://assets.st-note.com/img/1738374779-0BuAKsWRnoTiSNbltd2qIv4H.png?width=1200'], videoUrl: null, note: 'シリコロのボートポイントです。ポケワを置くのがおすすめですが、セイライ島やヤシオリ島から海を渡って来ても大丈夫です。' },
-    19: { images: ['https://assets.st-note.com/img/1741392581-OlQNcjt2W14iaRJymhSG0VdI.png?width=1200', 'https://assets.st-note.com/img/1741392586-2SUxeY4fBXj7z918Tok0nqHu.png?width=1200'], videoUrl: 'https://youtu.be/XbqcgyuE0vw?si=Xf3wZ57Y_nxWjBW8', note: 'オイナ機兵 + シリコロ暴徒 + オイナ暴徒 + アウタケ西 ロード位置\n目印はミントです。\n極力動画と同じように移動してください。' },
-    20: { images: ['https://assets.st-note.com/img/1740887637-KEB38rW94bPpH2YI6whCcQ7x.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\nヤシオリ島からボートで向かいます。\nシリコロ山付近の精鋭をロードしないように大回りしてください。' },
-    21: { images: ['https://assets.st-note.com/img/1740464299-tWJOErwCv4B1cnPI57XmoMY3.jpg?width=1200'], videoUrl: null, note: '意図せぬ精鋭をロードしないよう、目的までの移動ルートに気をつけてください。\nヤシオリ島からボートで向かいます。\nシリコロ山付近の精鋭をロードしないように大回りしてください。' },
-};
-
-const recommendedConfig = {
-    'A': 'C', 'B': 'B', 'C': 'C', 'D': 'C', 'E': 'C',
-    'F': 'B', 'G': 'C', 'H': 'C', 'I': 'C', 'J': 'B'
-};
-
-const markerPositions = {
-    'A': { top: '52%', left: '61%' }, 'B': { top: '48%', left: '54%' }, 'C': { top: '43%', left: '59%' },
-    'D': { top: '34%', left: '59%' }, 'E': { top: '34%', left: '44%' }, 'F': { top: '41%', left: '38%' },
-    'G': { top: '32%', left: '35%' }, 'H': { top: '50%', left: '32%' }, 'I': { top: '48%', left: '23%' },
-    'J': { top: '69%', left: '43%' }
-};
-
-const patternMarkerPositions = {
-    'A': { 'A': { bottom: '46%', right: '43%' }, 'B': { bottom: '54%', right: '47%' }, 'C': { bottom: '40%', right: '51%' } },
-    'B': { 'A': { bottom: '62%', right: '57%' }, 'B': { bottom: '52%', right: '52%' }, 'C': { bottom: '61%', right: '48%' } },
-    'C': { 'A': { bottom: '75%', right: '50%' }, 'B': { bottom: '64%', right: '54%' }, 'C': { bottom: '61%', right: '45%' } },
-    'D': { 'A': { bottom: '73.5%', right: '28.6%' }, 'B': { bottom: '59.9%', right: '31.3%' }, 'C': { bottom: '57.8%', right: '27.4%' } },
-    'E': { 'A': { bottom: '54.1%', right: '36.7%' }, 'B': { bottom: '51.0%', right: '43.2%' }, 'C': { bottom: '73.7%', right: '40.7%' } },
-    'F': { 'A': { bottom: '42.9%', right: '49.9%' }, 'B': { bottom: '36.5%', right: '45.0%' }, 'C': { bottom: '48.3%', right: '46.0%' } },
-    'G': { 'A': { bottom: '63.0%', right: '49.5%' }, 'B': { bottom: '59.5%', right: '55.4%' }, 'C': { bottom: '63.0%', right: '44.5%' } },
-    'H': { 'A': { bottom: '41.3%', right: '58.7%' }, 'B': { bottom: '45.2%', right: '63.4%' }, 'C': { bottom: '47.0%', right: '57.6%' } },
-    'I': { 'A': { bottom: '58.4%', right: '66.3%' }, 'B': { bottom: '61.1%', right: '61.0%' }, 'C': { bottom: '51.0%', right: '67.5%' } },
-    'J': { 'A': { bottom: '58.0%', right: '40.8%' }, 'B': { bottom: '51.8%', right: '56.5%' }, 'C': { bottom: '28.5%', right: '52.6%' } }
-};
-
-const screenshotImageUrls = {
-    'A': { 'A': 'https://assets.st-note.com/img/1738372100-wkRfaQDElqCepTY12bHVJszm.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738372108-Ozf8gFbjTZEaGJMDx7qHAoVN.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738420209-Vs9IFoQq3dJxwOGv5RM7Xh0C.jpg?width=1200' },
-    'B': { 'A': 'https://assets.st-note.com/img/1738419367-4wCdF5eOLbmtVuDAURYSaIr1.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419379-3mOLkEy16jefW0nvGlctzK9B.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419389-Zm5ra9xD6JU2SKfNzeBHpIl1.jpg?width=1200' },
-    'C': { 'A': 'https://assets.st-note.com/img/1738419522-lgzSU9nI2x6ZYhkNfHqiPXOo.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419532-g9URz8f04FckmJtAseBhu7Qj.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419541-1IgcObQjl3dH4rwy2LNM6SP9.jpg?width=1200' },
-    'D': { 'A': 'https://assets.st-note.com/img/1738419563-xyMQ1nkuOjbpa6Dwm3KWoYh9.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419572-YuweId6SiyKDBAtWgOlojQGa.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419580-quLQMGeRlbfv0wSgmh8jCINt.jpg?width=1200' },
-    'E': { 'A': 'https://assets.st-note.com/img/1738419683-Y3pzloUPmn861idxQvLaMNZy.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419695-t41JA6FX2CeViT9GB3UOdhlK.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419704-xdZlTOuatBockhDLVgsN4I3w.jpg?width=1200' },
-    'F': { 'A': 'https://assets.st-note.com/img/1738419747-YfBn7iOzKVekQRAJ9DParxlv.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419755-5CmQ8u0hGFrsfRyZojIH2kpX.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419763-zFvuEZK9nYgd61OsrM5NeRAP.jpg?width=1200' },
-    'G': { 'A': 'https://assets.st-note.com/img/1738586151-mkVNDUfHbGTQFJ7M9opaYRK2.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419796-1mHqF5OyP6rEAoU3YZNcuQKj.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419805-MF0UpPyI6cNzqldvXADiuEwg.jpg?width=1200' },
-    'H': { 'A': 'https://assets.st-note.com/img/1738419821-2VtSLA5DROoJ0wBClZIxvMTu.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419829-4evqad8bPjYEAmBfpZH9RuT1.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419837-4tSaJMW6y7BzDZQ3fRC2LXqH.jpg?width=1200' },
-    'I': { 'A': 'https://assets.st-note.com/img/1738419855-V8XBf5WexFzy60psuQGvmNdY.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738586173-KCQXfOlVjNtUoBn37qg5Fcu0.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419868-YORuncAJ3DgLoZ560WwCv4Uq.jpg?width=1200' },
-    'J': { 'A': 'https://assets.st-note.com/img/1738419900-C9ZW6JqmkxnVz5vBrKbAXtDo.jpg?width=1200', 'B': 'https://assets.st-note.com/img/1738419916-pQNEJcL0dXovR7jnTfa8qzeh.jpg?width=1200', 'C': 'https://assets.st-note.com/img/1738419933-zFKX9tqVyjMilUBRdJIWNYrH.jpg?width=1200' }
-};
-
-// --- APPLICATION STATE ---
-let currentConfig = {};
-let idealConfig = {};
-let possibleDailyActions = [];
-let activeSelection = { configType: null, groupId: null, pattern: null };
-let lastCalculatedPlan = null;
-let calculationTask = null;
-const PATTERN_MAP = { 'A': 0, 'B': 1, 'C': 2 };
-
-// --- SCRIPT START ---
-document.addEventListener('DOMContentLoaded', () => {
-    // ===== ▼▼▼ ここからがバグ修正箇所 (JS) ▼▼▼ =====
-    ensureScrollIndicatorIsInBody();
-    // ===== ▲▲▲ ここまでがバグ修正箇所 (JS) ▲▲▲ =====
-
-    const infoBanner = document.getElementById('info-banner');
-    const closeBannerBtn = document.getElementById('close-banner-btn');
-    
-    if (localStorage.getItem('tsurumiBannerClosed') === 'true') {
-        infoBanner.style.display = 'none';
-    }
-
-    closeBannerBtn.addEventListener('click', () => {
-        infoBanner.classList.add('hidden');
-        localStorage.setItem('tsurumiBannerClosed', 'true');
-    });
-
-    document.getElementById('go-to-current-btn').addEventListener('click', () => showPage('current-config-page'));
-    document.getElementById('guide-btn').addEventListener('click', () => showModal('guide-modal'));
-    document.getElementById('credit-modal-trigger').addEventListener('click', () => showModal('credit-modal'));
-    document.getElementById('load-plan-btn').addEventListener('click', openLoadModal);
-    document.querySelectorAll('.modal-close').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.target)));
-    
-    document.getElementById('go-to-ideal-btn').addEventListener('click', (e) => {
-        if (e.currentTarget.disabled) {
-            const validationMessage = document.getElementById('validation-message');
-            const button = e.currentTarget;
-            
-            validationMessage.textContent = 'すべての配置を入力してください。';
-            validationMessage.classList.add('show');
-            button.classList.add('shake');
-            
-            setTimeout(() => {
-                validationMessage.classList.remove('show');
-            }, 2000);
-
-            setTimeout(() => {
-                button.classList.remove('shake');
-            }, 600);
-        } else {
-            showPage('ideal-config-page');
-        }
-    });
-
-    document.getElementById('set-recommended-btn').addEventListener('click', setRecommendedConfig);
-    document.getElementById('copy-current-btn').addEventListener('click', copyCurrentConfigToIdeal);
-    document.getElementById('calculate-plan-btn').addEventListener('click', () => {
-        const isMultiplayer = document.getElementById('multiplayer-mode-checkbox').checked;
-        const allowBoat = document.getElementById('boat-mode-checkbox').checked;
-        calculatePlan(isMultiplayer, allowBoat);
-    });
-    document.getElementById('reset-btn').addEventListener('click', resetApp);
-    document.getElementById('save-plan-btn').addEventListener('click', savePlan);
-    
-    document.getElementById('back-to-start-btn').addEventListener('click', () => showPage('start-page'));
-    document.getElementById('back-to-current-btn').addEventListener('click', () => showPage('current-config-page'));
-    document.getElementById('back-to-ideal-btn').addEventListener('click', () => showPage('ideal-config-page'));
-    
-    document.getElementById('current-map-tab').addEventListener('click', () => switchInputView('current', 'map'));
-    document.getElementById('current-list-tab').addEventListener('click', () => switchInputView('current', 'list'));
-    document.getElementById('ideal-map-tab').addEventListener('click', () => switchInputView('ideal', 'map'));
-    document.getElementById('ideal-list-tab').addEventListener('click', () => switchInputView('ideal', 'list'));
-
-    document.getElementById('fill-all-a-btn').addEventListener('click', () => fillAllConfigs('A'));
-    document.getElementById('fill-all-b-btn').addEventListener('click', () => fillAllConfigs('B'));
-    document.getElementById('fill-all-c-btn').addEventListener('click', () => fillAllConfigs('C'));
-
-    document.getElementById('scroll-indicator').addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetElement = document.getElementById('result-details') || document.getElementById('result-page');
-        targetElement.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    const resultPage = document.getElementById('result-page');
-    resultPage.addEventListener('scroll', updateScrollIndicator);
-    window.addEventListener('scroll', updateScrollIndicator, { passive: true });
-    window.addEventListener('resize', updateScrollIndicator);
-
-    document.getElementById('result-tbody').addEventListener('click', (e) => {
-        if (e.target && e.target.classList.contains('btn-details')) {
-            const dayIndex = parseInt(e.target.dataset.dayIndex, 10);
-            if (lastCalculatedPlan && !isNaN(dayIndex) && lastCalculatedPlan[dayIndex]) {
-                showDayDetail(lastCalculatedPlan[dayIndex], dayIndex + 1);
-            }
-        }
-    });
-
-    initInputPage('current');
-    initInputPage('ideal');
-    generatePossibleDailyActions();
-    
-    window.addEventListener('resize', () => {
-        updateMapLayout('current-map-container');
-        updateMapLayout('ideal-map-container');
-    });
-    document.querySelectorAll('.map-bg').forEach(img => {
-        if (img.complete) { updateMapLayout(img.closest('.map-container').id); } 
-        else { img.addEventListener('load', () => updateMapLayout(img.closest('.map-container').id)); }
-    });
-});
-
-// --- UI LOGIC ---
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-
-    document.querySelectorAll('.step').forEach(step => step.classList.remove('active-step'));
-    let activeStepNumber;
-    if (pageId.includes('current')) activeStepNumber = 1;
-    else if (pageId.includes('ideal')) activeStepNumber = 2;
-    else if (pageId.includes('result')) activeStepNumber = 3;
-    else activeStepNumber = 1;
-    
-    document.querySelectorAll(`.step[data-step="${activeStepNumber}"]`).forEach(stepEl => stepEl.classList.add('active-step'));
-
-    if (pageId === 'current-config-page') {
-        setTimeout(() => updateMapLayout('current-map-container'), 50);
-    } else if (pageId === 'ideal-config-page') {
-        setTimeout(() => updateMapLayout('ideal-map-container'), 50);
-    }
-
-    // ページが切り替わるたびに矢印の表示を更新
-    updateScrollIndicator();
-}
-
-function showModal(modalId) { 
-    document.getElementById(modalId).classList.add('active'); 
-}
-
-function closeModal(modalId) { 
-    if (modalId === 'loading-modal' && calculationTask) {
-        clearTimeout(calculationTask);
-        calculationTask = null;
-    }
-    document.getElementById(modalId).classList.remove('active'); 
-}
-
-function initInputPage(configType) {
-    const mapContainer = document.getElementById(`${configType}-map-container`);
-    const listContainer = document.getElementById(`${configType}-config-list`);
-    mapContainer.querySelectorAll('.map-marker').forEach(marker => marker.remove());
-    listContainer.innerHTML = '';
-    
-    for (const groupId in eliteGroups) {
-        const group = eliteGroups[groupId];
-        const marker = document.createElement('div');
-        marker.className = 'map-marker glowing';
-        marker.id = `${configType}-marker-${groupId}`;
-        if (group.iconUrl) marker.style.backgroundImage = `url(${group.iconUrl})`;
-        else marker.textContent = groupId;
-        marker.addEventListener('click', () => openGroupSelector(configType, groupId));
-        mapContainer.appendChild(marker);
-
-        const item = document.createElement('div');
-        item.className = 'config-item';
-        item.innerHTML = `<span class="config-item-label">${group.name}</span>`;
-        const buttons = document.createElement('div');
-        buttons.className = 'pattern-buttons';
-        buttons.id = `${configType}-buttons-${groupId}`;
-        ['A', 'B', 'C'].forEach(pattern => {
-            const btn = document.createElement('button');
-            btn.textContent = pattern;
-            btn.addEventListener('click', () => updateConfig(configType, groupId, pattern));
-            buttons.appendChild(btn);
-        });
-        item.appendChild(buttons);
-        listContainer.appendChild(item);
-    }
-    setTimeout(() => updateMapLayout(`${configType}-map-container`), 100);
-}
-
-function switchInputView(configType, viewType) {
-    document.getElementById(`${configType}-map-tab`).classList.toggle('active', viewType === 'map');
-    document.getElementById(`${configType}-list-tab`).classList.toggle('active', viewType === 'list');
-    document.getElementById(`${configType}-map-view`).classList.toggle('active', viewType === 'map');
-    document.getElementById(`${configType}-list-view`).classList.toggle('active', viewType === 'list');
-    if (viewType === 'map') setTimeout(() => updateMapLayout(`${configType}-map-container`), 50);
-}
-
-function openGroupSelector(configType, groupId) {
-    activeSelection = { configType, groupId };
-    document.getElementById('zoom-title').textContent = `${eliteGroups[groupId].name} のパターンを選択`;
-    const zoomContainer = document.getElementById('zoom-map-container');
-    const zoomMapImage = zoomContainer.querySelector('img');
-    if (zoomMapImage && eliteGroups[groupId].zoomMapUrl) {
-        setupImageLoader(zoomMapImage);
-        zoomMapImage.src = eliteGroups[groupId].zoomMapUrl;
-    }
-
-    zoomContainer.querySelectorAll('.pattern-marker').forEach(m => m.remove());
-    const selectedPattern = (configType === 'current' ? currentConfig : idealConfig)[groupId];
-
-    ['A', 'B', 'C'].forEach(pattern => {
-        const pos = patternMarkerPositions[groupId]?.[pattern];
-        if (!pos) return;
-
-        const marker = document.createElement('div');
-        marker.className = 'pattern-marker';
-        marker.innerHTML = `<span class="pattern-label">${pattern}</span>`;
-        if (pattern === selectedPattern) {
-            marker.classList.add('completed');
-            marker.innerHTML = '✔';
-        }
-
-        const topValue = 100 - parseFloat(pos.bottom);
-        const leftValue = 100 - parseFloat(pos.right);
-        marker.style.top = `${topValue}%`;
-        marker.style.left = `${leftValue}%`;
-
-        marker.addEventListener('click', () => selectPatternForConfirmation(pattern));
-        zoomContainer.appendChild(marker);
-    });
-    showModal('zoom-view');
-}
-        
-function selectPatternForConfirmation(pattern) {
-    activeSelection.pattern = pattern;
-    const groupName = eliteGroups[activeSelection.groupId].name;
-    document.getElementById('screenshot-title').textContent = `${groupName} - パターン ${pattern} で合っていますか？`;
-    
-    const screenshotImg = document.getElementById('screenshot-img');
-    const imageUrl = screenshotImageUrls[activeSelection.groupId]?.[activeSelection.pattern];
-     if (imageUrl) {
-        setupImageLoader(screenshotImg);
-        screenshotImg.src = imageUrl;
-     } else {
-        setupImageLoader(screenshotImg);
-        screenshotImg.src = `https://placehold.co/500x300/ff0000/ffffff?text=Image+Not+Found`;
-     }
-    document.getElementById('confirm-pattern-btn').onclick = confirmPatternSelection;
-    showModal('screenshot-popup');
-}
-
-function confirmPatternSelection() {
-    const { configType, groupId, pattern } = activeSelection;
-    if (configType && groupId && pattern) updateConfig(configType, groupId, pattern);
-    closeModal('screenshot-popup');
-    closeModal('zoom-view');
-}
-
-function updateConfig(configType, groupId, pattern) {
-    const configToUpdate = (configType === 'current') ? currentConfig : idealConfig;
-    configToUpdate[groupId] = pattern;
-    
-    document.getElementById(`${configType}-marker-${groupId}`).classList.remove('glowing');
-    document.getElementById(`${configType}-marker-${groupId}`).classList.add('completed');
-    document.getElementById(`${configType}-marker-${groupId}`).innerHTML = '✔';
-    
-    document.getElementById(`${configType}-buttons-${groupId}`).querySelectorAll('button').forEach(btn => {
-        btn.classList.toggle('selected', btn.textContent === pattern);
-    });
-    
-    if (configType === 'current') {
-        updateProgress();
-    } else if (configType === 'ideal') {
-        updateIdealProgress();
-    }
-    updateGuideTextVisibility();
-}
-
-function updateProgress() {
-    const completedCount = Object.keys(currentConfig).length;
-    document.getElementById('progress-text').textContent = `入力完了: ${completedCount} / ${totalGroups}`;
-    document.getElementById('go-to-ideal-btn').disabled = completedCount !== totalGroups;
-}
-
-function setRecommendedConfig() {
-    for (const groupId in recommendedConfig) updateConfig('ideal', groupId, recommendedConfig[groupId]);
-}
-
-function copyCurrentConfigToIdeal() {
-    for (const groupId in currentConfig) {
-        if (Object.hasOwnProperty.call(currentConfig, groupId)) {
-            const pattern = currentConfig[groupId];
-            updateConfig('ideal', groupId, pattern);
-        }
-    }
-}
-
-function resetApp() {
-    currentConfig = {};
-    idealConfig = {};
-    initInputPage('current');
-    initInputPage('ideal');
-    updateProgress();
-    updateIdealProgress();
-    updateGuideTextVisibility();
-    showPage('start-page');
-}
-
-function updateMapLayout(containerId) {
-    const mapContainer = document.getElementById(containerId);
-    if (!mapContainer || !mapContainer.offsetParent) return;
-
-    const mapImage = mapContainer.querySelector('.map-bg');
-    const markers = mapContainer.querySelectorAll('.map-marker');
-
-    if (mapImage.complete && mapImage.naturalWidth > 0) {
-        const containerRect = mapContainer.getBoundingClientRect();
-        const imageAspectRatio = mapImage.naturalWidth / mapImage.naturalHeight;
-        const containerAspectRatio = containerRect.width / containerRect.height;
-
-        let renderedWidth, renderedHeight, offsetX, offsetY;
-
-        if (imageAspectRatio > containerAspectRatio) {
-            renderedWidth = containerRect.width;
-            renderedHeight = containerRect.width / imageAspectRatio;
-            offsetX = 0;
-            offsetY = (containerRect.height - renderedHeight) / 2;
-        } else {
-            renderedHeight = containerRect.height;
-            renderedWidth = containerRect.height * imageAspectRatio;
-            offsetX = (containerRect.width - renderedWidth) / 2;
-            offsetY = 0;
-        }
-        
-        markers.forEach(marker => {
-            const groupId = marker.id.split('-')[2];
-            const pos = markerPositions[groupId];
-            if (pos) {
-                const newLeft = offsetX + (renderedWidth * (parseFloat(pos.left) / 100));
-                const newTop = offsetY + (renderedHeight * (parseFloat(pos.top) / 100));
-                
-                marker.style.left = `${newLeft - marker.offsetWidth / 2}px`;
-                marker.style.top = `${newTop - marker.offsetHeight / 2}px`;
-            }
-        });
-    }
-}
-function updateGuideTextVisibility() {
-    const isCurrentAnyConfigStarted = Object.keys(currentConfig).length > 0;
-    const isIdealAnyConfigStarted = Object.keys(idealConfig).length > 0;
-    document.querySelector('#current-map-container .map-guide-text').classList.toggle('hidden', isCurrentAnyConfigStarted);
-    document.querySelector('#ideal-map-container .map-guide-text').classList.toggle('hidden', isIdealAnyConfigStarted);
-}
-
-function updateIdealProgress() {
-    const completedCount = Object.keys(idealConfig).length;
-    document.getElementById('ideal-progress-text').textContent = `入力完了: ${completedCount} / ${totalGroups}`;
-}
-
-function fillAllConfigs(pattern) {
-    for (const groupId of groupKeys) {
-        updateConfig('current', groupId, pattern);
-    }
-}
-
-
-// --- CALCULATION LOGIC ---
-function configToString(config) {
-    return groupKeys.map(key => config[key]).join('');
-}
-
-function generatePossibleDailyActions() {
-    const achievablePatterns = new Map();
-    achievablePatterns.set(JSON.stringify([]), { name: '何もしない', affectedGroups: new Set() });
-    
-    const numActions = actionsData.length;
-    for (let i = 1; i < (1 << numActions); i++) {
-        const currentActions = [];
-        const affectedGroupsSet = new Set();
-        for (let j = 0; j < numActions; j++) {
-            if ((i >> j) & 1) {
-                const action = actionsData[j];
-                currentActions.push(action);
-                action.affectedGroups.forEach(group => affectedGroupsSet.add(group));
-            }
-        }
-        const key = JSON.stringify([...affectedGroupsSet].sort());
-        if (!achievablePatterns.has(key)) {
-            achievablePatterns.set(key, {
-                name: currentActions.map(a => a.name).join(' + '),
-                affectedGroups: affectedGroupsSet
-            });
-        }
-    }
-    possibleDailyActions = Array.from(achievablePatterns.values());
-    console.log(`Generated ${possibleDailyActions.length} unique daily actions.`);
-}
-
-function calculatePlan(isMultiplayer, allowBoat) {
-    if (Object.keys(currentConfig).length !== totalGroups || Object.keys(idealConfig).length === 0) {
-        alert('全ての現在配置と、1つ以上の理想配置を入力してください。');
-        return;
-    }
-    const progressEl = document.getElementById('calculation-progress');
-    progressEl.textContent = '調整パターンの検証を開始...';
-    document.getElementById('loading-text').innerHTML = `<span style="display: block; font-size: 1.1em; font-weight: bold; margin-bottom: 15px;">このツールは、<a href="https://youtu.be/2xqllaCTP5c?si=m9yyxXo5GS0rwFG9" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: bold;">ねこしたさんの解説</a>に基づき、プログラムされました！<br>ぜひ解説動画もご覧ください。</span><span style="font-size: 0.9em; color: var(--secondary-text-color);">計算には数分かかる場合がありますので、しばらくお待ちください。</span>`;
-    showModal('loading-modal');
-    
-    if (calculationTask) clearTimeout(calculationTask);
-
-    let actionsToUse = possibleDailyActions;
-    if (!allowBoat) {
-        actionsToUse = possibleDailyActions.filter(action => !action.name.includes('ボート'));
-    }
-
-    const startConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[currentConfig[k]]])));
-    const endConfigStr = configToString(Object.fromEntries(groupKeys.map(k => [k, PATTERN_MAP[idealConfig[k] || currentConfig[k]]])));
-
-    if (startConfigStr === endConfigStr) {
-        setTimeout(() => {
-            displayResults([], isMultiplayer, allowBoat);
-            closeModal('loading-modal');
-        }, 100);
-        return;
-    }
-
-    const queue = [{ config: startConfigStr, path: [] }];
-    const visited = new Set([startConfigStr]);
-    let verifiedCount = 0;
-
-    const processChunk = () => {
-        const startTime = Date.now();
-        while(queue.length > 0 && (Date.now() - startTime < 50)) {
-            const { config, path } = queue.shift();
-            verifiedCount++;
-
-            if (path.length >= 8) continue;
-
-            let solutionPath = null;
-            // Solo Mode
-            for (const soloAction of actionsToUse) {
-                let nextConfigArr = config.split('').map(Number);
-                for (const group of soloAction.affectedGroups) {
-                    nextConfigArr[groupKeys.indexOf(group)] = (nextConfigArr[groupKeys.indexOf(group)] + 1) % 3;
-                }
-                const nextConfigStr = nextConfigArr.join('');
-                if (nextConfigStr === endConfigStr) {
-                    solutionPath = [...path, { holdAction: { name: '---' }, advanceAction: soloAction, mode: 'ソロ' }];
-                    break;
-                }
-                if (!visited.has(nextConfigStr)) {
-                    visited.add(nextConfigStr);
-                    queue.push({ config: nextConfigStr, path: [...path, { holdAction: { name: '---' }, advanceAction: soloAction, mode: 'ソロ' }] });
-                }
-            }
-            if (solutionPath) {
-                displayResults(solutionPath, isMultiplayer, allowBoat);
-                closeModal('loading-modal');
-                return;
-            }
-
-            // Multiplayer Mode
-            if (isMultiplayer) {
-                for (const holdAction of actionsToUse) {
-                    for (const advanceAction of actionsToUse) {
-                        const effectiveAdvance = new Set([...advanceAction.affectedGroups].filter(x => !holdAction.affectedGroups.has(x)));
-                        if (effectiveAdvance.size === 0) continue;
-                        
-                        let nextConfigArr = config.split('').map(Number);
-                        for (const group of effectiveAdvance) {
-                             nextConfigArr[groupKeys.indexOf(group)] = (nextConfigArr[groupKeys.indexOf(group)] + 1) % 3;
-                        }
-                        const nextConfigStr = nextConfigArr.join('');
-                        if (nextConfigStr === endConfigStr) {
-                            solutionPath = [...path, { holdAction, advanceAction, mode: 'マルチ' }];
-                            break;
-                        }
-                        if (!visited.has(nextConfigStr)) {
-                            visited.add(nextConfigStr);
-                            queue.push({ config: nextConfigStr, path: [...path, { holdAction, advanceAction, mode: 'マルチ' }] });
-                        }
-                    }
-                    if (solutionPath) break;
-                }
-            }
-            if (solutionPath) {
-                displayResults(solutionPath, isMultiplayer, allowBoat);
-                closeModal('loading-modal');
-                return;
-            }
-        }
-
-        if (queue.length > 0) {
-            progressEl.textContent = `検証済みパターン: ${verifiedCount} / 59049`;
-            calculationTask = setTimeout(processChunk, 0);
-        } else {
-            displayResults(null, isMultiplayer, allowBoat);
-            closeModal('loading-modal');
-        }
-    };
-    
-    calculationTask = setTimeout(processChunk, 0);
-}
-
-
-// --- RESULT DISPLAY ---
-function displayResults(plan, isMultiplayer, allowBoat) {
-    lastCalculatedPlan = plan; 
-    const tbody = document.getElementById('result-tbody');
-    tbody.innerHTML = '';
-    
-    const summaryEl = document.getElementById('result-summary');
-    const soloNoticeEl = document.getElementById('solo-mode-notice');
-    
-    const alternateCalcBtn = document.getElementById('recalculate-alternate-mode-btn');
-    if (isMultiplayer) {
-        alternateCalcBtn.textContent = '周期ホールドOFFで再計算';
-        alternateCalcBtn.onclick = () => calculatePlan(false, allowBoat);
-        alternateCalcBtn.className = 'btn btn-primary';
-        soloNoticeEl.style.display = 'none';
-    } else {
-        alternateCalcBtn.textContent = '周期ホールドONで再計算';
-        alternateCalcBtn.onclick = () => calculatePlan(true, allowBoat);
-        alternateCalcBtn.className = 'btn btn-multi';
-        soloNoticeEl.style.display = '';
-    }
-
-    let summaryText = '';
-    if (plan === null) {
-        summaryText = '8日以内に完了する調整プランは見つかりませんでした。';
-    } else if (plan.length === 0) {
-        summaryText = '調整は不要です！';
-    } else {
-        summaryText = `最短 ${plan.length} 日で調整が完了します！`;
-    }
-    
-    summaryEl.innerHTML = summaryText;
-    alternateCalcBtn.style.display = 'block';
-
-    if (plan !== null && plan.length > 0) {
-        document.getElementById('save-plan-btn').style.display = '';
-        plan.forEach((day, index) => {
-            const tr = document.createElement('tr');
-            const modeClass = day.mode === 'ソロ' ? 'mode-solo' : 'mode-multi';
-            tr.innerHTML = `
-                <td>${index + 1}日目</td>
-                <td><span class="${modeClass}">${day.mode}</span></td>
-                <td>${day.holdAction.name}</td>
-                <td>${day.advanceAction.name}</td>
-                <td><button class="btn btn-details" data-day-index="${index}">手順を確認</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } else {
-        document.getElementById('save-plan-btn').style.display = 'none';
-        alternateCalcBtn.style.display = 'none';
-        if(plan === null) {
-            alternateCalcBtn.style.display = 'block';
-        }
-    }
-
-
-    showPage('result-page');
-    
-    const resultPage = document.getElementById('result-page');
-    resultPage.scrollTop = 0;
-
-    setTimeout(updateScrollIndicator, 150); 
-}
-
-function showDayDetail(dayData, dayNumber) {
-    const titleEl = document.getElementById('day-detail-title');
-    const contentEl = document.getElementById('day-detail-content');
-    
-    titleEl.textContent = `${dayNumber}日目の手順詳細`;
-    
-        let contentHTML = '<p style="text-align:center; color: var(--secondary-text-color);"><strong>【重要】</strong>「歩き」や「ボート」での移動は、<strong>ルートを慎重に確認し、閑雲や放浪者のような高速移動キャラは使用しないでください。</strong></p>';
-
-    if (dayData.mode === 'ソロ') {
-        contentHTML += `<h3>ソロモードでの行動</h3>`;
-        contentHTML += generateActionDetailsHTML(dayData.advanceAction, "1P (ホスト)");
-    } else {
-        const effectiveAdvanceGroups = new Set([...dayData.advanceAction.affectedGroups].filter(x => !dayData.holdAction.affectedGroups.has(x)));
-
-        contentHTML += `<h3>マルチモード（周期ホールド）での行動</h3>`;
-        
-        contentHTML += `<h4>Step 1: 準備</h4>
-                        <p>ホスト(1P)は鶴観以外の安全な場所に移動し、ゲスト(2P)を世界に招き入れます。</p>`;
-        
-        contentHTML += `<h4>Step 2: 周期のホールド (ゲストの操作)</h4>`;
-        if (dayData.holdAction.name === '何もしない' || dayData.holdAction.name === '---') {
-             contentHTML += `<p><strong>行動:</strong> なし</p><p>この日はゲスト(2P)の操作は不要です。</p>`;
-        } else {
-            contentHTML += `<p><strong>[重要]</strong> まずホスト(1P)が層岩巨淵・地下鉱区など、<strong>テイワット以外のマップに移動</strong>するのを待ちます。</p>`;
-            contentHTML += `<p>ホストの移動後、ゲスト(2P)は以下の行動で指定されたグループの周期を<strong>ホールド(固定)</strong>します。</p>`;
-            contentHTML += generateActionDetailsHTML(dayData.holdAction, "2P (ゲスト)");
-            contentHTML += `<p><strong>[重要]</strong> ゲストは上記行動を終えたら、速やかにホストの世界から退出してください。</p>`;
-        }
-        
-        contentHTML += `<h4 style="margin-top: 25px;">Step 3: 周期の進行 (ホストの操作)</h4>`;
-        if (dayData.advanceAction.name === '何もしない' || dayData.advanceAction.name === '---' || effectiveAdvanceGroups.size === 0) {
-            contentHTML += `<p><strong>行動:</strong> なし</p><p>ホストの特別な行動は不要です。日付が変わるのを待ってください。</p>`;
-        } else {
-            contentHTML += `<p>ゲストが退出してソロ状態に戻った後、ホスト(1P)は以下の行動で、ゲストが<strong>ホールドしなかった</strong>グループの周期を1つ<strong>進めます</strong>。</p>`;
-            const effectiveAdvanceAction = {
-                name: dayData.advanceAction.name,
-                affectedGroups: effectiveAdvanceGroups
-            };
-            contentHTML += generateActionDetailsHTML(effectiveAdvanceAction, "1P (ホスト)");
-        }
-    }
-
-    contentEl.innerHTML = contentHTML;
-
-    contentEl.querySelectorAll('.image-container img').forEach(img => {
-        setupImageLoader(img);
-    });
-
-    showModal('day-detail-modal');
-}
-
-function generateActionDetailsHTML(actionData, playerRole) {
-    if (!actionData || !actionData.name || actionData.name === '---' || actionData.name === '何もしない') return '<p>特別な行動は不要です。</p>';
-    
-    const actions = actionData.name.split(' + ');
-    const affectedGroupsList = Array.from(actionData.affectedGroups).map(key => 
-        `「${eliteGroups[key].name}」`
-    ).join('、');
-
-    let html = `
-        <p><strong>実行する行動:</strong> ${actions.join(', ')}</p>
-        <p><strong>影響を受けるグループ:</strong> ${affectedGroupsList}</p>
-        <ul>`;
-
-    actions.forEach(actionName => {
-        const action = actionsData.find(a => a.name === actionName);
-        if (!action) return;
-
-        const details = actionDetails[action.id] || {};
-        const detailText = details.note || 'ワープポイントに移動し、ロードが完了したらすぐ他の場所に移動します。影響範囲を広げないよう、ロード後の移動は不要です。';
-        
-        html += `<li><strong>${actionName}</strong><p>${detailText.replace(/\n/g, '<br>')}</p>`;
-        
-        if (details.images && details.images.length > 0) {
-            details.images.forEach(imgUrl => {
-                html += `<div class="image-container">
-                             <div class="image-loader">読み込み中...</div>
-                             <img src="${imgUrl}" alt="${actionName} のルート図">
-                         </div>`;
-            });
-        }
-
-        if (details.videoUrl && details.videoUrl.startsWith('https://')) {
-            try {
-                const url = new URL(details.videoUrl);
-                let videoId = url.searchParams.get('v');
-                if (!videoId && (url.hostname === 'youtu.be' || url.hostname === 'www.youtu.be')) {
-                    const pathParts = url.pathname.split('/');
-                    videoId = pathParts[pathParts.length - 1];
-                }
-                
-                if (videoId) {
-                    const timestamp = url.searchParams.get('t') || url.searchParams.get('si');
-                    let embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                    if (timestamp) {
-                         const timeParts = timestamp.split('t=');
-                         if(timeParts.length > 1) {
-                             embedUrl += `?start=${timeParts[1].replace('s', '')}`;
-                         }
-                    }
-
-                    html += `
-                        <p style="margin-top:15px;"><strong>参考動画:</strong></p>
-                        <div class="video-container">
-                            <iframe 
-                                src="${embedUrl}" 
-                                title="YouTube video player" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                        </div>`;
-                }
-            } catch(e) { console.error("Invalid video URL:", details.videoUrl); }
-        }
-
-        html += `</li>`;
-    });
-    html += '</ul>';
-    return html;
-}
-
-// ===== ▼▼▼ ここからがバグ修正箇所 (JS Function) ▼▼▼ =====
-/**
- * スクロール矢印をbodyの直下に移動させる関数
- */
-function ensureScrollIndicatorIsInBody() {
-  const indicator = document.getElementById('scroll-indicator');
-  if (!indicator) return;
-  // 親がbodyでなければ、bodyの末尾に移動させる
-  if (indicator.parentElement !== document.body) {
-    document.body.appendChild(indicator);
-  }
-}
-
-function updateScrollIndicator() {
-    const resultPage = document.getElementById('result-page');
-    const scrollIndicator = document.getElementById('scroll-indicator');
-    if (!resultPage || !scrollIndicator) return;
-
-    // もしリザルトページがアクティブでなければ、矢印を隠して処理を終了
-    if (!resultPage.classList.contains('active')) {
-        scrollIndicator.classList.add('hidden');
-        return;
-    }
-
-    const resultPageCanScroll = resultPage.scrollHeight > resultPage.clientHeight;
-    const scrollContainer = resultPageCanScroll ? resultPage : (document.scrollingElement || document.documentElement);
-    const isScrollable = scrollContainer.scrollHeight > scrollContainer.clientHeight;
-    const scrollTop = (scrollContainer === resultPage) ? resultPage.scrollTop : (document.scrollingElement ? document.scrollingElement.scrollTop : document.documentElement.scrollTop);
-    const isAtTop = scrollTop < 50;
-
-    if (isScrollable && isAtTop) {
-        scrollIndicator.classList.remove('hidden');
-    } else {
-        scrollIndicator.classList.add('hidden');
-    }
-}
-// ===== ▲▲▲ ここまでがバグ修正箇所 (JS Function) ▲▲▲ =====
-
-
-// --- SAVE/LOAD LOGIC ---
-function getSavedPlans() {
-    try {
-        const plansJSON = localStorage.getItem('tsurumiSavedPlans');
-        return plansJSON ? JSON.parse(plansJSON) : [];
-    } catch (e) {
-        console.error("Failed to read saved plans:", e);
-        return [];
-    }
-}
-
-function savePlan() {
-    const planName = prompt("この調整プランの名前を入力してください:", "マイプラン " + new Date().toLocaleDateString());
-    if (!planName || planName.trim() === "") {
-        return;
-    }
-
-    const serializablePlan = lastCalculatedPlan.map(day => {
-        return {
-            ...day,
-            holdAction: {
-                ...day.holdAction,
-                affectedGroups: Array.from(day.holdAction.affectedGroups || [])
-            },
-            advanceAction: {
-                ...day.advanceAction,
-                affectedGroups: Array.from(day.advanceAction.affectedGroups || [])
-            }
-        };
-    });
-
-    const planData = {
-        id: Date.now().toString(),
-        name: planName.trim(),
-        currentConfig: currentConfig,
-        idealConfig: idealConfig,
-        plan: serializablePlan,
-        isMultiplayer: document.getElementById('multiplayer-mode-checkbox').checked,
-        createdAt: new Date().toISOString()
-    };
-
-    try {
-        const savedPlans = getSavedPlans();
-        savedPlans.push(planData);
-        localStorage.setItem('tsurumiSavedPlans', JSON.stringify(savedPlans));
-        alert(`「${planName}」を保存しました。`);
-    } catch (e) {
-        console.error("Failed to save plan:", e);
-        alert("プランの保存に失敗しました。ブラウザのストレージがいっぱいか、プライベートモードになっている可能性があります。");
-    }
-}
-
-function openLoadModal() {
-    renderSavedPlans();
-    showModal('load-plan-modal');
-}
-
-function renderSavedPlans() {
-    const plans = getSavedPlans();
-    const listEl = document.getElementById('saved-plans-list');
-    const noPlansEl = document.getElementById('no-saved-plans');
-    listEl.innerHTML = '';
-
-    if (plans.length === 0) {
-        noPlansEl.style.display = 'block';
-        listEl.style.display = 'none';
-        return;
-    }
-
-    noPlansEl.style.display = 'none';
-    listEl.style.display = '';
-
-    plans.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    plans.forEach(plan => {
-        const li = document.createElement('li');
-        li.className = 'saved-plan-item';
-        li.innerHTML = `
-            <span class="saved-plan-item-name">${plan.name}</span>
-            <div class="saved-plan-item-actions">
-                <button class="btn btn-primary btn-load" data-plan-id="${plan.id}">読込</button>
-                <button class="btn btn-delete" data-plan-id="${plan.id}">削除</button>
-            </div>
-        `;
-        listEl.appendChild(li);
-    });
-
-    listEl.querySelectorAll('.btn-load').forEach(btn => {
-        btn.addEventListener('click', () => loadPlan(btn.dataset.planId));
-    });
-    listEl.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => deletePlan(btn.dataset.planId));
-    });
-}
-
-function loadPlan(planId) {
-    const plans = getSavedPlans();
-    const planToLoad = plans.find(p => p.id === planId);
-
-    if (!planToLoad) {
-        alert("プランの読み込みに失敗しました。");
-        return;
-    }
-
-    const deserializedPlan = planToLoad.plan.map(day => {
-        return {
-            ...day,
-            holdAction: {
-                ...day.holdAction,
-                affectedGroups: new Set(day.holdAction.affectedGroups || [])
-            },
-            advanceAction: {
-                ...day.advanceAction,
-                affectedGroups: new Set(day.advanceAction.affectedGroups || [])
-            }
-        };
-    });
-
-    currentConfig = planToLoad.currentConfig;
-    idealConfig = planToLoad.idealConfig;
-    lastCalculatedPlan = deserializedPlan;
-    document.getElementById('multiplayer-mode-checkbox').checked = planToLoad.isMultiplayer;
-
-    for (const groupId in currentConfig) {
-        updateConfig('current', groupId, currentConfig[groupId]);
-    }
-    for (const groupId in idealConfig) {
-        updateConfig('ideal', groupId, idealConfig[groupId]);
-    }
-
-    displayResults(lastCalculatedPlan, planToLoad.isMultiplayer);
-    closeModal('load-plan-modal');
-}
-
-function deletePlan(planId) {
-    if (!confirm("本当にこのプランを削除しますか？")) {
-        return;
-    }
-
-    let plans = getSavedPlans();
-    plans = plans.filter(p => p.id !== planId);
-
-    try {
-        localStorage.setItem('tsurumiSavedPlans', JSON.stringify(plans));
-        renderSavedPlans();
-    } catch (e) {
-        console.error("Failed to delete plan:", e);
-        alert("プランの削除に失敗しました。");
-    }
-}
-
-function setupImageLoader(imgElement) {
-    const container = imgElement.parentElement;
-    if (!container || !container.classList.contains('image-container')) {
-        console.warn('Image is not inside an .image-container', imgElement);
-        return;
-    }
-
-    container.classList.remove('loaded');
-
-    imgElement.onload = () => {
-        container.classList.add('loaded');
-    };
-
-    imgElement.onerror = () => {
-        const loader = container.querySelector('.image-loader');
-        if (loader) loader.textContent = '画像の読込失敗';
-    };
-    
-    if (imgElement.complete && imgElement.src) {
-        imgElement.onload();
-    }
-}
-</script>
+    <!-- JavaScriptファイルを外部から読み込み -->
+    <!-- データ定義を先に、メインロジックを後に読み込む -->
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
-
-
